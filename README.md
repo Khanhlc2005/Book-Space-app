@@ -12,3 +12,6 @@ Các loại type:
 - feat: Tính năng mới phát triển
 - refactor: Sửa logic code, hoặc bất kì thay đổi gì còn lại đến code
 - style: Các sửa đổi không làm thay đổi nội dung, logic code
+
+Quy tắc đặt tên: từ đầu viết thường + kể từ chữ thứ 2 viết hoa chữ đầu tiên
+VD: searchBarAuthor
