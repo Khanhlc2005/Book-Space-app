@@ -10,6 +10,10 @@ android {
         }
     }
 
+    viewBinding {
+        enable = true;
+    }
+
     defaultConfig {
         applicationId = "com.example.bookspace"
         minSdk = 22
