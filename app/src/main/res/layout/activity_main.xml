@@ -28,6 +28,7 @@
 
         <!-- App Logo Icon -->
         <ImageView
+            android:id="@+id/imgAppLogo"
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:src="@drawable/ic_menu_book"
@@ -36,6 +37,7 @@
 
         <!-- App Title -->
         <TextView
+            android:id="@+id/txtAppTitle"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
@@ -103,6 +105,7 @@
                  SEARCH BAR — "Floating" pill style
                  ════════════════════════════════════════════ -->
             <androidx.cardview.widget.CardView
+                android:id="@+id/searchBarCard"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginHorizontal="24dp"
@@ -119,6 +122,7 @@
                     android:paddingHorizontal="20dp">
 
                     <ImageView
+                        android:id="@+id/iconSearch"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@android:drawable/ic_menu_search"
@@ -159,6 +163,7 @@
                     android:orientation="horizontal">
 
                     <TextView
+                        android:id="@+id/chipAll"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/chip_active_bg"
@@ -170,6 +175,7 @@
                         android:fontFamily="sans-serif-medium" />
 
                     <TextView
+                        android:id="@+id/chipLifeSkills"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/chip_bg"
@@ -182,6 +188,7 @@
                         android:fontFamily="sans-serif-medium" />
 
                     <TextView
+                        android:id="@+id/chipPsychology"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/chip_bg"
@@ -194,6 +201,7 @@
                         android:fontFamily="sans-serif-medium" />
 
                     <TextView
+                        android:id="@+id/chipClassic"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/chip_bg"
@@ -206,6 +214,7 @@
                         android:fontFamily="sans-serif-medium" />
 
                     <TextView
+                        android:id="@+id/chipEconomics"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/chip_bg"
@@ -218,6 +227,7 @@
                         android:fontFamily="sans-serif-medium" />
 
                     <TextView
+                        android:id="@+id/chipLiterature"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/chip_bg"
@@ -235,6 +245,7 @@
                  FEATURED SECTION — ViewPager-style cards
                  ════════════════════════════════════════════ -->
             <TextView
+                android:id="@+id/txtSectionFeatured"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/section_featured"
@@ -245,6 +256,7 @@
                 android:layout_marginBottom="20dp" />
 
             <HorizontalScrollView
+                android:id="@+id/featuredScrollView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:scrollbars="none"
@@ -259,6 +271,7 @@
 
                     <!-- ── Featured Card 1: Editor's Choice ── -->
                     <FrameLayout
+                        android:id="@+id/featuredCard1"
                         android:layout_width="300dp"
                         android:layout_height="240dp"
                         android:layout_marginEnd="16dp">
@@ -287,6 +300,7 @@
                             android:padding="24dp">
 
                             <TextView
+                                android:id="@+id/txtFeaturedLabel1"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/featured_label_editor"
@@ -298,6 +312,7 @@
                                 android:layout_marginBottom="8dp" />
 
                             <TextView
+                                android:id="@+id/txtFeaturedTitle1"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/featured_title_1"
@@ -308,6 +323,7 @@
                                 android:layout_marginBottom="8dp" />
 
                             <TextView
+                                android:id="@+id/txtFeaturedDesc1"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/featured_desc_1"
@@ -321,6 +337,7 @@
 
                     <!-- ── Featured Card 2: New Arrival ── -->
                     <FrameLayout
+                        android:id="@+id/featuredCard2"
                         android:layout_width="300dp"
                         android:layout_height="240dp">
 
@@ -348,6 +365,7 @@
                             android:padding="24dp">
 
                             <TextView
+                                android:id="@+id/txtFeaturedLabel2"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/featured_label_new"
@@ -359,6 +377,7 @@
                                 android:layout_marginBottom="8dp" />
 
                             <TextView
+                                android:id="@+id/txtFeaturedTitle2"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/featured_title_2"
@@ -369,6 +388,7 @@
                                 android:layout_marginBottom="8dp" />
 
                             <TextView
+                                android:id="@+id/txtFeaturedDesc2"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/featured_desc_2"
@@ -394,6 +414,7 @@
                 android:layout_marginBottom="20dp">
 
                 <TextView
+                    android:id="@+id/txtSectionRecent"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
@@ -417,6 +438,7 @@
 
             <!-- ── Book Grid (2 columns x 2 rows) ── -->
             <GridLayout
+                android:id="@+id/bookGrid"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:columnCount="2"
@@ -426,6 +448,7 @@
 
                 <!-- ── Book 1: Kiêu hãnh và định kiến ── -->
                 <LinearLayout
+                    android:id="@+id/bookCard1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -451,6 +474,7 @@
                     </androidx.cardview.widget.CardView>
 
                     <TextView
+                        android:id="@+id/txtBookTitle1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/book_title_1"
@@ -463,6 +487,7 @@
                         android:layout_marginBottom="4dp" />
 
                     <TextView
+                        android:id="@+id/txtBookAuthor1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/book_author_1"
@@ -473,6 +498,7 @@
 
                 <!-- ── Book 2: Chiến tranh và hòa bình ── -->
                 <LinearLayout
+                    android:id="@+id/bookCard2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -498,6 +524,7 @@
                     </androidx.cardview.widget.CardView>
 
                     <TextView
+                        android:id="@+id/txtBookTitle2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/book_title_2"
@@ -510,6 +537,7 @@
                         android:layout_marginBottom="4dp" />
 
                     <TextView
+                        android:id="@+id/txtBookAuthor2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/book_author_2"
@@ -520,6 +548,7 @@
 
                 <!-- ── Book 3: Đắc nhân tâm ── -->
                 <LinearLayout
+                    android:id="@+id/bookCard3"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -545,6 +574,7 @@
                     </androidx.cardview.widget.CardView>
 
                     <TextView
+                        android:id="@+id/txtBookTitle3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/book_title_3"
@@ -557,6 +587,7 @@
                         android:layout_marginBottom="4dp" />
 
                     <TextView
+                        android:id="@+id/txtBookAuthor3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/book_author_3"
@@ -567,6 +598,7 @@
 
                 <!-- ── Book 4: Cội nguồn ── -->
                 <LinearLayout
+                    android:id="@+id/bookCard4"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -592,6 +624,7 @@
                     </androidx.cardview.widget.CardView>
 
                     <TextView
+                        android:id="@+id/txtBookTitle4"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/book_title_4"
@@ -604,6 +637,7 @@
                         android:layout_marginBottom="4dp" />
 
                     <TextView
+                        android:id="@+id/txtBookAuthor4"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/book_author_4"
