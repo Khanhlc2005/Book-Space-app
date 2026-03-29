@@ -15,10 +15,10 @@
 
     <!-- Featured Section -->
     <string name="section_featured">Nổi bật trong tuần</string>
-    <string name="featured_label_editor">EDITOR\'S CHOICE</string>
+    <string name="featured_label_editor">LỰA CHỌN CỦA BIÊN TẬP</string>
     <string name="featured_title_1">Nghệ thuật của sự tĩnh lặng</string>
     <string name="featured_desc_1">Khám phá sức mạnh của việc dừng lại trong một thế giới không bao giờ ngừng nghỉ.</string>
-    <string name="featured_label_new">NEW ARRIVAL</string>
+    <string name="featured_label_new">MỚI ĐẾN</string>
     <string name="featured_title_2">Hành trình tâm thức</string>
     <string name="featured_desc_2">Một cái nhìn sâu sắc vào tâm lý học hiện đại và sự phát triển cá nhân.</string>
 
@@ -37,9 +37,9 @@
     <string name="book_author_4">Dan Brown</string>
 
     <!-- Bottom Nav -->
-    <string name="nav_home">HOME</string>
-    <string name="nav_library">LIBRARY</string>
-    <string name="nav_reader">READER</string>
+    <string name="nav_home">TRANG CHỦ</string>
+    <string name="nav_library">THƯ VIỆN</string>
+    <string name="nav_reader">ĐỌC SÁCH</string>
 
     <!-- Content Descriptions -->
     <string name="cd_notification">Thông báo</string>
