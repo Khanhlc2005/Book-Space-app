@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Newsreader:ital,wght@0,400;0,600;0,700;1,400;1,600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary-fixed": "#341100",
+              "surface-dim": "#dcd9d9",
+              "tertiary-fixed-dim": "#ffb692",
+              "on-secondary-fixed": "#002020",
+              "secondary-fixed-dim": "#aacdcc",
+              "surface-container-low": "#f6f3f2",
+              "primary-container": "#008080",
+              "inverse-on-surface": "#f3f0ef",
+              "error": "#ba1a1a",
+              "on-secondary-container": "#476868",
+              "surface-container": "#f0eded",
+              "on-primary-fixed-variant": "#004f4f",
+              "surface-variant": "#e5e2e1",
+              "background": "#fcf9f8",
+              "secondary-fixed": "#c5e9e9",
+              "on-primary-fixed": "#002020",
+              "secondary": "#436464",
+              "on-error-container": "#93000a",
+              "outline-variant": "#bdc9c8",
+              "outline": "#6e7979",
+              "surface-tint": "#006a6a",
+              "on-secondary": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "tertiary": "#8b4823",
+              "on-error": "#ffffff",
+              "primary-fixed": "#93f2f2",
+              "on-tertiary-container": "#fff9f7",
+              "on-secondary-fixed-variant": "#2b4c4c",
+              "inverse-primary": "#76d6d5",
+              "on-primary": "#ffffff",
+              "on-background": "#1c1b1b",
+              "surface-container-high": "#eae7e7",
+              "inverse-surface": "#313030",
+              "primary-fixed-dim": "#76d6d5",
+              "primary": "#006565",
+              "surface-container-highest": "#e5e2e1",
+              "on-surface": "#1c1b1b",
+              "secondary-container": "#c2e7e6",
+              "tertiary-fixed": "#ffdbcb",
+              "on-tertiary-fixed-variant": "#733512",
+              "surface-bright": "#fcf9f8",
+              "error-container": "#ffdad6",
+              "on-primary-container": "#e3fffe",
+              "surface-container-lowest": "#ffffff",
+              "on-surface-variant": "#3e4949",
+              "surface": "#fcf9f8"
+            },
+            fontFamily: {
+              "headline": ["Newsreader"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .editorial-shadow { box-shadow: 0px 12px 32px rgba(28, 27, 27, 0.06); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-stone-900/80 backdrop-blur-md shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-teal-600 dark:text-teal-400">menu_book</span>
+<span class="text-2xl font-['Newsreader'] italic text-teal-700 dark:text-teal-300 font-semibold tracking-tight">Book Space</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-stone-100/50 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container/20">
+<img alt="User Profile" data-alt="Close up portrait of a smiling young professional man with short dark hair in a clean minimalist studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChsxoWmzwCRstgLqcTDca1SbPewXFrd0uJ5OY1FXuxAbdAscBM9j6kIhXhpstpImEZ9gAb_dxSYbqQ89m8NaPr6el5OQ5Z2YUeNfDh0DY4W0jb1KgYJVGAhvrANoMbLUrLg6s2DwyywmvegE394jntrgSqpxeej_IVKMPbHm8FqQoKbRYehHyNI1CF5738hoct6Bq7hD7ropM4BGBt9-geFXn1Cn9dj1fImBsanHfifcxjGf18spz-dcrPi17FerhLiXzmbr4o2FiP"/>
+</div>
+</div>
+</div>
+</nav>
+<main class="pt-24 pb-32 px-6 max-w-5xl mx-auto">
+<!-- Search Bar -->
+<section class="mb-10">
+<div class="relative group">
+<div class="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">search</span>
+</div>
+<input class="w-full h-14 pl-14 pr-6 bg-surface-container-highest/50 backdrop-blur-xl border-none rounded-full text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary transition-all font-medium" placeholder="Tìm sách, tên tác giả..." type="text"/>
+</div>
+</section>
+<!-- Categories (Chips) -->
+<section class="mb-12">
+<div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
+<button class="px-6 py-2.5 rounded-full bg-primary text-on-primary font-medium whitespace-nowrap">Tất cả</button>
+<button class="px-6 py-2.5 rounded-full bg-surface-container-high text-on-surface-variant hover:bg-primary-container/10 transition-colors whitespace-nowrap">Kỹ năng sống</button>
+<button class="px-6 py-2.5 rounded-full bg-surface-container-high text-on-surface-variant hover:bg-primary-container/10 transition-colors whitespace-nowrap">Tâm lý</button>
+<button class="px-6 py-2.5 rounded-full bg-surface-container-high text-on-surface-variant hover:bg-primary-container/10 transition-colors whitespace-nowrap">Kinh điển</button>
+<button class="px-6 py-2.5 rounded-full bg-surface-container-high text-on-surface-variant hover:bg-primary-container/10 transition-colors whitespace-nowrap">Kinh tế</button>
+<button class="px-6 py-2.5 rounded-full bg-surface-container-high text-on-surface-variant hover:bg-primary-container/10 transition-colors whitespace-nowrap">Văn học</button>
+</div>
+</section>
+<!-- Featured Section (ViewPager Style) -->
+<section class="mb-16">
+<h2 class="font-headline text-3xl font-semibold mb-8 text-on-surface">Nổi bật trong tuần</h2>
+<div class="flex gap-6 overflow-x-auto hide-scrollbar snap-x snap-mandatory pb-4">
+<!-- Featured Card 1 -->
+<div class="flex-none w-[85%] md:w-[600px] snap-start">
+<div class="relative h-[320px] rounded-lg overflow-hidden bg-gradient-to-br from-primary to-primary-container group p-8 flex flex-col justify-end text-on-primary">
+<img alt="Featured Book" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-60 group-hover:scale-105 transition-transform duration-700" data-alt="Atmospheric shot of an open book lying on a wooden table with soft sunlight streaming through a nearby window" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqg1J6P6UJqOunvW8Y70nRZ2ivb6jvSXaR15Po9UMZiBBl-j9JZAt0luYOsoUfi1EA7mKsuzy5YVfRGMxSZKEH1XAMvHeXmMmA_wbCJNb6DiK44q0d7Q9DpX6XiFSRmsFTHcfjOrLF5bULQ8-65FkzkaaUVUZpevLifgYyF5n0Jxis6L8O-ATC9mXBYDrhrWLI-zgofVbMlu9KCmqfWcGbrn2Cm4Cm7JnP-2GfycqP2ky2H-se-wanhviHCJiB-AET0IQqtKG1QRyb"/>
+<div class="relative z-10">
+<span class="label-md uppercase tracking-widest text-on-primary/80 mb-2 block">Editor's Choice</span>
+<h3 class="font-headline text-4xl font-bold leading-tight mb-2">Nghệ thuật của sự tĩnh lặng</h3>
+<p class="font-body opacity-90 max-w-md">Khám phá sức mạnh của việc dừng lại trong một thế giới không bao giờ ngừng nghỉ.</p>
+</div>
+</div>
+</div>
+<!-- Featured Card 2 -->
+<div class="flex-none w-[85%] md:w-[600px] snap-start">
+<div class="relative h-[320px] rounded-lg overflow-hidden bg-gradient-to-br from-tertiary to-tertiary-container group p-8 flex flex-col justify-end text-on-tertiary">
+<img alt="Modern Library" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-50 group-hover:scale-105 transition-transform duration-700" data-alt="Minimalist modern library interior with tall wooden shelves and a single comfortable reading chair in warm lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-2c0Pienj4-mNNwqQG2mmQ0O6F_wr6QA0OOggON4iheQnTZd1ENvBTtJa97wJ0NuMvfr0yTnTe1tEvtSlqup3Qy3QKZgkl-vgLXWllK9RyHKRd7c-31pLnF-yq0Y88UiIzh3V94A92_TW1BX_r9UTZ8NyYgfb9eKhnRL1SW2hn9YdLpyBv_efqKZjakuKPHiy8C8ZMWJpPnbxryw5J0GVE9LmqcF7zlx_uAM-iAPhu4MgVYaa3EE_oYzdI-BL1Y_dK894BbcZ-cRB"/>
+<div class="relative z-10">
+<span class="label-md uppercase tracking-widest text-on-tertiary/80 mb-2 block">New Arrival</span>
+<h3 class="font-headline text-4xl font-bold leading-tight mb-2">Hành trình tâm thức</h3>
+<p class="font-body opacity-90 max-w-md">Một cái nhìn sâu sắc vào tâm lý học hiện đại và sự phát triển cá nhân.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Recently Updated (Grid) -->
+<section>
+<div class="flex justify-between items-end mb-8">
+<h2 class="font-headline text-3xl font-semibold text-on-surface">Mới cập nhật</h2>
+<button class="text-primary font-medium hover:underline">Xem tất cả</button>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12">
+<!-- Book Card 1 -->
+<div class="group">
+<div class="aspect-[3/4] rounded-lg bg-surface-container-low mb-4 overflow-hidden editorial-shadow transition-transform duration-300 group-hover:-translate-y-2">
+<img alt="Book Cover" class="w-full h-full object-cover" data-alt="Cover of a classic book with elegant typography and dark textured background with gold foil details" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5YGPSjxC2jR7_EZjLhMP4FxqBDlIQ-1YdJ01UScnlnj8aqveHHCBg6yk8zvf-fE81Y_KUDmm8Qi4zvfLrbqjE-qzK6bx07CJjb3JRVa-laQOf852LnUtFiIHpb0DKb4tD03IEfIELb3UgfIshp1sE2QTQwU8cnKO9WyOxfkFxRDLNoYxQm9BFq-PQ8Pp87Fu09jhBsfRJRQoktRbJ57vCkKfFjMcNT6ONCKsdCz0TCC-baA31Dzo_20PNSzwJN0WCH3lngBIOtC8e"/>
+</div>
+<h4 class="font-headline text-lg font-semibold text-on-surface line-clamp-2 leading-snug mb-1">Kiêu hãnh và định kiến</h4>
+<p class="text-sm text-on-surface-variant font-medium">Jane Austen</p>
+</div>
+<!-- Book Card 2 -->
+<div class="group">
+<div class="aspect-[3/4] rounded-lg bg-surface-container-low mb-4 overflow-hidden editorial-shadow transition-transform duration-300 group-hover:-translate-y-2">
+<img alt="Modern Novel" class="w-full h-full object-cover" data-alt="Abstract book cover design with vibrant teal and orange geometric shapes and clean sans-serif title" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWy_KmcuwtA9T_j08zde0NMyeMSR76StO9V1aCrsxtyZTR3UileI49aztWJ2Abb0KW9OCjaIifC8eelO4WMsyJbykXUOj62Zco0n7AkwojI_Ty16Prvg9l87r3w7_KKteD5mSwxGNCxOmFl1NsdRMTLcWqe4Rq4xq8SJteX1EGeu6QkwnO-1uMsr6lfUTQGjnmu_ZmSCazPq8YZ_DsbzfwM2rMd3V3TcMdJqc6LqUihOpbOFVOaZWx5ZSg8ubrBcxayk4Q2opayml6"/>
+</div>
+<h4 class="font-headline text-lg font-semibold text-on-surface line-clamp-2 leading-snug mb-1">Chiến tranh và hòa bình</h4>
+<p class="text-sm text-on-surface-variant font-medium">Leo Tolstoy</p>
+</div>
+<!-- Book Card 3 -->
+<div class="group">
+<div class="aspect-[3/4] rounded-lg bg-surface-container-low mb-4 overflow-hidden editorial-shadow transition-transform duration-300 group-hover:-translate-y-2">
+<img alt="Self-help book" class="w-full h-full object-cover" data-alt="Minimalist book cover featuring a single green leaf on a clean white background with elegant serif typography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBh916BRPCGqGuQ1rxfa3oG25jWT3GS5fOoa_PS46jkepHPgC2V6P5VUQo3XD8OzCKl05nzpE07cKlFFL3mTNDGZ0Y_ewZTD7ipeQMncVBtF7sic9Myo-EX93Oq3an6e1DF5uAMLVrTb2w6X2L1CI7xEcRHvM-_kW4OEnbnmeh0-mspMvZOnq9a4Ss28kg_h4oJgsDLeAWK1AU8gKiC0JLrSIlvS9ieE73jFbCFHDBjCzMQoGV2E_E5JYLX8bTlTntPGOa0m19xU5Pd"/>
+</div>
+<h4 class="font-headline text-lg font-semibold text-on-surface line-clamp-2 leading-snug mb-1">Đắc nhân tâm</h4>
+<p class="text-sm text-on-surface-variant font-medium">Dale Carnegie</p>
+</div>
+<!-- Book Card 4 -->
+<div class="group">
+<div class="aspect-[3/4] rounded-lg bg-surface-container-low mb-4 overflow-hidden editorial-shadow transition-transform duration-300 group-hover:-translate-y-2">
+<img alt="Philosophy book" class="w-full h-full object-cover" data-alt="Ancient Greek statue head close-up with dramatic chiaroscuro lighting, used as a book cover image for philosophy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjUpNffG38zrDBBO-5Uwe6HrlSL38zWHZaCfP2jbry3s3EKdMxrxOHHgANx1tQCWGbagJ8gSaRF4E5bV0bYM2hYFt2gGH59GAhT1z0c2YV6Yz3S-XSGAnb-_8MqnOHRk1ruk2MAPguAyAyNlCmaJeKuMCzGVhYXld09mNEIhNm2kK4T9gCGIUQxTL9T59lYZv5EO2jB6_SJjEXha_Ys-BVYw4jObzV6F0yUuvo-zhdMDOq8rsuDZGEWeuPBor3iOstdkjzeKk6tuTp"/>
+</div>
+<h4 class="font-headline text-lg font-semibold text-on-surface line-clamp-2 leading-snug mb-1">Cội nguồn</h4>
+<p class="text-sm text-on-surface-variant font-medium">Dan Brown</p>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full bg-white/80 dark:bg-stone-900/80 backdrop-blur-md z-50 rounded-t-[2rem] shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+<div class="flex justify-around items-center pt-3 pb-8 px-4 w-full">
+<!-- Home (Active) -->
+<a class="flex flex-col items-center justify-center text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-900/30 rounded-full px-5 py-2 active:scale-90 duration-150 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-['Inter'] text-[11px] uppercase tracking-widest font-medium mt-1">Home</span>
+</a>
+<!-- Library -->
+<a class="flex flex-col items-center justify-center text-stone-400 dark:text-stone-500 px-5 py-2 hover:text-teal-600 dark:hover:text-teal-400 active:scale-90 duration-150 transition-all" href="#">
+<span class="material-symbols-outlined">library_books</span>
+<span class="font-['Inter'] text-[11px] uppercase tracking-widest font-medium mt-1">Library</span>
+</a>
+<!-- Reader -->
+<a class="flex flex-col items-center justify-center text-stone-400 dark:text-stone-500 px-5 py-2 hover:text-teal-600 dark:hover:text-teal-400 active:scale-90 duration-150 transition-all" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="font-['Inter'] text-[11px] uppercase tracking-widest font-medium mt-1">Reader</span>
+</a>
+</div>
+</nav>
+</body></html>
