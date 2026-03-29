@@ -1,12 +1,12 @@
 package com.example.bookspace;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -72,8 +73,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Setup chip click behavior
         setupChips();
-        
-        // Let basic custom Bottom Nav selection stay as defined in XML initially
+
+        // Setup bottom navigation
+        setupBottomNav();
     }
 
     /**
@@ -129,8 +131,6 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout chipContainer = binding.chipContainer;
         int chipCount = chipContainer.getChildCount();
 
-        Drawable activeBg = ContextCompat.getDrawable(this, R.drawable.chip_active_bg);
-        Drawable inactiveBg = ContextCompat.getDrawable(this, R.drawable.chip_bg);
         int activeTextColor = ContextCompat.getColor(this, R.color.on_primary);
         int inactiveTextColor = ContextCompat.getColor(this, R.color.on_surface_variant);
 
@@ -153,6 +153,40 @@ public class MainActivity extends AppCompatActivity {
                     ((TextView) v).setTextColor(activeTextColor);
                 });
             }
+        }
+    }
+
+    /**
+     * Setup bottom navigation tab switching.
+     */
+    private void setupBottomNav() {
+        int[][] navSets = {
+                {R.id.nav_home, R.id.icon_home, R.id.text_home},
+                {R.id.nav_library, R.id.icon_library, R.id.text_library},
+                {R.id.nav_reader, R.id.icon_reader, R.id.text_reader}
+        };
+
+        int activeColor = ContextCompat.getColor(this, R.color.teal_600);
+        int inactiveColor = ContextCompat.getColor(this, R.color.nav_inactive);
+
+        for (int[] ids : navSets) {
+            View container = binding.getRoot().findViewById(ids[0]);
+            container.setOnClickListener(v -> {
+                for (int[] other : navSets) {
+                    View otherContainer = binding.getRoot().findViewById(other[0]);
+                    otherContainer.setBackground(null);
+                    ((ImageView) otherContainer.findViewById(other[1]))
+                            .setColorFilter(inactiveColor);
+                    ((TextView) otherContainer.findViewById(other[2]))
+                            .setTextColor(inactiveColor);
+                }
+                v.setBackground(
+                        ContextCompat.getDrawable(this, R.drawable.bottom_nav_active_bg));
+                ((ImageView) v.findViewById(ids[1]))
+                        .setColorFilter(activeColor);
+                ((TextView) v.findViewById(ids[2]))
+                        .setTextColor(activeColor);
+            });
         }
     }
 }

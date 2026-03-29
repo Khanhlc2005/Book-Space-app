@@ -53,7 +53,7 @@
             android:layout_height="40dp"
             android:padding="8dp"
             android:src="@drawable/ic_notifications"
-            app:tint="#476868"
+            app:tint="@color/notification_icon"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/cd_notification" />
 
@@ -694,7 +694,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_library_books"
-                    app:tint="#939a9a" />
+                    app:tint="@color/nav_inactive" />
 
                 <TextView
                     android:id="@+id/text_library"
@@ -702,7 +702,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="@string/nav_library"
-                    android:textColor="#939a9a"
+                    android:textColor="@color/nav_inactive"
                     android:textSize="11sp"
                     android:letterSpacing="0.1"
                     android:textStyle="bold" />
@@ -731,7 +731,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_auto_stories"
-                    app:tint="#939a9a" />
+                    app:tint="@color/nav_inactive" />
 
                 <TextView
                     android:id="@+id/text_reader"
@@ -739,7 +739,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="@string/nav_reader"
-                    android:textColor="#939a9a"
+                    android:textColor="@color/nav_inactive"
                     android:textSize="11sp"
                     android:letterSpacing="0.1"
                     android:textStyle="bold" />
