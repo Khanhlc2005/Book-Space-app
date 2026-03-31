@@ -24,11 +24,6 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
 
-    // Các URL ảnh cho phần Featured
-    private static final String URL_PROFILE = "https://lh3.googleusercontent.com/aida-public/AB6AXuChsxoWmzwCRstgLqcTDca1SbPewXFrd0uJ5OY1FXuxAbdAscBM9j6kIhXhpstpImEZ9gAb_dxSYbqQ89m8NaPr6el5OQ5Z2YUeNfDh0DY4W0jb1KgYJVGAhvrANoMbLUrLg6s2DwyywmvegE394jntrgSqpxeej_IVKMPbHm8FqQoKbRYehHyNI1CF5738hoct6Bq7hD7ropM4BGBt9-geFXn1Cn9dj1fImBsanHfifcxjGf18spz-dcrPi17FerhLiXzmbr4o2FiP";
-    private static final String URL_FEATURED_1 = "https://lh3.googleusercontent.com/aida-public/AB6AXuBqg1J6P6UJqOunvW8Y70nRZ2ivb6jvSXaR15Po9UMZiBBl-j9JZAt0luYOsoUfi1EA7mKsuzy5YVfRGMxSZKEH1XAMvHeXmMmA_wbCJNb6DiK44q0d7Q9DpX6XiFSRmsFTHcfjOrLF5bULQ8-65FkzkaaUVUZpevLifgYyF5n0Jxis6L8O-ATC9mXBYDrhrWLI-zgofVbMlu9KCmqfWcGbrn2Cm4Cm7JnP-2GfycqP2ky2H-se-wanhviHCJiB-AET0IQqtKG1QRyb";
-    private static final String URL_FEATURED_2 = "https://lh3.googleusercontent.com/aida-public/AB6AXuA-2c0Pienj4-mNNwqQG2mmQ0O6F_wr6QA0OOggON4iheQnTZd1ENvBTtJa97wJ0NuMvfr0yTnTe1tEvtSlqup3Qy3QKZgkl-vgLXWllK9RyHKRd7c-31pLnF-yq0Y88UiIzh3V94A92_TW1BX_r9UTZ8NyYgfb9eKhnRL1SW2hn9YdLpyBv_efqKZjakuKPHiy8C8ZMWJpPnbxryw5J0GVE9LmqcF7zlx_uAM-iAPhu4MgVYaa3EE_oYzdI-BL1Y_dK894BbcZ-cRB";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Xử lý System Bar Insets
+        // System Bar Insets
         ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
             binding.topBar.setPadding(binding.topBar.getPaddingLeft(), insets.top + 16, binding.topBar.getPaddingRight(), binding.topBar.getPaddingBottom());
@@ -44,30 +39,32 @@ public class MainActivity extends AppCompatActivity {
             return WindowInsetsCompat.CONSUMED;
         });
 
-        loadStaticImages();
+        setupStaticUI();
         setupChips();
         setupBottomNav();
         setupRecyclerViews();
     }
 
-    private void loadStaticImages() {
-        Glide.with(this).load(URL_PROFILE).circleCrop().into(binding.imgProfile);
-        Glide.with(this).load(URL_FEATURED_1).centerCrop().into(binding.imgFeatured1);
-        Glide.with(this).load(URL_FEATURED_2).centerCrop().into(binding.imgFeatured2);
+    private void setupStaticUI() {
+        // Ảnh profile & featured cards
+        String urlProfile = "https://lh3.googleusercontent.com/aida-public/AB6AXuChsxoWmzwCRstgLqcTDca1SbPewXFrd0uJ5OY1FXuxAbdAscBM9j6kIhXhpstpImEZ9gAb_dxSYbqQ89m8NaPr6el5OQ5Z2YUeNfDh0DY4W0jb1KgYJVGAhvrANoMbLUrLg6s2DwyywmvegE394jntrgSqpxeej_IVKMPbHm8FqQoKbRYehHyNI1CF5738hoct6Bq7hD7ropM4BGBt9-geFXn1Cn9dj1fImBsanHfifcxjGf18spz-dcrPi17FerhLiXzmbr4o2FiP";
+        Glide.with(this).load(urlProfile).circleCrop().into(binding.imgProfile);
+        
+        // Load ảnh cho Featured 1 & 2 (Dùng tạm URL mẫu)
+        Glide.with(this).load("https://picsum.photos/600/400?random=1").centerCrop().into(binding.imgFeatured1);
+        Glide.with(this).load("https://picsum.photos/600/400?random=2").centerCrop().into(binding.imgFeatured2);
     }
 
     private void setupRecyclerViews() {
-        // Dữ liệu mồi cho phần "Mới cập nhật"
+        // Dữ liệu mẫu (Số nhiều và linh hoạt hơn)
         List<Book> listRecent = new ArrayList<>();
-        listRecent.add(new Book(R.drawable.book_cover_bg, "Đắc Nhân Tâm", "Dale Carnegie"));
-        listRecent.add(new Book(R.drawable.book_cover_bg, "Nhà Giả Kim", "Paulo Coelho"));
-        listRecent.add(new Book(R.drawable.book_cover_bg, "Muôn kiếp nhân sinh", "Nguyên Phong"));
+        listRecent.add(new Book("https://picsum.photos/200/300?random=11", "Đắc Nhân Tâm", "Dale Carnegie", 320, "Sách kỹ năng sống hay nhất..."));
+        listRecent.add(new Book("https://picsum.photos/200/300?random=12", "Nhà Giả Kim", "Paulo Coelho", 200, "Hành trình tìm kiếm vận mệnh..."));
+        listRecent.add(new Book("https://picsum.photos/200/300?random=13", "Muôn kiếp nhân sinh", "Nguyên Phong", 450, "Luân hồi và nhân quả..."));
 
-        // Dữ liệu mồi cho phần "Tiểu thuyết"
         List<Book> listNovel = new ArrayList<>();
-        listNovel.add(new Book(R.drawable.book_cover_bg, "Harry Potter", "J.K. Rowling"));
-        listNovel.add(new Book(R.drawable.book_cover_bg, "Chúa tể những chiếc nhẫn", "J.R.R. Tolkien"));
-        listNovel.add(new Book(R.drawable.book_cover_bg, "Sherlock Holmes", "Arthur Conan Doyle"));
+        listNovel.add(new Book("https://picsum.photos/200/300?random=21", "Harry Potter", "J.K. Rowling", 500, "Thế giới phù thủy kỳ bí..."));
+        listNovel.add(new Book("https://picsum.photos/200/300?random=22", "Chúa tể nhẫn", "J.R.R. Tolkien", 1200, "Cuộc chiến giành chiếc nhẫn..."));
 
         binding.rvRecentlyUpdated.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
         binding.rvRecentlyUpdated.setAdapter(new BookAdapter(listRecent));
