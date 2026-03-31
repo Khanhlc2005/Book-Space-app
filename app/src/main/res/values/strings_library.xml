@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    strings_library.xml
+    Merge these entries into your existing res/values/strings.xml
+-->
+<resources>
+
+    <!-- ── Hero Header ── -->
+    <string name="library_sublabel">Thư viện của bạn</string>
+    <string name="library_hero_title">Tiếp tục hành\ntrình</string>
+
+    <!-- ── Tabs ── -->
+    <string name="tab_reading">Đang đọc</string>
+    <string name="tab_favorite">Yêu thích</string>
+
+    <!-- ── Progress labels ── -->
+    <string name="label_read">Đã đọc</string>
+    <string name="progress_45">45%</string>
+    <string name="progress_80">80%</string>
+    <string name="progress_12">12%</string>
+    <string name="progress_60">60%</string>
+
+    <!-- ── Badges ── -->
+    <string name="badge_reading">Đang đọc</string>
+    <string name="badge_almost_done">Sắp hoàn thành</string>
+
+    <!-- ── Book 1: Nghệ Thuật Tư Duy Rành Mạch ── -->
+    <string name="book_title_nghe_thuat">Nghệ Thuật Tư Duy Rành Mạch</string>
+    <string name="book_author_rolf">Rolf Dobelli</string>
+
+    <!-- ── Book 2: Kẻ Trộm Sách ── -->
+    <string name="book_title_ke_trom">Kẻ Trộm Sách</string>
+    <string name="book_author_markus">Markus Zusak</string>
+
+    <!-- ── Book 3: Ikigai ── -->
+    <string name="book_title_ikigai">Ikigai: Đi tìm lý do thức dậy mỗi sáng</string>
+    <string name="book_author_hector">Hector Garcia</string>
+
+    <!-- ── Currently Reading: Suối Nguồn ── -->
+    <string name="book_title_suoi_nguon">Suối Nguồn</string>
+    <string name="book_desc_suoi_nguon">Tiếp tục từ chương 12: Sự trỗi dậy của Howard Roark. Cuốn sách này đang chờ đón những suy ngẫm tiếp theo của bạn.</string>
+    <string name="btn_continue_reading">Đọc tiếp</string>
+
+    <!-- ── Book 5: Nhà Giả Kim ── -->
+    <string name="book_title_nha_gia_kim">Nhà Giả Kim</string>
+    <string name="book_author_paulo">Paulo Coelho</string>
+
+    <!-- ── Accessibility ── -->
+    <string name="cd_add_book">Thêm sách mới</string>
+
+</resources>

@@ -2,80 +2,13 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-
-    <!-- Primary -->
-    <color name="primary">#006565</color>
-    <color name="on_primary">#ffffff</color>
-    <color name="primary_container">#008080</color>
-    <color name="on_primary_container">#e3fffe</color>
-    <color name="primary_fixed">#93f2f2</color>
-    <color name="primary_fixed_dim">#76d6d5</color>
-    <color name="on_primary_fixed">#002020</color>
-    <color name="on_primary_fixed_variant">#004f4f</color>
-    <color name="inverse_primary">#76d6d5</color>
-
-    <!-- Secondary -->
-    <color name="secondary">#436464</color>
-    <color name="on_secondary">#ffffff</color>
-    <color name="secondary_container">#c2e7e6</color>
-    <color name="on_secondary_container">#476868</color>
-    <color name="secondary_fixed">#c5e9e9</color>
-    <color name="secondary_fixed_dim">#aacdcc</color>
-    <color name="on_secondary_fixed">#002020</color>
-    <color name="on_secondary_fixed_variant">#2b4c4c</color>
-
-    <!-- Tertiary -->
-    <color name="tertiary">#8b4823</color>
-    <color name="on_tertiary">#ffffff</color>
-    <color name="tertiary_container">#ffdbcb</color>
-    <color name="on_tertiary_container">#fff9f7</color>
-    <color name="tertiary_fixed">#ffdbcb</color>
-    <color name="tertiary_fixed_dim">#ffb692</color>
-    <color name="on_tertiary_fixed">#341100</color>
-    <color name="on_tertiary_fixed_variant">#733512</color>
-
-    <!-- Error -->
-    <color name="error">#ba1a1a</color>
-    <color name="on_error">#ffffff</color>
-    <color name="error_container">#ffdad6</color>
-    <color name="on_error_container">#93000a</color>
-
-    <!-- Surface tones -->
-    <color name="surface">#fcf9f8</color>
-    <color name="on_surface">#1c1b1b</color>
-    <color name="surface_variant">#e5e2e1</color>
-    <color name="on_surface_variant">#3e4949</color>
-    <color name="surface_dim">#dcd9d9</color>
-    <color name="surface_bright">#fcf9f8</color>
-    <color name="surface_container_lowest">#ffffff</color>
-    <color name="surface_container_low">#f6f3f2</color>
-    <color name="surface_container">#f0eded</color>
-    <color name="surface_container_high">#eae7e7</color>
-    <color name="surface_container_highest">#e5e2e1</color>
-    <color name="surface_tint">#006a6a</color>
-    <color name="inverse_surface">#313030</color>
-    <color name="inverse_on_surface">#f3f0ef</color>
-
-    <!-- Outline -->
-    <color name="outline">#6e7979</color>
-    <color name="outline_variant">#bdc9c8</color>
-
-    <!-- Background -->
-    <color name="background">#fcf9f8</color>
-    <color name="on_background">#1c1b1b</color>
-
-    <!-- Custom alpha colors -->
-    <color name="white_80">#ccffffff</color>
-    <color name="white_90">#e5ffffff</color>
-    <color name="teal_700">#00695C</color>
     <color name="teal_600">#00897B</color>
-    <color name="teal_50">#E0F2F1</color>
-    <color name="nav_inactive">#939a9a</color>
-    <color name="notification_icon">#476868</color>
-
-    <!-- Featured card gradient colors -->
-    <color name="featured_primary_start">#006565</color>
-    <color name="featured_primary_end">#008080</color>
-    <color name="featured_tertiary_start">#8b4823</color>
-    <color name="featured_tertiary_end">#A05A35</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="on_tertiary_container">#E65100</color>
+    <color name="surface_container_low">#F5F5F5</color>
+    <color name="surface_container_highest">#EBEBEB</color>
+    <color name="on_surface">#1C1B1F</color>
+    <color name="on_surface_variant">#49454F</color>
+    <color name="outline">#79747E</color>
+    <color name="white_80">#CCFFFFFF</color>
 </resources>

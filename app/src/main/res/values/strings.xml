@@ -1,49 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Thêm toàn bộ các dòng này vào res/values/strings.xml
+-->
 <resources>
-    <string name="app_name">BookSpace</string>
+
+    <!-- App -->
+    <string name="app_name">Book Space</string>
     <string name="app_title">Book Space</string>
+    <string name="cd_notification">Thông báo</string>
+    <string name="cd_profile">Hồ sơ</string>
+    <string name="cd_book_cover">Bìa sách</string>
+
+    <!-- Hero Header -->
+    <string name="library_sublabel">Thư viện của bạn</string>
+    <string name="library_hero_title_1">Tuyển tập</string>
+    <string name="library_hero_title_2">Cá nhân.</string>
+
+    <!-- Tabs -->
+    <string name="tab_reading">Đang đọc</string>
+    <string name="tab_favorite">Yêu thích</string>
 
     <!-- Search -->
-    <string name="search_hint">Tìm sách, tên tác giả…</string>
+    <string name="search_hint">Tìm kiếm tựa sách...</string>
 
-    <!-- Categories -->
-    <string name="cat_all">Tất cả</string>
-    <string name="cat_life_skills">Kỹ năng sống</string>
-    <string name="cat_psychology">Tâm lý</string>
-    <string name="cat_classic">Kinh điển</string>
-    <string name="cat_economics">Kinh tế</string>
-    <string name="cat_literature">Văn học</string>
+    <!-- Book 1 -->
+    <string name="book_title_nghe_thuat">Nỗi buồn cũ</string>
+    <string name="book_author_rolf">Bảo Ninh</string>
 
-    <!-- Featured Section -->
-    <string name="section_featured">Nổi bật trong tuần</string>
-    <string name="featured_label_editor">EDITOR\'S CHOICE</string>
-    <string name="featured_title_1">Nghệ thuật của sự tĩnh lặng</string>
-    <string name="featured_desc_1">Khám phá sức mạnh của việc dừng lại trong một thế giới không bao giờ ngừng nghỉ.</string>
-    <string name="featured_label_new">NEW ARRIVAL</string>
-    <string name="featured_title_2">Hành trình tâm thức</string>
-    <string name="featured_desc_2">Một cái nhìn sâu sắc vào tâm lý học hiện đại và sự phát triển cá nhân.</string>
+    <!-- Book 2 -->
+    <string name="book_title_suoi_nguon">Suối nguồn</string>
+    <string name="book_author_ayn">Ayn Rand</string>
 
-    <!-- Recently Updated Section -->
-    <string name="section_recent">Mới cập nhật</string>
-    <string name="see_all">Xem tất cả</string>
+    <!-- Book 3 -->
+    <string name="book_title_kafka">Kafka bên bờ biển</string>
+    <string name="book_author_murakami">Haruki Murakami</string>
 
-    <!-- Books -->
-    <string name="book_title_1">Kiêu hãnh và định kiến</string>
-    <string name="book_author_1">Jane Austen</string>
-    <string name="book_title_2">Chiến tranh và hòa bình</string>
-    <string name="book_author_2">Leo Tolstoy</string>
-    <string name="book_title_3">Đắc nhân tâm</string>
-    <string name="book_author_3">Dale Carnegie</string>
-    <string name="book_title_4">Cội nguồn</string>
-    <string name="book_author_4">Dan Brown</string>
+    <!-- Progress labels -->
+    <string name="progress_label_45">ĐÃ ĐỌC 45%</string>
+    <string name="progress_label_12">ĐÃ ĐỌC 12%</string>
+    <string name="progress_label_88">ĐÃ ĐỌC 88%</string>
+
+    <!-- Lời trích hôm nay -->
+    <string name="section_quote_title">Lời trích hôm nay</string>
+    <string name="quote_content">"Chúng ta đều là những kẻ lữ hành trên con đường tìm kiếm bản thân thông qua những trang sách."</string>
+    <string name="quote_source">— Ghi chú biên tập</string>
+
+    <!-- Thống kê đọc -->
+    <string name="section_stats_title">Thống kê đọc</string>
+    <string name="stat_books_count">12</string>
+    <string name="stat_books_label">Sách hoàn thành</string>
+    <string name="stat_hours_count">428</string>
+    <string name="stat_hours_label">Giờ đã đọc</string>
 
     <!-- Bottom Nav -->
     <string name="nav_home">HOME</string>
-    <string name="nav_library">LIBRARY</string>
     <string name="nav_reader">READER</string>
+    <string name="nav_library">LIBRARY</string>
 
-    <!-- Content Descriptions -->
-    <string name="cd_notification">Thông báo</string>
-    <string name="cd_profile">Hồ sơ cá nhân</string>
-    <string name="cd_book_cover">Bìa sách</string>
-    <string name="cd_featured_book">Sách nổi bật</string>
 </resources>
