@@ -1,6 +1,7 @@
 package com.example.bookspace;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -23,6 +24,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
+    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerViews() {
-        // Dữ liệu mẫu (Số nhiều và linh hoạt hơn)
         List<Book> listRecent = new ArrayList<>();
         listRecent.add(new Book("https://picsum.photos/200/300?random=11", "Đắc Nhân Tâm", "Dale Carnegie", 320, "Sách kỹ năng sống hay nhất..."));
         listRecent.add(new Book("https://picsum.photos/200/300?random=12", "Nhà Giả Kim", "Paulo Coelho", 200, "Hành trình tìm kiếm vận mệnh..."));
@@ -96,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     private void setupBottomNav() {
         int[][] navSets = {
                 {R.id.nav_home, R.id.icon_home, R.id.text_home},
@@ -107,18 +109,34 @@ public class MainActivity extends AppCompatActivity {
         int inactiveColor = ContextCompat.getColor(this, R.color.nav_inactive);
 
         for (int[] ids : navSets) {
-            View container = findViewById(ids[0]);
-            container.setOnClickListener(v -> {
-                for (int[] other : navSets) {
-                    View otherContainer = findViewById(other[0]);
-                    otherContainer.setBackground(null);
-                    ((ImageView) otherContainer.findViewById(other[1])).setColorFilter(inactiveColor);
-                    ((TextView) otherContainer.findViewById(other[2])).setTextColor(inactiveColor);
+            try {
+                View container = findViewById(ids[0]);
+                if (container != null) {
+                    container.setOnClickListener(v -> {
+                        try {
+                            for (int[] other : navSets) {
+                                View otherContainer = findViewById(other[0]);
+                                if (otherContainer != null) {
+                                    otherContainer.setBackground(null);
+                                    ImageView icon = otherContainer.findViewById(other[1]);
+                                    TextView text = otherContainer.findViewById(other[2]);
+                                    if (icon != null) icon.setColorFilter(inactiveColor);
+                                    if (text != null) text.setTextColor(inactiveColor);
+                                }
+                            }
+                            v.setBackground(ContextCompat.getDrawable(this, R.drawable.bottom_nav_active_bg));
+                            ImageView activeIcon = v.findViewById(ids[1]);
+                            TextView activeText = v.findViewById(ids[2]);
+                            if (activeIcon != null) activeIcon.setColorFilter(activeColor);
+                            if (activeText != null) activeText.setTextColor(activeColor);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Lỗi khi xử lý click BottomNav: " + e.getMessage());
+                        }
+                    });
                 }
-                v.setBackground(ContextCompat.getDrawable(this, R.drawable.bottom_nav_active_bg));
-                ((ImageView) v.findViewById(ids[1])).setColorFilter(activeColor);
-                ((TextView) v.findViewById(ids[2])).setTextColor(activeColor);
-            });
+            } catch (Exception e) {
+                Log.e(TAG, "Lỗi khi setup BottomNav ID " + ids[0] + ": " + e.getMessage());
+            }
         }
     }
 }
