@@ -6,13 +6,15 @@ public class Book {
     private String author;
     private int pageCount;
     private String description;
+    private String category;
 
-    public Book(String imageUrl, String title, String author, int pageCount, String description) {
+    public Book(String imageUrl, String title, String author, int pageCount, String description, String category) {
         this.imageUrl = imageUrl;
         this.title = title;
         this.author = author;
         this.pageCount = pageCount;
         this.description = description;
+        this.category = category;
     }
 
     // Getters and Setters
@@ -30,4 +32,7 @@ public class Book {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 }
