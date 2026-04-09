@@ -18,6 +18,11 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.bookspace.databinding.ActivityMainBinding;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
 
@@ -188,5 +193,71 @@ public class MainActivity extends AppCompatActivity {
                         .setTextColor(activeColor);
             });
         }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+public class FavoriteActivity extends AppCompatActivity {
+
+    private RecyclerView rvFavorites;
+    private FavoriteBookAdapter adapter;
+    private List<Book> bookList;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Gắn giao diện tổng (có chứa RecyclerView)
+        setContentView(R.layout.activity_favorite);
+
+        // 1. Ánh xạ thẻ RecyclerView từ XML sang mã Java
+        rvFavorites = findViewById(R.id.rvFavorites);
+
+        // 2. Khởi tạo danh sách và thêm dữ liệu giả (Mock data)
+        bookList = new ArrayList<>();
+
+        bookList.add(new Book(1, "Xa Ngoài Kia Nơi Loài Tôm Hát", "Delia Owens", "Đã đọc 6 trang", R.mipmap.ic_launcher));
+        bookList.add(new Book(2, "Đồi Gió Hú", "Emily Brontë", "Đã đọc 12 trang", R.mipmap.ic_launcher));
+        bookList.add(new Book(3, "Phía Tây Không Có Gì Lạ", "Erich Maria Remarque", "Chưa đọc", R.mipmap.ic_launcher));
+        bookList.add(new Book(4, "Chuông Nguyện Hồn Ai", "Ernest Hemingway", "Chưa đọc", R.mipmap.ic_launcher));
+        bookList.add(new Book(5, "Kafka Bên Bờ Biển", "Haruki Murakami", "Đã đọc 88 trang", R.mipmap.ic_launcher));
+        bookList.add(new Book(6, "Nhà Giả Kim", "Paulo Coelho", "Đã đọc xong", R.mipmap.ic_launcher));
+        bookList.add(new Book(7, "Đắc Nhân Tâm", "Dale Carnegie", "Đã đọc 45 trang", R.mipmap.ic_launcher));
+        bookList.add(new Book(8, "Sapiens: Lược Sử Loài Người", "Yuval Noah Harari", "Đã đọc 120 trang", R.mipmap.ic_launcher));
+        bookList.add(new Book(9, "Tội Ác Và Hình Phạt", "Fyodor Dostoevsky", "Chưa đọc", R.mipmap.ic_launcher));
+        bookList.add(new Book(10, "Hai Số Phận", "Jeffrey Archer", "Đã đọc 300 trang", R.mipmap.ic_launcher));
+        bookList.add(new Book(11, "Bắt Trẻ Đồng Xanh", "J.D. Salinger", "Chưa đọc", R.mipmap.ic_launcher));
+        bookList.add(new Book(12, "Không Gia Đình", "Hector Malot", "Đã đọc 50 trang", R.mipmap.ic_launcher));
+        bookList.add(new Book(13, "Chúa Tể Những Chiếc Nhẫn", "J.R.R. Tolkien", "Đã đọc 15 trang", R.mipmap.ic_launcher));
+        bookList.add(new Book(14, "Harry Potter Và Hòn Đá Phù Thủy", "J.K. Rowling", "Đã đọc xong", R.mipmap.ic_launcher));
+        bookList.add(new Book(15, "Người Đua Diều", "Khaled Hosseini", "Chưa đọc", R.mipmap.ic_launcher));
+
+        // 3. Khởi tạo Adapter và định nghĩa hành động khi bấm nút xóa
+        adapter = new FavoriteBookAdapter(bookList, new FavoriteBookAdapter.OnItemClickListener() {
+            @Override
+            public void onDeleteClick(int position) {
+                // Xóa cuốn sách khỏi danh sách dữ liệu
+                bookList.remove(position);
+                // Báo cho Adapter biết vị trí này đã bị xóa để nó cập nhật lại giao diện với hiệu ứng mượt mà
+                adapter.notifyItemRemoved(position);
+                // Cập nhật lại vị trí của các phần tử phía dưới để tránh lỗi sai vị trí
+                adapter.notifyItemRangeChanged(position, bookList.size());
+            }
+        });
+
+        // 4. Cài đặt LayoutManager (Quy định danh sách hiển thị theo chiều dọc)
+        rvFavorites.setLayoutManager(new LinearLayoutManager(this));
+
+        // 5. Gắn Adapter vào RecyclerView
+        rvFavorites.setAdapter(adapter);
     }
 }
