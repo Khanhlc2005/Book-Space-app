@@ -23,12 +23,16 @@ import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.bookspace.databinding.ActivityMainBinding;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnBookClickListener {
     private ActivityMainBinding binding;
     private static final String TAG = "MainActivity";
     private Handler sliderHandler = new Handler();
@@ -108,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
         listFeatured.add(new Book("https://picsum.photos/600/400?random=104", "Tuổi Trẻ Đáng Giá Bao Nhiêu", "Rosie Nguyễn", 250, "", "KỸ NĂNG SỐNG"));
         listFeatured.add(new Book("https://picsum.photos/600/400?random=105", "Dám Bị Ghét", "Kishimi Ichiro", 320, "", "TÂM LÝ"));
 
-        FeaturedBookAdapter adapter = new FeaturedBookAdapter(listFeatured);
+        FeaturedBookAdapter adapter = new FeaturedBookAdapter(listFeatured, this);
         binding.vpFeaturedBooks.setAdapter(adapter);
 
         binding.vpFeaturedBooks.setOffscreenPageLimit(3);
@@ -135,10 +139,10 @@ public class MainActivity extends AppCompatActivity {
         listNovel.add(new Book("https://picsum.photos/200/300?random=22", "Chúa tể nhẫn", "J.R.R. Tolkien", 1200, "Cuộc chiến giành chiếc nhẫn...", "TIỂU THUYẾT"));
 
         binding.rvRecentlyUpdated.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
-        binding.rvRecentlyUpdated.setAdapter(new BookAdapter(listRecent));
+        binding.rvRecentlyUpdated.setAdapter(new BookAdapter(listRecent, this));
 
         binding.rvNovels.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
-        binding.rvNovels.setAdapter(new BookAdapter(listNovel));
+        binding.rvNovels.setAdapter(new BookAdapter(listNovel, this));
     }
 
     private void setupSearch() {
@@ -149,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
 
         binding.recyclerBooks.setLayoutManager(new LinearLayoutManager(this));
         // Search Mode = true (Dạng list text như lúc trước)
-        searchAdapter = new BookAdapter(new ArrayList<>(), true);
+        searchAdapter = new BookAdapter(new ArrayList<>(), true, this);
         binding.recyclerBooks.setAdapter(searchAdapter);
 
         binding.searchInput.addTextChangedListener(new TextWatcher() {
@@ -221,5 +225,54 @@ public class MainActivity extends AppCompatActivity {
                 ((TextView) v.findViewById(ids[2])).setTextColor(activeColor);
             });
         }
+    }
+
+    @Override
+    public void onBookClick(Book book) {
+        showBookDetailBottomSheet(book);
+    }
+
+    private void showBookDetailBottomSheet(Book book) {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        View bottomSheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_book_detail, null);
+        bottomSheetDialog.setContentView(bottomSheetView);
+
+        // Map views
+        TextView txtTitle = bottomSheetView.findViewById(R.id.txtDetailTitle);
+        TextView txtAuthor = bottomSheetView.findViewById(R.id.txtDetailAuthor);
+        TextView txtPages = bottomSheetView.findViewById(R.id.txtDetailPages);
+        TextView txtSummary = bottomSheetView.findViewById(R.id.txtDetailSummary);
+        ImageView imgCover = bottomSheetView.findViewById(R.id.imgDetailCover);
+
+        // Set data
+        if (txtTitle != null) txtTitle.setText(book.getTitle());
+        if (txtAuthor != null) txtAuthor.setText("Tác giả: " + book.getAuthor());
+        if (txtPages != null) txtPages.setText(String.valueOf(book.getPages()));
+        
+        if (txtSummary != null) {
+            if (book.getDescription() != null && !book.getDescription().isEmpty()) {
+                txtSummary.setText(book.getDescription());
+            } else {
+                txtSummary.setText("Chưa có tóm tắt cho cuốn sách này.");
+            }
+        }
+
+        if (imgCover != null && book.getCoverUrl() != null && !book.getCoverUrl().isEmpty()) {
+            Glide.with(this)
+                 .load(book.getCoverUrl())
+                 .transform(new CenterCrop(), new RoundedCorners(24))
+                 .into(imgCover);
+        }
+
+        bottomSheetDialog.setOnShowListener(dialogInterface -> {
+            com.google.android.material.bottomsheet.BottomSheetDialog dialog = (com.google.android.material.bottomsheet.BottomSheetDialog) dialogInterface;
+            View bottomSheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                BottomSheetBehavior.from(bottomSheet).setState(BottomSheetBehavior.STATE_EXPANDED);
+                BottomSheetBehavior.from(bottomSheet).setSkipCollapsed(true);
+            }
+        });
+
+        bottomSheetDialog.show();
     }
 }

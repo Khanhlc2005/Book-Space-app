@@ -1,21 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottomSheetContainer"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/transparent">
+    android:layout_height="wrap_content"
+    android:background="@drawable/bottom_sheet_bg"
+    android:paddingTop="12dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/bottomSheetContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/bottom_sheet_bg"
-        android:paddingTop="12dp"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
-
-        <!-- Drag Handle -->
+    <!-- Drag Handle -->
         <View
             android:id="@+id/dragHandle"
             android:layout_width="48dp"
@@ -29,10 +23,11 @@
         <androidx.core.widget.NestedScrollView
             android:id="@+id/scrollContent"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constrainedHeight="true"
             android:clipToPadding="false"
             android:paddingHorizontal="32dp"
-            android:paddingBottom="100dp"
+            android:paddingBottom="48dp"
             android:layout_marginTop="24dp"
             android:overScrollMode="never"
             app:layout_constraintTop_toBottomOf="@id/dragHandle"
@@ -364,6 +359,4 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
