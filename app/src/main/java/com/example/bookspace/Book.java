@@ -1,38 +1,88 @@
 package com.example.bookspace;
 
 public class Book {
-    private String imageUrl;
     private String title;
     private String author;
-    private int pageCount;
+    private String coverUrl; 
+    private int pages;       
     private String description;
     private String category;
 
-    public Book(String imageUrl, String title, String author, int pageCount, String description, String category) {
-        this.imageUrl = imageUrl;
+    // Constructor 2 tham số (của nhánh main)
+    public Book(String title, String author) {
         this.title = title;
         this.author = author;
-        this.pageCount = pageCount;
+    }
+
+    // Constructor 3 tham số (của nhánh main)
+    public Book(String title, String author, String coverUrl) {
+        this.title = title;
+        this.author = author;
+        this.coverUrl = coverUrl;
+    }
+
+    // Constructor 5 tham số (của nhánh main - dùng cho chức năng Search)
+    public Book(String coverUrl, String title, String author, int pages, String category) {
+        this.coverUrl = coverUrl;
+        this.title = title;
+        this.author = author;
+        this.pages = pages;
+        this.category = category;
+    }
+
+    // Constructor 6 tham số (dùng cho chức năng Preview Slider)
+    public Book(String coverUrl, String title, String author, int pages, String description, String category) {
+        this.coverUrl = coverUrl;
+        this.title = title;
+        this.author = author;
+        this.pages = pages;
         this.description = description;
         this.category = category;
     }
 
-    // Getters and Setters
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    // Các hàm Getters
+    public String getTitle() {
+        return title;
+    }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    public String getAuthor() {
+        return author;
+    }
 
-    public String getAuthor() { return author; }
-    public void setAuthor(String author) { this.author = author; }
+    public String getCoverUrl() {
+        return coverUrl;
+    }
+    
+    public String getImageUrl() {
+        return coverUrl;
+    }
 
-    public int getPageCount() { return pageCount; }
-    public void setPageCount(int pageCount) { this.pageCount = pageCount; }
+    public int getPages() {
+        return pages;
+    }
+    
+    public int getPageCount() {
+        return pages;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getDescription() { 
+        return description; 
+    }
+    
+    public void setDescription(String description) { 
+        this.description = description; 
+    }
 
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
+    public String getCategory() { 
+        return category; 
+    }
+    
+    public void setCategory(String category) { 
+        this.category = category; 
+    }
+
+    @Override
+    public String toString() {
+        return title + " - " + author;
+    }
 }

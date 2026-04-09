@@ -108,7 +108,8 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@android:drawable/ic_menu_search"
-                        app:tint="@color/outline" />
+                        app:tint="@color/outline"
+                        android:importantForAccessibility="no" />
                     <EditText
                         android:id="@+id/searchInput"
                         android:layout_width="match_parent"
@@ -124,6 +125,15 @@
                         android:inputType="text" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
+            <!-- Search Results RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerBooks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginBottom="16dp" />
 
             <!-- CATEGORY CHIPS -->
             <HorizontalScrollView

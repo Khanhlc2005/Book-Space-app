@@ -1,8 +1,11 @@
 package com.example.bookspace;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -40,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
             sliderHandler.postDelayed(this, 3000);
         }
     };
+    private ArrayList<Book> allBooksForSearch = new ArrayList<>();
+    private BookAdapter searchAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
         setupChips();
         setupBottomNav();
         setupRecyclerViews();
+        setupSearch();
     }
 
     /**
@@ -118,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
      * vào các RecyclerView tương ứng chạy trượt ngang.
      */
     private void setupRecyclerViews() {
+        // Dữ liệu mẫu (Số nhiều và linh hoạt hơn)
         List<Book> listRecent = new ArrayList<>();
         listRecent.add(new Book("https://picsum.photos/200/300?random=11", "Đắc Nhân Tâm", "Dale Carnegie", 320, "Sách kỹ năng sống hay nhất...", "KỸ NĂNG SỐNG"));
         listRecent.add(new Book("https://picsum.photos/200/300?random=12", "Nhà Giả Kim", "Paulo Coelho", 200, "Hành trình tìm kiếm vận mệnh...", "TIỂU THUYẾT"));
@@ -132,6 +139,36 @@ public class MainActivity extends AppCompatActivity {
 
         binding.rvNovels.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
         binding.rvNovels.setAdapter(new BookAdapter(listNovel));
+    }
+
+    private void setupSearch() {
+        allBooksForSearch = new ArrayList<>();
+        allBooksForSearch.add(new Book("https://picsum.photos/200/300?random=4", "Harry Potter", "J.K. Rowling", 500, "Phù thủy"));
+        allBooksForSearch.add(new Book("https://picsum.photos/200/300?random=5", "Sherlock Holmes", "Conan Doyle", 600, "Trinh thám"));
+        allBooksForSearch.add(new Book("https://picsum.photos/200/300?random=6", "Doraemon", "Fujiko Fujio", 100, "Truyện tranh"));
+
+        binding.recyclerBooks.setLayoutManager(new LinearLayoutManager(this));
+        // Search Mode = true (Dạng list text như lúc trước)
+        searchAdapter = new BookAdapter(new ArrayList<>(), true);
+        binding.recyclerBooks.setAdapter(searchAdapter);
+
+        binding.searchInput.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String keyword = s.toString().trim();
+                if (keyword.isEmpty()) {
+                    binding.recyclerBooks.setVisibility(View.GONE);
+                } else {
+                    List<Book> filtered = new ArrayList<>();
+                    for (Book b : allBooksForSearch) {
+                        if (b.getTitle().toLowerCase().contains(keyword.toLowerCase())) filtered.add(b);
+                    }
+                    searchAdapter.updateData(filtered);
+                    binding.recyclerBooks.setVisibility(View.VISIBLE);
+                }
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
     }
 
     private void setupChips() {
@@ -157,7 +194,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     private void setupBottomNav() {
         int[][] navSets = {
                 {R.id.nav_home, R.id.icon_home, R.id.text_home},
@@ -169,34 +205,21 @@ public class MainActivity extends AppCompatActivity {
         int inactiveColor = ContextCompat.getColor(this, R.color.nav_inactive);
 
         for (int[] ids : navSets) {
-            try {
-                View container = findViewById(ids[0]);
-                if (container != null) {
-                    container.setOnClickListener(v -> {
-                        try {
-                            for (int[] other : navSets) {
-                                View otherContainer = findViewById(other[0]);
-                                if (otherContainer != null) {
-                                    otherContainer.setBackground(null);
-                                    ImageView icon = otherContainer.findViewById(other[1]);
-                                    TextView text = otherContainer.findViewById(other[2]);
-                                    if (icon != null) icon.setColorFilter(inactiveColor);
-                                    if (text != null) text.setTextColor(inactiveColor);
-                                }
-                            }
-                            v.setBackground(ContextCompat.getDrawable(this, R.drawable.bottom_nav_active_bg));
-                            ImageView activeIcon = v.findViewById(ids[1]);
-                            TextView activeText = v.findViewById(ids[2]);
-                            if (activeIcon != null) activeIcon.setColorFilter(activeColor);
-                            if (activeText != null) activeText.setTextColor(activeColor);
-                        } catch (Exception e) {
-                            Log.e(TAG, "Lỗi khi xử lý click BottomNav: " + e.getMessage());
-                        }
-                    });
+            View container = findViewById(ids[0]);
+            container.setOnClickListener(v -> {
+                if (ids[0] == R.id.nav_reader) {
+                    startActivity(new Intent(this, ReadingActivity.class));
                 }
-            } catch (Exception e) {
-                Log.e(TAG, "Lỗi khi setup BottomNav ID " + ids[0] + ": " + e.getMessage());
-            }
+                for (int[] other : navSets) {
+                    View otherContainer = findViewById(other[0]);
+                    otherContainer.setBackground(null);
+                    ((ImageView) otherContainer.findViewById(other[1])).setColorFilter(inactiveColor);
+                    ((TextView) otherContainer.findViewById(other[2])).setTextColor(inactiveColor);
+                }
+                v.setBackground(ContextCompat.getDrawable(this, R.drawable.bottom_nav_active_bg));
+                ((ImageView) v.findViewById(ids[1])).setColorFilter(activeColor);
+                ((TextView) v.findViewById(ids[2])).setTextColor(activeColor);
+            });
         }
     }
 }
