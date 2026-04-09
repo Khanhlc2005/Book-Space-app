@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Reading Screen: Light Theme (default) -->
+    <color name="reading_bg">#F4ECD8</color>
+    <color name="reading_surface">#EDE0C4</color>
+    <color name="reading_text">#1A1A1A</color>
+    <color name="reading_text_muted">#6B5C45</color>
+    <color name="reading_accent">#5F4B32</color>
+    <color name="reading_topbar_bg">#E8F4ECD8</color>
+
+    <!-- Sepia Theme -->
+    <color name="reading_bg_sepia">#C9A96E</color>
+    <color name="reading_surface_sepia">#B89050</color>
+    <color name="reading_text_sepia">#2A1A0A</color>
+    <color name="reading_text_muted_sepia">#7A4020</color>
+    <color name="reading_accent_sepia">#7A4020</color>
+
+    <!-- Dark Theme -->
+    <color name="reading_bg_dark">#1C1B1B</color>
+    <color name="reading_surface_dark">#201F1F</color>
+    <color name="reading_text_dark">#E5E2E1</color>
+    <color name="reading_text_muted_dark">#71D7CD</color>
+    <color name="reading_accent_dark">#71D7CD</color>
+</resources>
