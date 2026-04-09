@@ -194,42 +194,13 @@
                 android:paddingHorizontal="24dp"
                 android:layout_marginBottom="20dp" />
 
-            <HorizontalScrollView
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/vpFeaturedBooks"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="none"
+                android:layout_height="240dp"
                 android:layout_marginBottom="40dp"
                 android:clipToPadding="false"
-                android:paddingHorizontal="24dp">
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <!-- Featured Card 1 -->
-                    <FrameLayout
-                        android:layout_width="300dp"
-                        android:layout_height="240dp"
-                        android:layout_marginEnd="16dp">
-                        <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/featured_card_primary_bg" />
-                        <ImageView android:id="@+id/imgFeatured1" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" android:alpha="0.45" />
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="bottom" android:padding="24dp">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/featured_label_editor" android:textColor="@color/white_80" android:textSize="11sp" android:textAllCaps="true" android:layout_marginBottom="8dp" />
-                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/featured_title_1" android:textColor="@color/on_primary" android:textSize="26sp" android:textStyle="bold" android:layout_marginBottom="8dp" />
-                        </LinearLayout>
-                    </FrameLayout>
-                    <!-- Featured Card 2 -->
-                    <FrameLayout
-                        android:layout_width="300dp"
-                        android:layout_height="240dp">
-                        <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/featured_card_tertiary_bg" />
-                        <ImageView android:id="@+id/imgFeatured2" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" android:alpha="0.40" />
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="bottom" android:padding="24dp">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/featured_label_new" android:textColor="@color/white_80" android:textSize="11sp" android:textAllCaps="true" android:layout_marginBottom="8dp" />
-                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/featured_title_2" android:textColor="@color/on_tertiary" android:textSize="26sp" android:textStyle="bold" android:layout_marginBottom="8dp" />
-                        </LinearLayout>
-                    </FrameLayout>
-                </LinearLayout>
-            </HorizontalScrollView>
+                android:paddingHorizontal="24dp" />
 
             <!-- RECENTLY UPDATED SECTION -->
             <TextView
@@ -288,21 +259,87 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center">
-            <LinearLayout android:id="@+id/nav_home" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:background="@drawable/bottom_nav_active_bg" android:paddingHorizontal="24dp" android:paddingVertical="12dp">
-                <ImageView android:id="@+id/icon_home" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_home_filled" app:tint="@color/teal_600" />
-                <TextView android:id="@+id/text_home" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/nav_home" android:textColor="@color/teal_600" android:textSize="11sp" android:textStyle="bold" />
+            <LinearLayout
+                android:id="@+id/nav_home"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bottom_nav_active_bg"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="12dp">
+                <ImageView
+                    android:id="@+id/icon_home"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_home_filled"
+                    app:tint="@color/teal_600" />
+                <TextView
+                    android:id="@+id/text_home"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/nav_home"
+                    android:textColor="@color/teal_600"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center">
-            <LinearLayout android:id="@+id/nav_library" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:paddingHorizontal="24dp" android:paddingVertical="12dp">
-                <ImageView android:id="@+id/icon_library" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_library_books" app:tint="@color/nav_inactive" />
-                <TextView android:id="@+id/text_library" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/nav_library" android:textColor="@color/nav_inactive" android:textSize="11sp" android:textStyle="bold" />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+            <LinearLayout
+                android:id="@+id/nav_library"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="12dp">
+                <ImageView
+                    android:id="@+id/icon_library"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_library_books"
+                    app:tint="@color/nav_inactive" />
+                <TextView
+                    android:id="@+id/text_library"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/nav_library"
+                    android:textColor="@color/nav_inactive"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center">
-            <LinearLayout android:id="@+id/nav_reader" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:paddingHorizontal="24dp" android:paddingVertical="12dp">
-                <ImageView android:id="@+id/icon_reader" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_auto_stories" app:tint="@color/nav_inactive" />
-                <TextView android:id="@+id/text_reader" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/nav_reader" android:textColor="@color/nav_inactive" android:textSize="11sp" android:textStyle="bold" />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+            <LinearLayout
+                android:id="@+id/nav_reader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="12dp">
+                <ImageView
+                    android:id="@+id/icon_reader"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_auto_stories"
+                    app:tint="@color/nav_inactive" />
+                <TextView
+                    android:id="@+id/text_reader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/nav_reader"
+                    android:textColor="@color/nav_inactive"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

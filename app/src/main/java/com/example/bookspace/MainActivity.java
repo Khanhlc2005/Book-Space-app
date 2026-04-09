@@ -2,6 +2,8 @@ package com.example.bookspace;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -17,6 +19,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.CompositePageTransformer;
+import androidx.viewpager2.widget.MarginPageTransformer;
 
 import com.bumptech.glide.Glide;
 import com.example.bookspace.databinding.ActivityMainBinding;
@@ -26,6 +30,19 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
+    private static final String TAG = "MainActivity";
+    private Handler sliderHandler = new Handler();
+    private Runnable sliderRunnable = new Runnable() {
+        @Override
+        public void run() {
+            int currentItem = binding.vpFeaturedBooks.getCurrentItem();
+            int totalItems = binding.vpFeaturedBooks.getAdapter() != null ? binding.vpFeaturedBooks.getAdapter().getItemCount() : 0;
+            if (totalItems > 0) {
+                binding.vpFeaturedBooks.setCurrentItem((currentItem + 1) % totalItems, true);
+            }
+            sliderHandler.postDelayed(this, 3000);
+        }
+    };
     private ArrayList<Book> allBooksForSearch = new ArrayList<>();
     private BookAdapter searchAdapter;
 
@@ -45,32 +62,77 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setupStaticUI();
+        setupFeaturedViewPager();
         setupChips();
         setupBottomNav();
         setupRecyclerViews();
         setupSearch();
     }
 
+    /**
+     * Khởi động lại handler tự động trượt trang sách nổi bật khi Activity quay lại màn hình chính.
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sliderHandler.postDelayed(sliderRunnable, 3000);
+    }
+
+    /**
+     * Tạm dừng handler tự động trượt trang sách để tiết kiệm tài nguyên khi Activity không hiển thị.
+     */
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sliderHandler.removeCallbacks(sliderRunnable);
+    }
+
+    /**
+     * Thiết lập các thành phần giao diện tĩnh lẻ tẻ, ví dụ như tải ảnh đại diện người dùng.
+     */
     private void setupStaticUI() {
         // Ảnh profile & featured cards
         String urlProfile = "https://lh3.googleusercontent.com/aida-public/AB6AXuChsxoWmzwCRstgLqcTDca1SbPewXFrd0uJ5OY1FXuxAbdAscBM9j6kIhXhpstpImEZ9gAb_dxSYbqQ89m8NaPr6el5OQ5Z2YUeNfDh0DY4W0jb1KgYJVGAhvrANoMbLUrLg6s2DwyywmvegE394jntrgSqpxeej_IVKMPbHm8FqQoKbRYehHyNI1CF5738hoct6Bq7hD7ropM4BGBt9-geFXn1Cn9dj1fImBsanHfifcxjGf18spz-dcrPi17FerhLiXzmbr4o2FiP";
         Glide.with(this).load(urlProfile).circleCrop().into(binding.imgProfile);
-        
-        // Load ảnh cho Featured 1 & 2 (Dùng tạm URL mẫu)
-        Glide.with(this).load("https://picsum.photos/600/400?random=1").centerCrop().into(binding.imgFeatured1);
-        Glide.with(this).load("https://picsum.photos/600/400?random=2").centerCrop().into(binding.imgFeatured2);
     }
 
+    /**
+     * Khởi tạo danh sách đối tượng sách nổi bật và gắn vào Adapter của ViewPager2.
+     * Cấu hình thêm khoảng cách giữa các trang (MarginPageTransformer) cho ViewPager2.
+     */
+    private void setupFeaturedViewPager() {
+        List<Book> listFeatured = new ArrayList<>();
+        listFeatured.add(new Book("https://picsum.photos/600/400?random=101", "Trưởng Thành Sau Ngàn Lần Tranh Đấu", "Rando Kim", 300, "", "KỸ NĂNG SỐNG"));
+        listFeatured.add(new Book("https://picsum.photos/600/400?random=102", "Một Thoáng Ta Rực Rỡ Ở Nhân Gian", "Ocean Vuong", 350, "", "TIỂU THUYẾT"));
+        listFeatured.add(new Book("https://picsum.photos/600/400?random=103", "Thiên Tài Bên Trái, Kẻ Điên Bên Phải", "Cao Minh", 400, "", "TÂM LÝ HỌC"));
+        listFeatured.add(new Book("https://picsum.photos/600/400?random=104", "Tuổi Trẻ Đáng Giá Bao Nhiêu", "Rosie Nguyễn", 250, "", "KỸ NĂNG SỐNG"));
+        listFeatured.add(new Book("https://picsum.photos/600/400?random=105", "Dám Bị Ghét", "Kishimi Ichiro", 320, "", "TÂM LÝ"));
+
+        FeaturedBookAdapter adapter = new FeaturedBookAdapter(listFeatured);
+        binding.vpFeaturedBooks.setAdapter(adapter);
+
+        binding.vpFeaturedBooks.setOffscreenPageLimit(3);
+        binding.vpFeaturedBooks.getChildAt(0).setOverScrollMode(RecyclerView.OVER_SCROLL_NEVER);
+
+        CompositePageTransformer transformer = new CompositePageTransformer();
+        transformer.addTransformer(new MarginPageTransformer(40));
+        binding.vpFeaturedBooks.setPageTransformer(transformer);
+    }
+
+    /**
+     * Khởi tạo và liên kết dữ liệu danh sách cho "Sách mới cập nhật" và "Tiểu thuyết"
+     * vào các RecyclerView tương ứng chạy trượt ngang.
+     */
     private void setupRecyclerViews() {
         // Dữ liệu mẫu (Số nhiều và linh hoạt hơn)
         List<Book> listRecent = new ArrayList<>();
-        listRecent.add(new Book("https://picsum.photos/200/300?random=11", "Đắc Nhân Tâm", "Dale Carnegie", 320, "Sách kỹ năng sống hay nhất..."));
-        listRecent.add(new Book("https://picsum.photos/200/300?random=12", "Nhà Giả Kim", "Paulo Coelho", 200, "Hành trình tìm kiếm vận mệnh..."));
-        listRecent.add(new Book("https://picsum.photos/200/300?random=13", "Muôn kiếp nhân sinh", "Nguyên Phong", 450, "Luân hồi và nhân quả..."));
+        listRecent.add(new Book("https://picsum.photos/200/300?random=11", "Đắc Nhân Tâm", "Dale Carnegie", 320, "Sách kỹ năng sống hay nhất...", "KỸ NĂNG SỐNG"));
+        listRecent.add(new Book("https://picsum.photos/200/300?random=12", "Nhà Giả Kim", "Paulo Coelho", 200, "Hành trình tìm kiếm vận mệnh...", "TIỂU THUYẾT"));
+        listRecent.add(new Book("https://picsum.photos/200/300?random=13", "Muôn kiếp nhân sinh", "Nguyên Phong", 450, "Luân hồi và nhân quả...", "TÂM LINH"));
 
         List<Book> listNovel = new ArrayList<>();
-        listNovel.add(new Book("https://picsum.photos/200/300?random=21", "Harry Potter", "J.K. Rowling", 500, "Thế giới phù thủy kỳ bí..."));
-        listNovel.add(new Book("https://picsum.photos/200/300?random=22", "Chúa tể nhẫn", "J.R.R. Tolkien", 1200, "Cuộc chiến giành chiếc nhẫn..."));
+        listNovel.add(new Book("https://picsum.photos/200/300?random=21", "Harry Potter", "J.K. Rowling", 500, "Thế giới phù thủy kỳ bí...", "TIỂU THUYẾT"));
+        listNovel.add(new Book("https://picsum.photos/200/300?random=22", "Chúa tể nhẫn", "J.R.R. Tolkien", 1200, "Cuộc chiến giành chiếc nhẫn...", "TIỂU THUYẾT"));
 
         binding.rvRecentlyUpdated.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
         binding.rvRecentlyUpdated.setAdapter(new BookAdapter(listRecent));
