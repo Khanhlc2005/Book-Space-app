@@ -1,5 +1,6 @@
 package com.example.bookspace;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Handle system bar insets for edge-to-edge
+        // Insets
         ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
             binding.topBar.setPadding(
@@ -96,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         bookList = new ArrayList<>();
         filteredList = new ArrayList<>();
 
-        // DATA TEST (sau này thay bằng API/database)
+        // DATA TEST
         bookList.add(new Book("Harry Potter", "J.K. Rowling"));
         bookList.add(new Book("Sherlock Holmes", "Arthur Conan Doyle"));
         bookList.add(new Book("Doraemon", "Fujiko Fujio"));
@@ -105,7 +106,8 @@ public class MainActivity extends AppCompatActivity {
 
         // ===== RECYCLER VIEW =====
         binding.recyclerBooks.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new BookAdapter(filteredList);
+        // Khởi tạo adapter với chế độ searchMode = true
+        adapter = new BookAdapter(filteredList, true);
         binding.recyclerBooks.setAdapter(adapter);
 
         // ===== SEARCH =====
@@ -121,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
                 if (keyword.isEmpty()) {
                     filteredList.clear();
                     adapter.updateData(filteredList);
+                    binding.recyclerBooks.setVisibility(View.GONE);
                     return;
                 }
 
@@ -157,12 +160,6 @@ public class MainActivity extends AppCompatActivity {
                 .into(binding.imgBook4);
     }
 
-    /**
-     * Setup interactive category chip behavior:
-     * - Only one chip can be active at a time
-     * - Active chip gets primary color bg + white text
-     * - Inactive chips get surface-container-high bg + muted text
-     */
     private void setupChips() {
         LinearLayout chipContainer = binding.chipContainer;
         int chipCount = chipContainer.getChildCount();
@@ -173,7 +170,8 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < chipCount; i++) {
             View child = chipContainer.getChildAt(i);
             if (child instanceof TextView) {
-                child.setOnClickListener(v -> {
+                TextView chip = (TextView) child;
+                chip.setOnClickListener(v -> {
                     for (int j = 0; j < chipCount; j++) {
                         View other = chipContainer.getChildAt(j);
                         if (other instanceof TextView) {
@@ -185,6 +183,14 @@ public class MainActivity extends AppCompatActivity {
                     v.setBackground(
                             ContextCompat.getDrawable(this, R.drawable.chip_active_bg));
                     ((TextView) v).setTextColor(activeTextColor);
+
+                    String category = chip.getText().toString();
+                    if (category.equals(getString(R.string.cat_life_skills)) || 
+                        category.equals(getString(R.string.cat_psychology))) {
+                        Intent intent = new Intent(MainActivity.this, CategoryActivity.class);
+                        intent.putExtra("CATEGORY_NAME", category);
+                        startActivity(intent);
+                    }
                 });
             }
         }
