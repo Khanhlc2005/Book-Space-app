@@ -17,9 +17,11 @@ import java.util.List;
 
 public class FeaturedBookAdapter extends RecyclerView.Adapter<FeaturedBookAdapter.FeaturedViewHolder> {
     private List<Book> bookList;
+    private OnBookClickListener listener;
 
-    public FeaturedBookAdapter(List<Book> bookList) {
+    public FeaturedBookAdapter(List<Book> bookList, OnBookClickListener listener) {
         this.bookList = bookList;
+        this.listener = listener;
     }
 
     /**
@@ -57,6 +59,12 @@ public class FeaturedBookAdapter extends RecyclerView.Adapter<FeaturedBookAdapte
             holder.vFeaturedBg.setBackgroundResource(R.drawable.featured_card_tertiary_bg);
             holder.tvFeaturedTitle.setTextColor(ContextCompat.getColor(context, R.color.on_tertiary));
         }
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onBookClick(book);
+            }
+        });
     }
 
     @Override

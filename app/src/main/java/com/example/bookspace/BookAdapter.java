@@ -19,15 +19,18 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
 
     private List<Book> list;
     private boolean isSearchMode; // true: list view (no image), false: grid view (with image)
+    private OnBookClickListener listener;
 
-    public BookAdapter(List<Book> list) {
+    public BookAdapter(List<Book> list, OnBookClickListener listener) {
         this.list = list;
         this.isSearchMode = false;
+        this.listener = listener;
     }
 
-    public BookAdapter(List<Book> list, boolean isSearchMode) {
+    public BookAdapter(List<Book> list, boolean isSearchMode, OnBookClickListener listener) {
         this.list = list;
         this.isSearchMode = isSearchMode;
+        this.listener = listener;
     }
 
     public void updateData(List<Book> newList) {
@@ -68,6 +71,12 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
                 holder.imgCover.setImageResource(R.drawable.book_cover_bg);
             }
         }
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onBookClick(b);
+            }
+        });
     }
 
     @Override
