@@ -28,25 +28,14 @@
     </androidx.cardview.widget.CardView>
 
     <ImageButton
-        android:id="@+id/btnRemoveFavorite"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="32dp"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_favorite_border"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/cardCover"
-        app:tint="#757575" />
-
-    <ImageButton
         android:id="@+id/btnDelete"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@android:drawable/ic_menu_delete"
         app:tint="#D32F2F"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/cardCover" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/txtBookTitle"
@@ -59,20 +48,22 @@
         android:textColor="?attr/colorOnSurface"
         android:maxLines="2"
         android:ellipsize="end"
-        tools:text="Xa Ngoài Kia Nơi Loài..."
+        tools:text="Xa Ngoài Kia Nơi Loài Tôm Hát"
         app:layout_constraintTop_toTopOf="@id/cardCover"
         app:layout_constraintStart_toEndOf="@id/cardCover"
-        app:layout_constraintEnd_toStartOf="@id/btnRemoveFavorite" /> <TextView
-    android:id="@+id/txtAuthor"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="6dp"
-    android:textSize="16sp"
-    android:textColor="?attr/colorOutline"
-    tools:text="Delia Owens"
-    app:layout_constraintTop_toBottomOf="@id/txtBookTitle"
-    app:layout_constraintStart_toStartOf="@id/txtBookTitle"
-    app:layout_constraintEnd_toEndOf="@id/txtBookTitle" />
+        app:layout_constraintEnd_toStartOf="@id/btnDelete" />
+
+    <TextView
+        android:id="@+id/txtAuthor"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textSize="16sp"
+        android:textColor="?attr/colorOutline"
+        tools:text="Delia Owens"
+        app:layout_constraintTop_toBottomOf="@id/txtBookTitle"
+        app:layout_constraintStart_toStartOf="@id/txtBookTitle"
+        app:layout_constraintEnd_toEndOf="@id/txtBookTitle" />
 
     <TextView
         android:id="@+id/txtReadingStatus"
@@ -82,9 +73,25 @@
         android:textSize="14sp"
         android:textColor="?attr/colorPrimary"
         android:fontFamily="sans-serif-medium"
-        tools:text="Đã đọc 6 trang"
+        tools:text="Đã đọc 6 trang - 5%"
         app:layout_constraintTop_toBottomOf="@id/txtAuthor"
         app:layout_constraintStart_toStartOf="@id/txtBookTitle"
         app:layout_constraintEnd_toEndOf="@id/txtBookTitle" />
+
+    <ProgressBar
+        android:id="@+id/progressBarReading"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:max="100"
+        android:progressTint="?attr/colorPrimary"
+        android:progressBackgroundTint="?attr/colorSurfaceVariant"
+        tools:progress="5"
+        app:layout_constraintTop_toBottomOf="@id/txtReadingStatus"
+        app:layout_constraintStart_toStartOf="@id/txtBookTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/cardCover"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
