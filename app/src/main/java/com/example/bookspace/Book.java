@@ -1,6 +1,7 @@
 package com.example.bookspace;
 
 public class Book {
+    private int id; // ID định danh (tự động phát sinh từ DB)
     private String title;
     private String author;
     private String coverUrl; 
@@ -40,7 +41,15 @@ public class Book {
         this.category = category;
     }
 
-    // Các hàm Getters
+    // Các hàm Getters & Setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getTitle() {
         return title;
     }
