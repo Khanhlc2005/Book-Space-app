@@ -2,6 +2,28 @@
     <string name="app_name">BookSpace</string>
     <string name="app_title">Book Space</string>
 
+    <!-- Login -->
+    <string name="login_title">Chào mừng trở lại</string>
+    <string name="login_subtitle">Đăng nhập để tiếp tục hành trình đọc sách cùng BookSpace.</string>
+    <string name="login_email_hint">Email</string>
+    <string name="login_email_placeholder">Nhập email của bạn</string>
+    <string name="login_password_hint">Mật khẩu</string>
+    <string name="login_password_placeholder">Nhập mật khẩu</string>
+    <string name="login_button">Đăng nhập</string>
+    <string name="login_demo_hint">Bản demo chấp nhận bất kỳ email hợp lệ và mật khẩu từ 6 ký tự.</string>
+    <string name="login_remember">Ghi nhớ</string>
+    <string name="login_forgot_password">Quên mật khẩu?</string>
+    <string name="login_divider">Hoặc</string>
+    <string name="login_google">Tiếp tục với Google</string>
+    <string name="login_facebook">Tiếp tục với Facebook</string>
+    <string name="login_signup_prompt">Chưa có tài khoản?</string>
+    <string name="login_signup_action">Đăng ký ngay</string>
+    <string name="login_required_error">Vui lòng nhập đầy đủ email và mật khẩu.</string>
+    <string name="login_invalid_email_error">Email không hợp lệ.</string>
+    <string name="login_password_short_error">Mật khẩu cần ít nhất 6 ký tự.</string>
+    <string name="login_success">Đăng nhập thành công</string>
+    <string name="cd_login_logo">Biểu tượng BookSpace</string>
+
     <!-- Search -->
     <string name="search_hint">Tìm sách, tên tác giả…</string>
 
@@ -41,9 +63,54 @@
     <string name="nav_library">LIBRARY</string>
     <string name="nav_reader">READER</string>
 
+    <!-- Profile -->
+    <string name="profile_title">Hồ sơ cá nhân</string>
+    <string name="profile_personal_info">Thông tin cá nhân</string>
+    <string name="profile_name_label">Tên</string>
+    <string name="profile_email_label">Email</string>
+    <string name="profile_default_name">Người đọc BookSpace</string>
+    <string name="profile_edit_personal_info_hint">Bấm để sửa tên và email</string>
+    <string name="about_us_button">Về chúng tôi</string>
+    <string name="logout_button">Đăng xuất</string>
+    <string name="logout_title">Đăng xuất?</string>
+    <string name="logout_message">Thông tin hồ sơ trên thiết bị này sẽ được đưa về mặc định.</string>
+    <string name="logout_success">Đã đăng xuất</string>
+    <string name="cancel">Hủy</string>
+    <string name="change_password_button">Đổi mật khẩu</string>
+    <string name="change_password_hint">Cập nhật mật khẩu đăng nhập</string>
+    <string name="change_password_title">Đổi mật khẩu</string>
+    <string name="change_password_message">Tính năng đổi mật khẩu sẽ được bổ sung ở phiên bản tiếp theo.</string>
+    <string name="ok">OK</string>
+
+    <!-- Edit Profile -->
+    <string name="edit_profile_title">Sửa thông tin</string>
+    <string name="edit_profile_heading">Thông tin cá nhân</string>
+    <string name="edit_profile_description">Cập nhật tên hiển thị và email của bạn trong BookSpace.</string>
+    <string name="edit_profile_email_optional">Không bắt buộc</string>
+    <string name="edit_profile_name_required">Vui lòng nhập tên.</string>
+    <string name="edit_profile_email_invalid">Email không hợp lệ.</string>
+    <string name="edit_profile_save">Lưu thay đổi</string>
+    <string name="edit_profile_saved">Đã lưu thông tin cá nhân</string>
+
+    <!-- About -->
+    <string name="about_us_title">Về chúng tôi</string>
+    <string name="about_team_name">Nhóm phát triển BookSpace</string>
+    <string name="about_team_summary">BookSpace được thực hiện bởi nhóm sinh viên yêu thích sách, thiết kế giao diện và phát triển ứng dụng Android.</string>
+    <string name="about_mission_title">Mục tiêu</string>
+    <string name="about_mission_body">BookSpace hướng tới trải nghiệm đọc nhẹ nhàng, dễ sử dụng và tập trung vào người đọc. Nhóm phát triển ưu tiên giao diện rõ ràng, thao tác nhanh và khả năng mở rộng cho các tính năng thư viện cá nhân trong tương lai.</string>
+    <string name="about_roles_title">Thành viên nhóm phát triển</string>
+    <string name="about_member_vu_nam_anh">Vũ Nam Anh</string>
+    <string name="about_member_nguyen_thi_my_duyen">Nguyễn Thị Mỹ Duyên</string>
+    <string name="about_member_nguyen_minh_hien">Nguyễn Minh Hiển</string>
+    <string name="about_member_bui_nam_khanh">Bùi Nam Khánh</string>
+    <string name="about_member_le_van_quang">Lê Văn Quang</string>
+    <string name="about_member_desc">Thành viên nhóm phát triển BookSpace.</string>
+
     <!-- Content Descriptions -->
     <string name="cd_notification">Thông báo</string>
     <string name="cd_profile">Hồ sơ cá nhân</string>
+    <string name="cd_profile_avatar">Ảnh đại diện</string>
+    <string name="cd_back">Quay lại</string>
     <string name="cd_book_cover">Bìa sách</string>
     <string name="cd_featured_book">Sách nổi bật</string>
 </resources>

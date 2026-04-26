@@ -55,17 +55,23 @@
             android:contentDescription="@string/cd_notification" />
 
         <FrameLayout
+            android:id="@+id/btnProfile"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginStart="12dp">
+            android:layout_marginStart="12dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="@string/cd_profile"
+            android:focusable="true">
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/imgProfile"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
+                android:importantForAccessibility="no"
                 android:scaleType="centerCrop"
                 android:src="@mipmap/ic_launcher_round"
                 app:shapeAppearanceOverlay="@style/CircleImageView"
-                android:contentDescription="@string/cd_profile" />
+                android:contentDescription="@null" />
             <View
                 android:layout_width="40dp"
                 android:layout_height="40dp"

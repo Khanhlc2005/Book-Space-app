@@ -39,6 +39,9 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
     private Runnable sliderRunnable = new Runnable() {
         @Override
         public void run() {
+            if (binding == null) {
+                return;
+            }
             int currentItem = binding.vpFeaturedBooks.getCurrentItem();
             int totalItems = binding.vpFeaturedBooks.getAdapter() != null ? binding.vpFeaturedBooks.getAdapter().getItemCount() : 0;
             if (totalItems > 0) {
@@ -53,6 +56,14 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (!SessionManager.isLoggedIn(this)) {
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         EdgeToEdge.enable(this);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -98,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         // Ảnh profile & featured cards
         String urlProfile = "https://lh3.googleusercontent.com/aida-public/AB6AXuChsxoWmzwCRstgLqcTDca1SbPewXFrd0uJ5OY1FXuxAbdAscBM9j6kIhXhpstpImEZ9gAb_dxSYbqQ89m8NaPr6el5OQ5Z2YUeNfDh0DY4W0jb1KgYJVGAhvrANoMbLUrLg6s2DwyywmvegE394jntrgSqpxeej_IVKMPbHm8FqQoKbRYehHyNI1CF5738hoct6Bq7hD7ropM4BGBt9-geFXn1Cn9dj1fImBsanHfifcxjGf18spz-dcrPi17FerhLiXzmbr4o2FiP";
         Glide.with(this).load(urlProfile).circleCrop().into(binding.imgProfile);
+        binding.btnProfile.setOnClickListener(v -> startActivity(new Intent(this, ProfileActivity.class)));
     }
 
     /**
