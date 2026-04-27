@@ -46,4 +46,12 @@
     <string name="cd_profile">Hồ sơ cá nhân</string>
     <string name="cd_book_cover">Bìa sách</string>
     <string name="cd_featured_book">Sách nổi bật</string>
+
+    <!-- Reminder Feature -->
+    <string name="tab_reading">ĐANG ĐỌC</string>
+    <string name="tab_favorite">YÊU THÍCH</string>
+    <string name="btn_remove_ads">Tắt quảng cáo</string>
+    <string name="reminder_title">Đã đến giờ đọc sách!</string>
+    <string name="reminder_desc">Hãy dành ít thời gian để đọc những trang sách yêu thích nhé.</string>
+    <string name="reminder_set_success">Đã đặt nhắc nhở lúc %s</string>
 </resources>

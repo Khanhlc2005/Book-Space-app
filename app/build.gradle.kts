@@ -4,20 +4,16 @@ plugins {
 
 android {
     namespace = "com.example.bookspace"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 35
 
     viewBinding {
-        enable = true;
+        enable = true
     }
 
     defaultConfig {
         applicationId = "com.example.bookspace"
         minSdk = 22
-        targetSdk = 36
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -47,6 +43,7 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.glide)
     implementation(libs.cardview)
+    implementation(libs.gson)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
