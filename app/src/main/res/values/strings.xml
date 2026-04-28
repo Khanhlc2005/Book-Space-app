@@ -5,12 +5,12 @@
     <!-- Login -->
     <string name="login_title">Chào mừng trở lại</string>
     <string name="login_subtitle">Đăng nhập để tiếp tục hành trình đọc sách cùng BookSpace.</string>
-    <string name="login_email_hint">Email</string>
-    <string name="login_email_placeholder">Nhập email của bạn</string>
+    <string name="login_email_hint">Username</string>
+    <string name="login_email_placeholder">Nhập username</string>
     <string name="login_password_hint">Mật khẩu</string>
     <string name="login_password_placeholder">Nhập mật khẩu</string>
     <string name="login_button">Đăng nhập</string>
-    <string name="login_demo_hint">Bản demo chấp nhận bất kỳ email hợp lệ và mật khẩu từ 6 ký tự.</string>
+    <string name="login_demo_hint">Bản demo chấp nhận bất kỳ username và mật khẩu từ 6 ký tự.</string>
     <string name="login_remember">Ghi nhớ</string>
     <string name="login_forgot_password">Quên mật khẩu?</string>
     <string name="login_divider">Hoặc</string>
@@ -18,8 +18,8 @@
     <string name="login_facebook">Tiếp tục với Facebook</string>
     <string name="login_signup_prompt">Chưa có tài khoản?</string>
     <string name="login_signup_action">Đăng ký ngay</string>
-    <string name="login_required_error">Vui lòng nhập đầy đủ email và mật khẩu.</string>
-    <string name="login_invalid_email_error">Email không hợp lệ.</string>
+    <string name="login_required_error">Vui lòng nhập đầy đủ username và mật khẩu.</string>
+    <string name="login_invalid_email_error">Username không hợp lệ.</string>
     <string name="login_password_short_error">Mật khẩu cần ít nhất 6 ký tự.</string>
     <string name="login_success">Đăng nhập thành công</string>
     <string name="cd_login_logo">Biểu tượng BookSpace</string>
@@ -73,7 +73,7 @@
     <string name="about_us_button">Về chúng tôi</string>
     <string name="logout_button">Đăng xuất</string>
     <string name="logout_title">Đăng xuất?</string>
-    <string name="logout_message">Thông tin hồ sơ trên thiết bị này sẽ được đưa về mặc định.</string>
+    <string name="logout_message">Bạn có muốn đăng xuất không?</string>
     <string name="logout_success">Đã đăng xuất</string>
     <string name="cancel">Hủy</string>
     <string name="change_password_button">Đổi mật khẩu</string>

@@ -135,7 +135,7 @@
                         android:textSize="12sp" />
 
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/emailInputLayout"
+                        android:id="@+id/usernameInputLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
@@ -147,21 +147,21 @@
                         app:boxCornerRadiusTopStart="6dp"
                         app:boxStrokeColor="@color/primary"
                         app:endIconMode="clear_text"
-                        app:startIconDrawable="@drawable/ic_email"
+                        app:startIconDrawable="@drawable/ic_person"
                         app:startIconTint="@color/outline">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/loginEmailInput"
+                            android:id="@+id/loginUsernameInput"
                             android:layout_width="match_parent"
                             android:layout_height="48dp"
-                            android:autofillHints="emailAddress"
+                            android:autofillHints="username"
                             android:hint="@string/login_email_placeholder"
-                            android:inputType="textEmailAddress"
+                            android:inputType="textPersonName"
                             android:maxLines="1"
                             android:textColor="@color/on_surface"
                             android:textColorHint="@color/outline"
                             android:textSize="14sp"
-                            tools:text="reader@bookspace.vn" />
+                            tools:text="bookspace_reader" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <TextView
@@ -212,7 +212,7 @@
                             android:id="@+id/checkRemember"
                             android:layout_width="wrap_content"
                             android:layout_height="40dp"
-                            android:buttonTint="@color/primary"
+                            android:button="@drawable/checkbox_remember"
                             android:minWidth="0dp"
                             android:paddingEnd="6dp" />
 

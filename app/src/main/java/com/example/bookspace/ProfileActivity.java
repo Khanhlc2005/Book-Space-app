@@ -1,10 +1,13 @@
 package com.example.bookspace;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Patterns;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,9 +21,14 @@ import androidx.core.view.WindowInsetsCompat;
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 public class ProfileActivity extends AppCompatActivity {
     
@@ -94,20 +102,10 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         // Click sửa Tên
-        rowDisplayName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(ProfileActivity.this, EditProfileActivity.class));
-            }
-        });
+        rowDisplayName.setOnClickListener(v -> showEditProfileBottomSheet(true));
 
         // Click sửa Email
-        rowEmail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(ProfileActivity.this, EditProfileActivity.class));
-            }
-        });
+        rowEmail.setOnClickListener(v -> showEditProfileBottomSheet(false));
 
         // Click Về chúng tôi
         if(rowAboutUs != null) {
@@ -121,6 +119,101 @@ public class ProfileActivity extends AppCompatActivity {
 
         if (rowLogout != null) {
             rowLogout.setOnClickListener(v -> confirmLogout());
+        }
+    }
+
+    private void showEditProfileBottomSheet(boolean focusName) {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        View bottomSheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_edit_profile, null);
+        bottomSheetDialog.setContentView(bottomSheetView);
+
+        TextInputLayout nameInputLayout = bottomSheetView.findViewById(R.id.nameInputLayout);
+        TextInputLayout emailInputLayout = bottomSheetView.findViewById(R.id.emailInputLayout);
+        TextInputEditText editNameInput = bottomSheetView.findViewById(R.id.editNameInput);
+        TextInputEditText editEmailInput = bottomSheetView.findViewById(R.id.editEmailInput);
+        MaterialButton btnCancelProfileEdit = bottomSheetView.findViewById(R.id.btnCancelProfileEdit);
+        MaterialButton btnSaveProfile = bottomSheetView.findViewById(R.id.btnSaveProfile);
+
+        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        editNameInput.setText(preferences.getString(KEY_DISPLAY_NAME, getString(R.string.profile_default_name)));
+        editEmailInput.setText(preferences.getString(KEY_EMAIL, ""));
+
+        btnCancelProfileEdit.setOnClickListener(v -> {
+            hideKeyboard(bottomSheetView);
+            bottomSheetDialog.dismiss();
+        });
+
+        btnSaveProfile.setOnClickListener(v -> {
+            if (saveProfileFromBottomSheet(nameInputLayout, emailInputLayout, editNameInput, editEmailInput)) {
+                hideKeyboard(bottomSheetView);
+                bottomSheetDialog.dismiss();
+            }
+        });
+
+        bottomSheetDialog.setOnShowListener(dialogInterface -> {
+            BottomSheetDialog dialog = (BottomSheetDialog) dialogInterface;
+            View bottomSheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
+                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                behavior.setSkipCollapsed(true);
+            }
+
+            TextInputEditText targetInput = focusName ? editNameInput : editEmailInput;
+            targetInput.requestFocus();
+            targetInput.setSelection(targetInput.length());
+            targetInput.postDelayed(() -> {
+                InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (manager != null) {
+                    manager.showSoftInput(targetInput, InputMethodManager.SHOW_IMPLICIT);
+                }
+            }, 150);
+        });
+
+        bottomSheetDialog.show();
+    }
+
+    private boolean saveProfileFromBottomSheet(TextInputLayout nameInputLayout,
+                                               TextInputLayout emailInputLayout,
+                                               TextInputEditText editNameInput,
+                                               TextInputEditText editEmailInput) {
+        String displayName = getInputText(editNameInput.getText());
+        String email = getInputText(editEmailInput.getText());
+
+        nameInputLayout.setError(null);
+        emailInputLayout.setError(null);
+
+        if (TextUtils.isEmpty(displayName)) {
+            nameInputLayout.setError(getString(R.string.edit_profile_name_required));
+            editNameInput.requestFocus();
+            return false;
+        }
+
+        if (!TextUtils.isEmpty(email) && !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            emailInputLayout.setError(getString(R.string.edit_profile_email_invalid));
+            editEmailInput.requestFocus();
+            return false;
+        }
+
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .edit()
+                .putString(KEY_DISPLAY_NAME, displayName)
+                .putString(KEY_EMAIL, email)
+                .apply();
+
+        updateData();
+        Toast.makeText(this, R.string.edit_profile_saved, Toast.LENGTH_SHORT).show();
+        return true;
+    }
+
+    private String getInputText(CharSequence value) {
+        return value == null ? "" : value.toString().trim();
+    }
+
+    private void hideKeyboard(View view) {
+        InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (manager != null && view != null) {
+            manager.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 

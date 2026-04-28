@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Patterns;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
@@ -48,26 +47,20 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void attemptLogin() {
-        String email = getInputText(binding.loginEmailInput.getText());
+        String username = getInputText(binding.loginUsernameInput.getText());
         String password = getInputText(binding.loginPasswordInput.getText());
 
-        binding.emailInputLayout.setError(null);
+        binding.usernameInputLayout.setError(null);
         binding.passwordInputLayout.setError(null);
 
-        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
-            if (TextUtils.isEmpty(email)) {
-                binding.emailInputLayout.setError(getString(R.string.login_required_error));
-                binding.loginEmailInput.requestFocus();
+        if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password)) {
+            if (TextUtils.isEmpty(username)) {
+                binding.usernameInputLayout.setError(getString(R.string.login_required_error));
+                binding.loginUsernameInput.requestFocus();
             } else {
                 binding.passwordInputLayout.setError(getString(R.string.login_required_error));
                 binding.loginPasswordInput.requestFocus();
             }
-            return;
-        }
-
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            binding.emailInputLayout.setError(getString(R.string.login_invalid_email_error));
-            binding.loginEmailInput.requestFocus();
             return;
         }
 
@@ -77,32 +70,23 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        SessionManager.login(this, email);
-        syncProfileFromLogin(email);
+        SessionManager.login(this, username);
+        syncProfileFromLogin(username);
         hideKeyboard();
         Toast.makeText(this, R.string.login_success, Toast.LENGTH_SHORT).show();
         openMainActivity();
     }
 
-    private void syncProfileFromLogin(String email) {
+    private void syncProfileFromLogin(String username) {
         SharedPreferences preferences = getSharedPreferences(ProfileActivity.PREFS_NAME, MODE_PRIVATE);
         String displayName = preferences.getString(ProfileActivity.KEY_DISPLAY_NAME, "");
-        SharedPreferences.Editor editor = preferences.edit()
-                .putString(ProfileActivity.KEY_EMAIL, email);
+        SharedPreferences.Editor editor = preferences.edit();
 
         if (TextUtils.isEmpty(displayName)) {
-            editor.putString(ProfileActivity.KEY_DISPLAY_NAME, createDisplayName(email));
+            editor.putString(ProfileActivity.KEY_DISPLAY_NAME, username);
         }
 
         editor.apply();
-    }
-
-    private String createDisplayName(String email) {
-        int atIndex = email.indexOf('@');
-        if (atIndex > 0) {
-            return email.substring(0, atIndex);
-        }
-        return getString(R.string.profile_default_name);
     }
 
     private void openMainActivity() {
