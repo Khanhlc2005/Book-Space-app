@@ -7,27 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/reading_bg">
 
-    <View
-        android:id="@+id/scroll_track_line"
-        android:layout_width="3dp"
-        android:layout_height="0dp"
-        android:background="@color/reading_accent"
-        android:alpha="0.15"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintTop_toBottomOf="@id/top_bar"
-        app:layout_constraintBottom_toTopOf="@id/bottom_status_bar"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <View
-        android:id="@+id/scroll_thumb"
-        android:layout_width="14dp"
-        android:layout_height="40dp"
-        android:background="@drawable/reading_scroll_thumb"
-        android:alpha="0.5"
-        android:layout_marginEnd="2dp"
-        app:layout_constraintTop_toBottomOf="@id/top_bar"
-        app:layout_constraintEnd_toEndOf="parent" />
-
+    <!-- Thanh top bar -->
     <LinearLayout
         android:id="@+id/top_bar"
         android:layout_width="0dp"
@@ -49,10 +29,9 @@
             android:src="@drawable/ic_arrow_back"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             app:tint="@color/reading_text_muted"
-            android:contentDescription="Back" />
+            android:contentDescription="Quay lại" />
 
         <LinearLayout
-            android:id="@+id/top_bar_meta"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
@@ -64,7 +43,7 @@
                 android:id="@+id/tv_chapter_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="CHAPTER IV"
+                android:text="CHƯƠNG 1"
                 android:textSize="10sp"
                 android:fontFamily="sans-serif-medium"
                 android:letterSpacing="0.14"
@@ -88,7 +67,7 @@
             android:src="@drawable/ic_toc"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             app:tint="@color/reading_text_muted"
-            android:contentDescription="Table of contents"
+            android:contentDescription="Mục lục"
             android:layout_marginEnd="4dp" />
 
         <ImageButton
@@ -98,16 +77,16 @@
             android:src="@drawable/ic_settings"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             app:tint="@color/reading_text_muted"
-            android:contentDescription="Settings" />
+            android:contentDescription="Cài đặt" />
     </LinearLayout>
 
-    <androidx.core.widget.NestedScrollView
+    <!-- Vùng đọc sách - chứa cả nội dung và nút chuyển trang -->
+    <ScrollView
         android:id="@+id/reading_scroll_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:overScrollMode="never"
-        android:paddingBottom="80dp"
-        android:clipToPadding="false"
+        android:fillViewport="true"
         app:layout_constraintTop_toBottomOf="@id/top_bar"
         app:layout_constraintBottom_toTopOf="@id/bottom_status_bar"
         app:layout_constraintStart_toStartOf="parent"
@@ -118,13 +97,15 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="24dp"
-            android:paddingTop="28dp">
+            android:paddingTop="28dp"
+            android:paddingBottom="20dp">
 
+            <!-- Nội dung đọc -->
             <TextView
                 android:id="@+id/tv_paragraph_1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="\We are but stewards of these echoes,\ the Head Librarian had once told him. Elias hadn\'t understood it then. He was young, obsessed with the digital infinite, the way a billion books could be distilled into a single shard of glass. But as the years turned into a slow, rhythmic dance of cataloging and preservation, he realized that the infinite was often a mask for the empty."
+                android:text="We are but stewards of these echoes, the Head Librarian had once told him. Elias hadn't understood it then. He was young, obsessed with the digital infinite, the way a billion books could be distilled into a single shard of glass. But as the years turned into a slow, rhythmic dance of cataloging and preservation, he realized that the infinite was often a mask for the empty."
                 android:textSize="@dimen/reading_text_size"
                 android:lineSpacingMultiplier="1.65"
                 android:textColor="@color/reading_text"
@@ -193,20 +174,55 @@
                 android:textSize="@dimen/reading_text_size"
                 android:lineSpacingMultiplier="1.65"
                 android:textColor="@color/reading_text"
-                android:layout_marginBottom="@dimen/reading_paragraph_spacing" />
+                android:layout_marginBottom="24dp" />
 
+            <!-- Thanh chuyển trang - nằm ở cuối mỗi trang đọc -->
+            <LinearLayout
+                android:id="@+id/bottom_navigation_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- Nút Trang trước -->
+                <Button
+                    android:id="@+id/btn_prev_chapter"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="44dp"
+                    android:text="◀ Trang trước"
+                    android:textSize="12sp"
+                    android:background="@drawable/reading_btn_bg"
+                    android:textColor="@color/reading_text" />
+
+                <!-- Khoảng cách giữa 2 nút -->
+                <Space
+                    android:layout_width="16dp"
+                    android:layout_height="match_parent" />
+
+                <!-- Nút Trang tiếp -->
+                <Button
+                    android:id="@+id/btn_next_chapter"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="44dp"
+                    android:text="Trang tiếp ▶"
+                    android:textSize="12sp"
+                    android:background="@drawable/reading_btn_bg"
+                    android:textColor="@color/reading_text" />
+            </LinearLayout>
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+    </ScrollView>
 
+    <!-- Thanh trạng thái: Trang đang đọc + % hoàn thành (frozen ở cuối) -->
     <LinearLayout
         android:id="@+id/bottom_status_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingHorizontal="24dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="14dp"
         android:gravity="center_vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="12dp"
         android:background="@color/reading_topbar_bg"
         android:elevation="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -214,29 +230,24 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
-            android:id="@+id/tv_page_info"
+            android:id="@+id/tv_page_number"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="PAGE 84 OF 240"
-            android:textSize="11sp"
-            android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.06"
-            android:textAllCaps="true"
+            android:text="Trang 1 / 10"
+            android:textSize="13sp"
             android:textColor="@color/reading_text_muted" />
 
         <TextView
             android:id="@+id/tv_progress_percent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="35% COMPLETED"
-            android:textSize="11sp"
-            android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.06"
-            android:textAllCaps="true"
+            android:text="1%"
+            android:textSize="13sp"
             android:textColor="@color/reading_accent" />
     </LinearLayout>
 
+    <!-- Panel cài đặt -->
     <androidx.cardview.widget.CardView
         android:id="@+id/settings_panel"
         android:layout_width="260dp"
@@ -247,7 +258,6 @@
         android:elevation="12dp"
         app:cardCornerRadius="18dp"
         app:cardBackgroundColor="@color/reading_surface"
-        app:cardElevation="12dp"
         app:layout_constraintTop_toBottomOf="@id/top_bar"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -257,9 +267,10 @@
             android:orientation="vertical"
             android:padding="20dp">
 
+            <!-- Độ sáng -->
             <TextView
                 style="@style/ReadingSettingsLabel"
-                android:text="BRIGHTNESS" />
+                android:text="ĐỘ SÁNG" />
             <SeekBar
                 android:id="@+id/slider_brightness"
                 android:layout_width="match_parent"
@@ -270,9 +281,10 @@
                 android:thumbTint="@color/reading_accent"
                 android:layout_marginBottom="20dp" />
 
+            <!-- Cỡ chữ -->
             <TextView
                 style="@style/ReadingSettingsLabel"
-                android:text="TEXT SIZE" />
+                android:text="CỠ CHỮ" />
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -299,9 +311,10 @@
                     android:textSize="16sp" />
             </LinearLayout>
 
+            <!-- Phông chữ -->
             <TextView
                 style="@style/ReadingSettingsLabel"
-                android:text="FONT FAMILY" />
+                android:text="PHÔNG CHỮ" />
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -322,14 +335,14 @@
                     android:text="Inter Sans" />
             </LinearLayout>
 
+            <!-- Chủ đề -->
             <TextView
                 style="@style/ReadingSettingsLabel"
-                android:text="THEME" />
+                android:text="CHỦ ĐỀ" />
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="20dp">
+                android:orientation="horizontal">
 
                 <View
                     android:id="@+id/btn_theme_light"
@@ -351,41 +364,6 @@
                     android:layout_height="36dp"
                     android:background="@drawable/reading_theme_circle_dark" />
             </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        style="@style/ReadingSettingsLabel"
-                        android:text="VERTICAL SCROLL"
-                        android:layout_marginBottom="2dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Continuous reading mode"
-                        android:textSize="11sp"
-                        android:textColor="@color/reading_text_muted" />
-                </LinearLayout>
-
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/toggle_scroll"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    app:trackTint="@color/reading_accent"
-                    app:thumbTint="@color/on_primary" />
-            </LinearLayout>
-
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
