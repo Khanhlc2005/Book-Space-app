@@ -49,6 +49,12 @@ public class CurrentlyReadingListActivity extends AppCompatActivity {
     }
 
     private void setupNavigation() {
+        // Nút Quay lại
+        View btnBack = findViewById(R.id.btnBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish());
+        }
+
         TextView tabFavorite = findViewById(R.id.tabFavorite);
         if (tabFavorite != null) {
             tabFavorite.setOnClickListener(v -> {
