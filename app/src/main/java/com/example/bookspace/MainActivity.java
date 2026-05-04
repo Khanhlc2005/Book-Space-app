@@ -225,7 +225,10 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
             container.setOnClickListener(v -> {
                 if (ids[0] == R.id.nav_reader) {
                     startActivity(new Intent(this, ReadingActivity.class));
+                } else if (ids[0] == R.id.nav_library) {
+                    startActivity(new Intent(this, CurrentlyReadingListActivity.class));
                 }
+
                 for (int[] other : navSets) {
                     View otherContainer = findViewById(other[0]);
                     otherContainer.setBackground(null);

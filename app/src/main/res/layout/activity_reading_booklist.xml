@@ -12,7 +12,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingHorizontal="24dp"
+        android:paddingHorizontal="16dp"
         android:paddingVertical="16dp"
         android:gravity="center_vertical"
         android:background="?attr/colorSurface"
@@ -21,12 +21,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_arrow_back"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="?attr/colorOnSurfaceVariant"
+            android:contentDescription="Quay lại" />
+
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:layout_marginStart="8dp">
 
             <TextView
                 android:id="@+id/tabReading"
@@ -35,9 +45,9 @@
                 android:text="ĐANG ĐỌC"
                 android:background="@drawable/chip_active_bg"
                 android:textColor="?attr/colorOnPrimary"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
-                android:paddingHorizontal="20dp"
+                android:paddingHorizontal="16dp"
                 android:paddingVertical="8dp"
                 android:elevation="2dp"/>
 
@@ -47,13 +57,22 @@
                 android:layout_height="wrap_content"
                 android:text="YÊU THÍCH"
                 android:textColor="?attr/colorOnSurfaceVariant"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:fontFamily="sans-serif-medium"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="8dp"
                 android:layout_marginStart="8dp"
                 android:background="?attr/selectableItemBackground"/>
         </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnReminder"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_clock"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="?attr/colorOnSurfaceVariant"
+            android:contentDescription="Nhắc nhở đọc sách" />
 
     </LinearLayout>
 
@@ -94,7 +113,9 @@
                 android:gravity="center"
                 android:background="?attr/selectableItemBackground"
                 android:paddingHorizontal="24dp"
-                android:paddingVertical="12dp">
+                android:paddingVertical="12dp"
+                android:clickable="true"
+                android:focusable="true">
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -112,11 +133,14 @@
 
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center">
             <androidx.cardview.widget.CardView
+                android:id="@+id/nav_reader"
                 android:layout_width="40dp"
                 android:layout_height="56dp"
                 app:cardCornerRadius="6dp"
                 app:cardElevation="6dp"
-                app:cardBackgroundColor="?attr/colorSurfaceVariant">
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
+                android:clickable="true"
+                android:focusable="true">
                 <ImageView
                     android:id="@+id/imgCurrentReading"
                     android:layout_width="match_parent"
