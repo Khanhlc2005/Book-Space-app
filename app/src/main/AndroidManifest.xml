@@ -3,6 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -18,7 +24,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -39,6 +44,20 @@
             android:exported="false" />
         <activity
             android:name=".EditProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CurrentlyReadingListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".FavouritesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ReminderActivity"
+            android:exported="false" />
+
+        <receiver
+            android:name=".ReminderReceiver"
+            android:enabled="true"
             android:exported="false" />
     </application>
 
