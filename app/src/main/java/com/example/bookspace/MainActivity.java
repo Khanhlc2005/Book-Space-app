@@ -55,7 +55,6 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         if (!SessionManager.isLoggedIn(this)) {
             Intent intent = new Intent(this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -87,12 +86,24 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
     }
 
     private void seedDatabase() {
-        if (repo.getAllBooks().isEmpty()) {
+        if (repo.getAllBooks().size() < 14) {
             AppDatabase.databaseWriteExecutor.execute(() -> {
                 BookDao dao = AppDatabase.getInstance(this).bookDao();
                 List<BookEntity> sampleBooks = new ArrayList<>();
-                sampleBooks.add(createBookEntity("Nhà Giả Kim", "Paulo Coelho", "https://picsum.photos/600/400?random=1", 225, "Hành trình tìm kiếm vận mệnh.", "VĂN HỌC"));
-                sampleBooks.add(createBookEntity("Đắc Nhân Tâm", "Dale Carnegie", "https://picsum.photos/600/400?random=2", 320, "Nghệ thuật thu phục lòng người.", "KỸ NĂNG SỐNG"));
+                sampleBooks.add(createBookEntity("Nhà Giả Kim", "Paulo Coelho", "https://picsum.photos/600/400?random=1", 225, "Một câu chuyện cổ tích giản dị, nhân ái, giàu chất thơ...", "VĂN HỌC"));
+                sampleBooks.add(createBookEntity("Đắc Nhân Tâm", "Dale Carnegie", "https://picsum.photos/600/400?random=2", 320, "Nghệ thuật thu phục lòng người...", "KỸ NĂNG SỐNG"));
+                sampleBooks.add(createBookEntity("Tuổi Trẻ Đáng Giá Bao Nhiêu", "Rosie Nguyễn", "https://picsum.photos/600/400?random=3", 285, "Những kinh nghiệm thực tế của tác giả trên hành trình tuổi trẻ...", "KỸ NĂNG SỐNG"));
+                sampleBooks.add(createBookEntity("Sapiens: Lược sử loài người", "Yuval Noah Harari", "https://picsum.photos/600/400?random=4", 512, "Lịch sử tiến hóa của loài người từ thuở sơ khai...", "KINH ĐIỂN"));
+                sampleBooks.add(createBookEntity("Tâm Lý Học Tội Phạm", "Khương Luật", "https://picsum.photos/600/400?random=5", 350, "Phân tích tâm lý học tội phạm qua các vụ án có thật...", "TÂM LÝ"));
+                sampleBooks.add(createBookEntity("Cha Giàu Cha Nghèo", "Robert Kiyosaki", "https://picsum.photos/600/400?random=6", 360, "Bài học về giáo dục tài chính và đầu tư...", "KINH TẾ"));
+                sampleBooks.add(createBookEntity("Cây Cam Ngọt Của Tôi", "José Mauro de Vasconcelos", "https://picsum.photos/600/400?random=7", 244, "Câu chuyện cảm động về cậu bé Zezé...", "VĂN HỌC"));
+                sampleBooks.add(createBookEntity("Nghĩ Giàu Làm Giàu", "Napoleon Hill", "https://picsum.photos/600/400?random=8", 400, "13 nguyên tắc nghĩ giàu làm giàu...", "KINH TẾ"));
+                sampleBooks.add(createBookEntity("Sức Mạnh Của Thói Quen", "Charles Duhigg", "https://picsum.photos/600/400?random=9", 380, "Cách tạo thói quen tốt và loại bỏ thói quen xấu...", "KỸ NĂNG SỐNG"));
+                sampleBooks.add(createBookEntity("Muôn Kiếp Nhân Sinh", "Nguyên Phong", "https://picsum.photos/600/400?random=10", 420, "Những câu chuyện tiền kiếp và luật nhân quả...", "TÂM LÝ"));
+                sampleBooks.add(createBookEntity("Quẳng Gánh Lo Đi Và Vui Sống", "Dale Carnegie", "https://picsum.photos/600/400?random=11", 340, "Những nguyên tắc giúp người đọc quản lý lo âu và sống nhẹ nhàng hơn.", "KỸ NĂNG SỐNG"));
+                sampleBooks.add(createBookEntity("Veronika Quyết Chết", "Paulo Coelho", "https://picsum.photos/600/400?random=12", 256, "Một hành trình nhìn lại ý nghĩa sống qua lựa chọn và tự do cá nhân.", "VĂN HỌC"));
+                sampleBooks.add(createBookEntity("Homo Deus", "Yuval Noah Harari", "https://picsum.photos/600/400?random=13", 480, "Tác giả tiếp tục đặt câu hỏi về tương lai nhân loại và công nghệ.", "KINH ĐIỂN"));
+                sampleBooks.add(createBookEntity("Hành Trình Về Phương Đông", "Nguyên Phong", "https://picsum.photos/600/400?random=14", 320, "Những ghi chép về văn hóa, triết học và trải nghiệm tâm linh phương Đông.", "TÂM LÝ"));
                 dao.insertAll(sampleBooks);
                 runOnUiThread(() -> {
                     setupRecyclerViews();

@@ -570,7 +570,7 @@
                         android:id="@+id/txtPrimaryAction"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Đọc ngay"
+                        android:text="@string/book_action_download"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="@color/on_primary" />
