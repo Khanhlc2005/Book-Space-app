@@ -233,5 +233,13 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         if (imgCover != null) Glide.with(this).load(book.getCoverUrl()).into(imgCover);
 
         bottomSheetDialog.show();
+
+        // Nút "Đọc ngay" — truyền bookId sang ReadingActivity
+        bottomSheetView.findViewById(R.id.btnDownload).setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            Intent intent = new Intent(MainActivity.this, ReadingActivity.class);
+            intent.putExtra("bookId", book.getId());
+            startActivity(intent);
+        });
     }
 }

@@ -1,5 +1,6 @@
 package com.example.bookspace;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import androidx.activity.EdgeToEdge;
@@ -147,5 +148,13 @@ public class CategoryActivity extends AppCompatActivity implements OnBookClickLi
         });
 
         bottomSheetDialog.show();
+
+        // Nút "Đọc ngay" — truyền bookId sang ReadingActivity
+        bottomSheetView.findViewById(R.id.btnDownload).setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            Intent intent = new Intent(CategoryActivity.this, ReadingActivity.class);
+            intent.putExtra("bookId", book.getId());
+            startActivity(intent);
+        });
     }
 }
