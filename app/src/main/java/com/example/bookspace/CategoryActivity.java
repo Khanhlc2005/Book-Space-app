@@ -102,7 +102,7 @@ public class CategoryActivity extends AppCompatActivity implements OnBookClickLi
 
     @Override
     public void onBookClick(Book book) {
-        showBookDetailBottomSheet(book);
+        BookDetailBottomSheet.show(this, book);
     }
 
     private void showBookDetailBottomSheet(Book book) {

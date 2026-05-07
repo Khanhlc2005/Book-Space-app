@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.room.Database;
+import androidx.room.migration.Migration;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -57,7 +58,7 @@ import java.util.concurrent.Executors;
         ReadingProgressEntity.class,
         ReadingSettingsEntity.class
     },
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -80,6 +81,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             AppDatabase.class, "bookspace_room_db")
                             .allowMainThreadQueries() // Mặc định cho phép học tập/Đồ án
+                            .addMigrations(MIGRATION_1_2)
                             .addCallback(roomCallback)
                             .build();
                 }
@@ -116,6 +118,15 @@ public abstract class AppDatabase extends RoomDatabase {
         b.pages = pages;
         b.description = desc;
         b.category = cat;
+        b.isDownloaded = false;
         return b;
     }
+
+    private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE books ADD COLUMN isDownloaded INTEGER NOT NULL DEFAULT 0");
+            database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_books_title_author ON books(title, author)");
+        }
+    };
 }

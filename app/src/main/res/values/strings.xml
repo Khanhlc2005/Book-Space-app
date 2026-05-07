@@ -57,6 +57,11 @@
     <string name="book_author_3">Dale Carnegie</string>
     <string name="book_title_4">Cội nguồn</string>
     <string name="book_author_4">Dan Brown</string>
+    <string name="book_action_download">Tải sách</string>
+    <string name="book_action_read">Đọc sách</string>
+    <string name="book_downloaded_success">Đã tải sách về máy</string>
+    <string name="book_favourite_added">Đã thêm vào yêu thích</string>
+    <string name="book_favourite_removed">Đã xoá khỏi yêu thích</string>
 
     <!-- Bottom Nav -->
     <string name="nav_home">HOME</string>

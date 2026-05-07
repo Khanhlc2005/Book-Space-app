@@ -20,16 +20,26 @@ public class FavouriteRepository {
     public void toggle(int bookId) {
         // Dùng ExecutorService để gọi lệnh thêm xoá ở Background (Khoe kĩ năng cho điểm cao 😎)
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            if (isFavourite(bookId)) {
-                favouriteDao.removeFavourite(userId, bookId);
-            } else {
-                FavouriteEntity fav = new FavouriteEntity();
-                fav.userId = userId;
-                fav.bookId = bookId;
-                fav.addedAt = System.currentTimeMillis();
-                favouriteDao.addFavourite(fav);
-            }
+            setFavourite(bookId, !isFavourite(bookId));
         });
+    }
+
+    public boolean toggleSync(int bookId) {
+        boolean nextState = !isFavourite(bookId);
+        setFavourite(bookId, nextState);
+        return nextState;
+    }
+
+    public void setFavourite(int bookId, boolean isFavourite) {
+        if (isFavourite) {
+            FavouriteEntity fav = new FavouriteEntity();
+            fav.userId = userId;
+            fav.bookId = bookId;
+            fav.addedAt = System.currentTimeMillis();
+            favouriteDao.addFavourite(fav);
+        } else {
+            favouriteDao.removeFavourite(userId, bookId);
+        }
     }
 
     public boolean isFavourite(int bookId) {
