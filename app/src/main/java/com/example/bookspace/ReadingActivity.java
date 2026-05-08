@@ -47,6 +47,7 @@ public class ReadingActivity extends AppCompatActivity {
         // Khởi tạo database
         db = AppDatabase.getInstance(this);
         progressDao = db.readingProgressDao();
+        bookId = getIntent().getIntExtra("BOOK_ID", bookId);
 
         // Tải dữ liệu chương
         initChapterData();
