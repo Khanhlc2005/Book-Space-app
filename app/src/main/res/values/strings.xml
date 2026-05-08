@@ -58,7 +58,11 @@
     <string name="book_title_4">Cội nguồn</string>
     <string name="book_author_4">Dan Brown</string>
     <string name="book_action_download">Tải sách</string>
+    <string name="book_action_downloading">Đang tải...</string>
     <string name="book_action_read">Đọc sách</string>
+    <string name="book_download_status_not_downloaded">Chưa tải về máy</string>
+    <string name="book_download_status_downloading">Đang tải về máy</string>
+    <string name="book_download_status_downloaded">Đã tải về máy</string>
     <string name="book_downloaded_success">Đã tải sách về máy</string>
     <string name="book_favourite_added">Đã thêm vào yêu thích</string>
     <string name="book_favourite_removed">Đã xoá khỏi yêu thích</string>

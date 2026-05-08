@@ -8,6 +8,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
@@ -38,6 +39,7 @@ public final class BookDetailBottomSheet {
         CardView btnPrimaryAction = bottomSheetView.findViewById(R.id.btnDownload);
         TextView txtPrimaryAction = bottomSheetView.findViewById(R.id.txtPrimaryAction);
         ImageView imgPrimaryActionIcon = bottomSheetView.findViewById(R.id.imgPrimaryActionIcon);
+        TextView txtDownloadStatus = bottomSheetView.findViewById(R.id.txtDownloadStatus);
         CardView btnFavorite = bottomSheetView.findViewById(R.id.btnFavorite);
         ImageView imgFavoriteAction = bottomSheetView.findViewById(R.id.imgFavoriteAction);
 
@@ -59,7 +61,7 @@ public final class BookDetailBottomSheet {
                     .into(imgCover);
         }
 
-        updatePrimaryAction(activity, bookRepository, bookId, txtPrimaryAction, imgPrimaryActionIcon);
+        updateDownloadUi(activity, bookRepository, bookId, btnPrimaryAction, txtPrimaryAction, imgPrimaryActionIcon, txtDownloadStatus, false);
         updateFavouriteAction(favouriteRepository.isFavourite(bookId), imgFavoriteAction);
 
         if (btnPrimaryAction != null) {
@@ -71,9 +73,12 @@ public final class BookDetailBottomSheet {
                     activity.startActivity(intent);
                     bottomSheetDialog.dismiss();
                 } else {
-                    bookRepository.markDownloaded(bookId);
-                    updatePrimaryAction(activity, bookRepository, bookId, txtPrimaryAction, imgPrimaryActionIcon);
-                    Toast.makeText(activity, R.string.book_downloaded_success, Toast.LENGTH_SHORT).show();
+                    updateDownloadUi(activity, bookRepository, bookId, btnPrimaryAction, txtPrimaryAction, imgPrimaryActionIcon, txtDownloadStatus, true);
+                    btnPrimaryAction.postDelayed(() -> {
+                        bookRepository.markDownloaded(bookId);
+                        updateDownloadUi(activity, bookRepository, bookId, btnPrimaryAction, txtPrimaryAction, imgPrimaryActionIcon, txtDownloadStatus, false);
+                        Toast.makeText(activity, R.string.book_downloaded_success, Toast.LENGTH_SHORT).show();
+                    }, 700);
                 }
             });
         }
@@ -103,21 +108,48 @@ public final class BookDetailBottomSheet {
         bottomSheetDialog.show();
     }
 
-    private static void updatePrimaryAction(Activity activity,
-                                            BookRepository bookRepository,
-                                            int bookId,
-                                            TextView txtPrimaryAction,
-                                            ImageView imgPrimaryActionIcon) {
+    private static void updateDownloadUi(Activity activity,
+                                         BookRepository bookRepository,
+                                         int bookId,
+                                         CardView btnPrimaryAction,
+                                         TextView txtPrimaryAction,
+                                         ImageView imgPrimaryActionIcon,
+                                         TextView txtDownloadStatus,
+                                         boolean isDownloading) {
         boolean isDownloaded = bookRepository.isDownloaded(bookId);
+        if (btnPrimaryAction != null) {
+            btnPrimaryAction.setEnabled(!isDownloading);
+            btnPrimaryAction.setAlpha(isDownloading ? 0.78f : 1f);
+        }
+
         if (txtPrimaryAction != null) {
-            txtPrimaryAction.setText(isDownloaded
-                    ? R.string.book_action_read
-                    : R.string.book_action_download);
+            if (isDownloading) {
+                txtPrimaryAction.setText(R.string.book_action_downloading);
+            } else {
+                txtPrimaryAction.setText(isDownloaded
+                        ? R.string.book_action_read
+                        : R.string.book_action_download);
+            }
         }
         if (imgPrimaryActionIcon != null) {
             imgPrimaryActionIcon.setImageResource(isDownloaded
                     ? R.drawable.ic_menu_book
                     : R.drawable.ic_download);
+        }
+        if (txtDownloadStatus != null) {
+            if (isDownloading) {
+                txtDownloadStatus.setText(R.string.book_download_status_downloading);
+                txtDownloadStatus.setBackgroundResource(R.drawable.chip_bg);
+                txtDownloadStatus.setTextColor(ContextCompat.getColor(activity, R.color.primary));
+            } else if (isDownloaded) {
+                txtDownloadStatus.setText(R.string.book_download_status_downloaded);
+                txtDownloadStatus.setBackgroundResource(R.drawable.chip_active_bg);
+                txtDownloadStatus.setTextColor(ContextCompat.getColor(activity, R.color.on_primary));
+            } else {
+                txtDownloadStatus.setText(R.string.book_download_status_not_downloaded);
+                txtDownloadStatus.setBackgroundResource(R.drawable.chip_bg);
+                txtDownloadStatus.setTextColor(ContextCompat.getColor(activity, R.color.on_surface_variant));
+            }
         }
     }
 
