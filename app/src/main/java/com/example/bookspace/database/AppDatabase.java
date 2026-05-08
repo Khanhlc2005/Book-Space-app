@@ -13,52 +13,27 @@ import com.example.bookspace.database.dao.BookDao;
 import com.example.bookspace.database.dao.FavouriteDao;
 import com.example.bookspace.database.dao.ReadingProgressDao;
 import com.example.bookspace.database.dao.ReadingSettingsDao;
+import com.example.bookspace.database.dao.ReminderDao;
 import com.example.bookspace.database.entity.BookEntity;
 import com.example.bookspace.database.entity.FavouriteEntity;
 import com.example.bookspace.database.entity.ReadingProgressEntity;
 import com.example.bookspace.database.entity.ReadingSettingsEntity;
+import com.example.bookspace.database.entity.ReminderEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * Hướng dẫn sử dụng AppDatabase:
- * 
- * 1. Khởi tạo và lấy instance của Database (Thường gọi trong Activity / Fragment / Repository):
- *    AppDatabase db = AppDatabase.getInstance(context);
- * 
- * 2. Lấy các DAO (Data Access Object) tương ứng để thao tác với các bảng:
- *    BookDao bookDao = db.bookDao();
- *    FavouriteDao favouriteDao = db.favouriteDao();
- *    ReadingProgressDao progressDao = db.readingProgressDao();
- *    ReadingSettingsDao settingsDao = db.readingSettingsDao();
- * 
- * 3. Thực hiện thao tác với dữ liệu (CRUD - Create, Read, Update, Delete):
- *    - Đọc dữ liệu: List<BookEntity> books = bookDao.getAllBooks();
- *    - Thêm dữ liệu: bookDao.insert(new BookEntity(...));
- *    - Cập nhật tiến độ đọc: progressDao.insertOrUpdate(new ReadingProgressEntity(...));
- * 
- * *** LƯU Ý QUAN TRỌNG VỀ HIỆU SUẤT (Threading) ***
- * - Project hiện tại đang gọi `.allowMainThreadQueries()` để ĐƠN GIẢN HOÁ quá trình học / làm đồ án.
- *   Nghĩa là bạn CÓ THỂ gọi thao tác CSDL trực tiếp trên Main Thread.
- * - Tuу nhiên, trong thực tế (Best Practice), thao tác DB mất thời gian và có thể làm lag giao diện (ANR).
- * - Khuyến khích sử dụng `AppDatabase.databaseWriteExecutor` (đã khai báo ở dưới) cho các thao tác đổi dữ liệu (Insert/Update/Delete).
- * 
- * Ví dụ chạy dưới luồng nền (Background thread):
- * AppDatabase.databaseWriteExecutor.execute(() -> {
- *     db.bookDao().insert(newBook);
- * });
- */
 @Database(
     entities = {
         BookEntity.class,
         FavouriteEntity.class,
         ReadingProgressEntity.class,
-        ReadingSettingsEntity.class
+        ReadingSettingsEntity.class,
+        ReminderEntity.class
     },
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -67,10 +42,9 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract FavouriteDao favouriteDao();
     public abstract ReadingProgressDao readingProgressDao();
     public abstract ReadingSettingsDao readingSettingsDao();
+    public abstract ReminderDao reminderDao();
 
     private static volatile AppDatabase INSTANCE;
-    
-    // Nơi chạy Thread nền chuẩn chỉnh theo Android (thay cho AsyncTask)
     public static final ExecutorService databaseWriteExecutor =
             Executors.newFixedThreadPool(4);
 
@@ -80,8 +54,8 @@ public abstract class AppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             AppDatabase.class, "bookspace_room_db")
-                            .allowMainThreadQueries() // Mặc định cho phép học tập/Đồ án
-                            .addMigrations(MIGRATION_1_2)
+                            .allowMainThreadQueries()
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                             .addCallback(roomCallback)
                             .build();
                 }
@@ -94,7 +68,6 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
-            // Dùng ExecutorService để gọi insert dữ liệu ở background thread mới ngầu 😎
             databaseWriteExecutor.execute(() -> {
                 BookDao dao = INSTANCE.bookDao();
                 List<BookEntity> sampleBooks = new ArrayList<>();
@@ -123,6 +96,13 @@ public abstract class AppDatabase extends RoomDatabase {
     }
 
     private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE IF NOT EXISTS `reminders` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `hour` INTEGER NOT NULL, `minute` INTEGER NOT NULL, `isActive` INTEGER NOT NULL)");
+        }
+    };
+
+    private static final Migration MIGRATION_2_3 = new Migration(2, 3) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE books ADD COLUMN isDownloaded INTEGER NOT NULL DEFAULT 0");
