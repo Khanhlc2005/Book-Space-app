@@ -72,8 +72,8 @@ public abstract class AppDatabase extends RoomDatabase {
                 BookDao dao = INSTANCE.bookDao();
                 List<BookEntity> sampleBooks = new ArrayList<>();
                 sampleBooks.add(createBook("Trưởng Thành Sau Ngàn Lần Tranh Đấu", "Rando Kim", "https://picsum.photos/600/400?random=101", 300, "Mô tả 1", "KỸ NĂNG SỐNG"));
-                sampleBooks.add(createBook("Một Thoáng Ta Rực Rỡ Ở Nhân Gian", "Ocean Vuong", "https://picsum.photos/600/400?random=102", 350, "Mô tả 2", "TIỂU THUYẾT"));
-                sampleBooks.add(createBook("Thiên Tài Bên Trái, Kẻ Điên Bên Phải", "Cao Minh", "https://picsum.photos/600/400?random=103", 400, "Mô tả 3", "TÂM LÝ HỌC"));
+                sampleBooks.add(createBook("Một Thoáng Ta Rực Rỡ Ở Nhân Gian", "Ocean Vuong", "https://picsum.photos/600/400?random=102", 350, "Mô tả 2", "VĂN HỌC"));
+                sampleBooks.add(createBook("Thiên Tài Bên Trái, Kẻ Điên Bên Phải", "Cao Minh", "https://picsum.photos/600/400?random=103", 400, "Mô tả 3", "TÂM LÝ"));
                 sampleBooks.add(createBook("Tuổi Trẻ Đáng Giá Bao Nhiêu", "Rosie Nguyễn", "https://picsum.photos/600/400?random=104", 250, "Mô tả 4", "KỸ NĂNG SỐNG"));
                 sampleBooks.add(createBook("Dám Bị Ghét", "Kishimi Ichiro", "https://picsum.photos/600/400?random=105", 320, "Mô tả 5", "TÂM LÝ"));
                 sampleBooks.add(createBook("Đắc Nhân Tâm", "Dale Carnegie", "https://picsum.photos/600/400?random=106", 320, "Sách kỹ năng sống hay nhất...", "KỸ NĂNG SỐNG"));
