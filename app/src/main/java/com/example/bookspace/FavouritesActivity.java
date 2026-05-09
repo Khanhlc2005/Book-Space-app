@@ -21,6 +21,23 @@ public class FavouritesActivity extends AppCompatActivity {
         favouriteRepository = new FavouriteRepository(this);
 
         setupNavigation();
+        setupEmptyState();
+    }
+
+    private void setupEmptyState() {
+        View emptyState = findViewById(R.id.emptyStateFavorite);
+        
+        if (emptyState != null) {
+            android.widget.ImageView imgEmptyIcon = emptyState.findViewById(R.id.imgEmptyIcon);
+            android.widget.TextView txtEmptyMessage = emptyState.findViewById(R.id.txtEmptyMessage);
+            
+            if (imgEmptyIcon != null) {
+                imgEmptyIcon.setImageResource(R.drawable.ic_favorite_border);
+            }
+            if (txtEmptyMessage != null) {
+                txtEmptyMessage.setText("Bạn chưa yêu thích cuốn sách nào. Hãy khám phá thư viện!");
+            }
+        }
     }
 
     private void setupNavigation() {
@@ -82,6 +99,20 @@ public class FavouritesActivity extends AppCompatActivity {
     }
 
     private void loadFavouriteBooks() {
-        favouriteBookAdapter.submitList(favouriteRepository.getFavouriteBooks());
+        java.util.List<BookEntity> books = favouriteRepository.getFavouriteBooks();
+        favouriteBookAdapter.submitList(books);
+        
+        View emptyState = findViewById(R.id.emptyStateFavorite);
+        View rvFavorites = findViewById(R.id.rvFavorites);
+        
+        if (emptyState != null && rvFavorites != null) {
+            if (books == null || books.isEmpty()) {
+                rvFavorites.setVisibility(View.GONE);
+                emptyState.setVisibility(View.VISIBLE);
+            } else {
+                rvFavorites.setVisibility(View.VISIBLE);
+                emptyState.setVisibility(View.GONE);
+            }
+        }
     }
 }
