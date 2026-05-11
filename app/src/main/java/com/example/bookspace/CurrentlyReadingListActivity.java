@@ -22,7 +22,7 @@ public class CurrentlyReadingListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_reading_booklist);
+        setContentView(R.layout.activity_library_reading);
 
         setupNavigation();
         setupEmptyState();
@@ -72,39 +72,22 @@ public class CurrentlyReadingListActivity extends AppCompatActivity {
     }
 
     private void setupNavigation() {
-        // Nút Quay lại
-        View btnBack = findViewById(R.id.btnBack);
-        if (btnBack != null) {
-            btnBack.setOnClickListener(v -> finish());
-        }
+        BottomNavManager.setupBottomNav(this, BottomNavManager.NAV_LIBRARY);
 
         TextView tabFavorite = findViewById(R.id.tabFavorite);
         if (tabFavorite != null) {
             tabFavorite.setOnClickListener(v -> {
                 Intent intent = new Intent(this, FavouritesActivity.class);
                 startActivity(intent);
-                overridePendingTransition(0, 0);
                 finish();
             });
         }
+    }
 
-        View navHome = findViewById(R.id.nav_home);
-        if (navHome != null) {
-            navHome.setOnClickListener(v -> {
-                Intent intent = new Intent(this, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        View navReader = findViewById(R.id.imgCurrentReading);
-        if (navReader != null) {
-            navReader.setOnClickListener(v -> {
-                Intent intent = new Intent(this, ReadingActivity.class);
-                startActivity(intent);
-            });
-        }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        BottomNavManager.setupBottomNav(this, BottomNavManager.NAV_LIBRARY);
     }
 
     @Override

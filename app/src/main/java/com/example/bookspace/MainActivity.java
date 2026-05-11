@@ -35,7 +35,7 @@ import java.util.List;
 import com.example.bookspace.database.entity.BookEntity;
 import com.example.bookspace.repository.BookRepository;
 
-public class MainActivity extends AppCompatActivity implements OnBookClickListener {
+public class MainActivity extends AppCompatActivity implements BookAdapter.OnBookClickListener {
     private ActivityMainBinding binding;
     private BookRepository repo;
     private static final String TAG = "MainActivity";
@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         setupStaticUI();
         setupFeaturedViewPager();
         setupChips();
-        setupBottomNav();
+        BottomNavManager.setupBottomNav(this, BottomNavManager.NAV_HOME);
         setupRecyclerViews();
         setupSearch();
         seedDatabase();
@@ -122,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
     protected void onResume() {
         super.onResume();
         sliderHandler.postDelayed(sliderRunnable, 3000);
+        BottomNavManager.setupBottomNav(this, BottomNavManager.NAV_HOME);
     }
 
     /**
@@ -275,37 +276,6 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
                     }
                 });
             }
-        }
-    }
-
-    private void setupBottomNav() {
-        int[][] navSets = {
-                {R.id.nav_home, R.id.icon_home, R.id.text_home},
-                {R.id.nav_library, R.id.icon_library, R.id.text_library},
-                {R.id.nav_reader, R.id.icon_reader, R.id.text_reader}
-        };
-
-        int activeColor = ContextCompat.getColor(this, R.color.teal_600);
-        int inactiveColor = ContextCompat.getColor(this, R.color.nav_inactive);
-
-        for (int[] ids : navSets) {
-            View container = findViewById(ids[0]);
-            container.setOnClickListener(v -> {
-                if (ids[0] == R.id.nav_reader) {
-                    startActivity(new Intent(this, ReadingActivity.class));
-                } else if (ids[0] == R.id.nav_library) {
-                    startActivity(new Intent(this, CurrentlyReadingListActivity.class));
-                }
-                for (int[] other : navSets) {
-                    View otherContainer = findViewById(other[0]);
-                    otherContainer.setBackground(null);
-                    ((ImageView) otherContainer.findViewById(other[1])).setColorFilter(inactiveColor);
-                    ((TextView) otherContainer.findViewById(other[2])).setTextColor(inactiveColor);
-                }
-                v.setBackground(ContextCompat.getDrawable(this, R.drawable.bottom_nav_active_bg));
-                ((ImageView) v.findViewById(ids[1])).setColorFilter(activeColor);
-                ((TextView) v.findViewById(ids[2])).setTextColor(activeColor);
-            });
         }
     }
 

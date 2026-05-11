@@ -21,7 +21,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class CategoryActivity extends AppCompatActivity implements OnBookClickListener {
+public class CategoryActivity extends AppCompatActivity implements BookAdapter.OnBookClickListener {
 
     private ActivityCategoryBinding binding;
     private BookAdapter adapter;

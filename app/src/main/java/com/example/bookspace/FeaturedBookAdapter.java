@@ -17,9 +17,9 @@ import java.util.List;
 
 public class FeaturedBookAdapter extends RecyclerView.Adapter<FeaturedBookAdapter.FeaturedViewHolder> {
     private List<Book> bookList;
-    private OnBookClickListener listener;
+    private BookAdapter.OnBookClickListener listener;
 
-    public FeaturedBookAdapter(List<Book> bookList, OnBookClickListener listener) {
+    public FeaturedBookAdapter(List<Book> bookList, BookAdapter.OnBookClickListener listener) {
         this.bookList = bookList;
         this.listener = listener;
     }

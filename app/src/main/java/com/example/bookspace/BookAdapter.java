@@ -17,6 +17,10 @@ import java.util.List;
 
 public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
 
+    public interface OnBookClickListener {
+        void onBookClick(Book book);
+    }
+
     private List<Book> list;
     private boolean isSearchMode; // true: list view (no image), false: grid view (with image)
     private OnBookClickListener listener;

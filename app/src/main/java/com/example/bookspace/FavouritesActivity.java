@@ -17,7 +17,7 @@ public class FavouritesActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_favourite);
+        setContentView(R.layout.activity_library_favourite);
         favouriteRepository = new FavouriteRepository(this);
 
         setupNavigation();
@@ -25,8 +25,7 @@ public class FavouritesActivity extends AppCompatActivity {
     }
 
     private void setupEmptyState() {
-        View emptyState = findViewById(R.id.emptyStateFavorite);
-        
+        View emptyState = findViewById(R.id.emptyStateFavorite);        
         if (emptyState != null) {
             android.widget.ImageView imgEmptyIcon = emptyState.findViewById(R.id.imgEmptyIcon);
             android.widget.TextView txtEmptyMessage = emptyState.findViewById(R.id.txtEmptyMessage);
@@ -41,13 +40,13 @@ public class FavouritesActivity extends AppCompatActivity {
     }
 
     private void setupNavigation() {
-        // 1. Find the Đang Đọc tab
+        BottomNavManager.setupBottomNav(this, BottomNavManager.NAV_LIBRARY);
+
         TextView tabReading = findViewById(R.id.tabReading);
         if (tabReading != null) {
             tabReading.setOnClickListener(v -> {
                 Intent intent = new Intent(FavouritesActivity.this, CurrentlyReadingListActivity.class);
                 startActivity(intent);
-                overridePendingTransition(0, 0);
                 finish();
             });
         }
@@ -69,30 +68,12 @@ public class FavouritesActivity extends AppCompatActivity {
         rvFavorites.setLayoutManager(new LinearLayoutManager(this));
         rvFavorites.setAdapter(favouriteBookAdapter);
         loadFavouriteBooks();
-
-        // Home Navigation in Bottom Nav
-        View navHome = findViewById(R.id.nav_home);
-        if (navHome != null) {
-            navHome.setOnClickListener(v -> {
-                Intent intent = new Intent(this, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
-        }
-        
-        // Library Navigation in Bottom Nav (Current screen is already part of Library)
-        View navLibrary = findViewById(R.id.nav_library);
-        if (navLibrary != null) {
-            navLibrary.setOnClickListener(v -> {
-                // Already in library/favorites, maybe just refresh or do nothing
-            });
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        BottomNavManager.setupBottomNav(this, BottomNavManager.NAV_LIBRARY);
         if (favouriteBookAdapter != null) {
             loadFavouriteBooks();
         }
