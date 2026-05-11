@@ -1,414 +1,268 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
     tools:context=".MainActivity">
 
-    <!-- TOP APP BAR -->
-    <LinearLayout
-        android:id="@+id/topBar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingHorizontal="24dp"
-        android:paddingVertical="16dp"
-        android:gravity="center_vertical"
-        android:background="@color/white_80"
-        android:elevation="4dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/background">
 
-        <ImageView
-            android:id="@+id/imgAppLogo"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:src="@drawable/ic_menu_book"
-            app:tint="@color/teal_600"
-            android:contentDescription="@string/app_name" />
-
-        <TextView
-            android:id="@+id/txtAppTitle"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="@string/app_title"
-            android:textSize="24sp"
-            android:textStyle="bold|italic"
-            android:textColor="@color/primary"
-            android:layout_marginStart="8dp"
-            android:letterSpacing="-0.02" />
-
-        <ImageView
-            android:id="@+id/btnNotification"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:padding="8dp"
-            android:src="@drawable/ic_notifications"
-            app:tint="@color/notification_icon"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/cd_notification" />
-
-        <FrameLayout
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="12dp">
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/imgProfile"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:scaleType="centerCrop"
-                android:src="@mipmap/ic_launcher_round"
-                app:shapeAppearanceOverlay="@style/CircleImageView"
-                android:contentDescription="@string/cd_profile" />
-            <View
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/profile_ring" />
-        </FrameLayout>
-    </LinearLayout>
-
-    <!-- SCROLLABLE CONTENT -->
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/mainScrollView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:clipToPadding="false"
-        android:paddingBottom="100dp"
-        android:overScrollMode="never"
-        app:layout_constraintTop_toBottomOf="@id/topBar"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
+        <!-- TOP APP BAR -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/topBar"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingTop="16dp">
+            android:orientation="horizontal"
+            android:paddingHorizontal="24dp"
+            android:paddingVertical="16dp"
+            android:gravity="center_vertical"
+            android:background="@color/white_80"
+            android:elevation="4dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-            <!-- SEARCH BAR -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/searchBarCard"
+            <ImageView
+                android:id="@+id/btnMenu"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_toc"
+                android:padding="4dp"
+                app:tint="@color/teal_600"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Menu" />
+
+            <TextView
+                android:id="@+id/txtAppTitle"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/app_title"
+                android:textSize="24sp"
+                android:textStyle="bold|italic"
+                android:textColor="@color/primary"
+                android:layout_marginStart="8dp"
+                android:letterSpacing="-0.02" />
+
+            <ImageView
+                android:id="@+id/btnNotification"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
+                android:src="@drawable/ic_notifications"
+                app:tint="@color/notification_icon"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/cd_notification" />
+
+            <FrameLayout
+                android:id="@+id/btnProfile"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?android:attr/selectableItemBackgroundBorderless">
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/imgProfile"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/ic_launcher_round"
+                    app:shapeAppearanceOverlay="@style/CircleImageView"
+                    android:contentDescription="@string/cd_profile" />
+                <View
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/profile_ring" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/mainScrollView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:clipToPadding="false"
+            android:paddingBottom="100dp"
+            android:overScrollMode="never"
+            app:layout_constraintTop_toBottomOf="@id/topBar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginHorizontal="24dp"
-                android:layout_marginBottom="24dp"
-                app:cardCornerRadius="28dp"
-                app:cardBackgroundColor="@color/surface_container_highest"
-                app:cardElevation="0dp">
-                <LinearLayout
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="16dp">
+
+                <!-- SEARCH BAR -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/searchBarCard"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="20dp">
-                    <ImageView
-                        android:id="@+id/iconSearch"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@android:drawable/ic_menu_search"
-                        app:tint="@color/outline"
-                        android:importantForAccessibility="no" />
-                    <EditText
-                        android:id="@+id/searchInput"
+                    android:layout_height="56dp"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_marginBottom="24dp"
+                    app:cardCornerRadius="28dp"
+                    app:cardBackgroundColor="@color/surface_container_highest"
+                    app:cardElevation="0dp">
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@null"
-                        android:hint="@string/search_hint"
-                        android:textColorHint="@color/outline"
-                        android:textColor="@color/on_surface"
-                        android:textSize="16sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:layout_marginStart="12dp"
-                        android:maxLines="1"
-                        android:inputType="text" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="20dp">
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/ic_menu_search"
+                            app:tint="@color/outline"
+                            android:importantForAccessibility="no" />
+                        <EditText
+                            android:id="@+id/searchInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:hint="@string/search_hint"
+                            android:textColorHint="@color/outline"
+                            android:textColor="@color/on_surface"
+                            android:textSize="16sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:layout_marginStart="12dp"
+                            android:maxLines="1"
+                            android:inputType="text" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
 
-            <!-- Search Results RecyclerView -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerBooks"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:layout_marginHorizontal="24dp"
-                android:layout_marginBottom="16dp" />
-
-            <!-- Empty State for Search -->
-            <include
-                android:id="@+id/emptyStateSearch"
-                layout="@layout/layout_empty_state"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="24dp"
-                android:layout_marginBottom="16dp"
-                android:visibility="gone" />
-
-            <!-- CATEGORY CHIPS -->
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="none"
-                android:layout_marginBottom="32dp"
-                android:clipToPadding="false"
-                android:paddingHorizontal="24dp">
-                <LinearLayout
-                    android:id="@+id/chipContainer"
-                    android:layout_width="wrap_content"
+                <!-- Search Results RecyclerView -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerBooks"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:id="@+id/chipAll"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/chip_active_bg"
-                        android:text="@string/cat_all"
-                        android:textColor="@color/on_primary"
-                        android:paddingHorizontal="24dp"
-                        android:paddingVertical="10dp"
-                        android:textSize="14sp"
-                        android:fontFamily="sans-serif-medium" />
-                    <TextView
-                        android:id="@+id/chipLifeSkills"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/chip_bg"
-                        android:text="@string/cat_life_skills"
-                        android:textColor="@color/on_surface_variant"
-                        android:paddingHorizontal="24dp"
-                        android:paddingVertical="10dp"
-                        android:layout_marginStart="12dp"
-                        android:textSize="14sp"
-                        android:fontFamily="sans-serif-medium" />
-                    <TextView
-                        android:id="@+id/chipPsychology"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/chip_bg"
-                        android:text="@string/cat_psychology"
-                        android:textColor="@color/on_surface_variant"
-                        android:paddingHorizontal="24dp"
-                        android:paddingVertical="10dp"
-                        android:layout_marginStart="12dp"
-                        android:textSize="14sp"
-                        android:fontFamily="sans-serif-medium" />
-                    <TextView
-                        android:id="@+id/chipClassic"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/chip_bg"
-                        android:text="@string/cat_classic"
-                        android:textColor="@color/on_surface_variant"
-                        android:paddingHorizontal="24dp"
-                        android:paddingVertical="10dp"
-                        android:layout_marginStart="12dp"
-                        android:textSize="14sp"
-                        android:fontFamily="sans-serif-medium" />
+                    android:visibility="gone"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_marginBottom="16dp" />
 
-                    <TextView
-                        android:id="@+id/chipEconomics"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/chip_bg"
-                        android:text="@string/cat_economics"
-                        android:textColor="@color/on_surface_variant"
-                        android:paddingHorizontal="24dp"
-                        android:paddingVertical="10dp"
-                        android:layout_marginStart="12dp"
-                        android:textSize="14sp"
-                        android:fontFamily="sans-serif-medium" />
+                <!-- Empty State for Search -->
+                <include
+                    android:id="@+id/emptyStateSearch"
+                    layout="@layout/layout_empty_state"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_marginBottom="16dp"
+                    android:visibility="gone" />
 
-                    <TextView
-                        android:id="@+id/chipLiterature"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/chip_bg"
-                        android:text="@string/cat_literature"
-                        android:textColor="@color/on_surface_variant"
-                        android:paddingHorizontal="24dp"
-                        android:paddingVertical="10dp"
-                        android:layout_marginStart="12dp"
-                        android:textSize="14sp"
-                        android:fontFamily="sans-serif-medium" />
-                </LinearLayout>
-            </HorizontalScrollView>
-
-            <!-- FEATURED SECTION -->
-            <TextView
-                android:id="@+id/txtSectionFeatured"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/section_featured"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                android:textColor="@color/on_surface"
-                android:paddingHorizontal="24dp"
-                android:layout_marginBottom="20dp" />
-
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/vpFeaturedBooks"
-                tools:listitem="@layout/list_item_featured_book"
-                android:layout_width="match_parent"
-                android:layout_height="240dp"
-                android:layout_marginBottom="40dp"
-                android:clipToPadding="false"
-                android:paddingHorizontal="24dp" />
-
-            <!-- RECENTLY UPDATED SECTION -->
-            <TextView
-                android:id="@+id/txtSectionRecent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/section_recent"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                android:textColor="@color/on_surface"
-                android:paddingHorizontal="24dp"
-                android:layout_marginBottom="20dp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvRecentlyUpdated"
-                tools:listitem="@layout/list_item_book_rview"
-                tools:itemCount="2"
-                tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                tools:spanCount="2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clipToPadding="false"
-                android:paddingHorizontal="16dp"
-                android:layout_marginBottom="32dp" />
-
-            <!-- NOVELS SECTION -->
-            <TextView
-                android:id="@+id/txtSectionCategory"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Tiểu thuyết"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                android:textColor="@color/on_surface"
-                android:paddingHorizontal="24dp"
-                android:layout_marginBottom="20dp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvNovels"
-                tools:listitem="@layout/list_item_book_rview"
-                tools:itemCount="2"
-                tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                tools:spanCount="2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clipToPadding="false"
-                android:paddingHorizontal="16dp"
-                android:layout_marginBottom="16dp" />
-
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
-
-    <!-- BOTTOM NAVIGATION -->
-    <LinearLayout
-        android:id="@+id/bottomNavContainer"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:background="@drawable/bottom_nav_bg"
-        android:elevation="16dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="24dp"
-        android:paddingHorizontal="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center">
-            <LinearLayout
-                android:id="@+id/nav_home"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:background="@drawable/bottom_nav_active_bg"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="12dp">
-                <ImageView
-                    android:id="@+id/icon_home"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_home_filled"
-                    app:tint="@color/teal_600" />
+                <!-- FEATURED SECTION -->
                 <TextView
-                    android:id="@+id/text_home"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/nav_home"
-                    android:textColor="@color/teal_600"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
+                    android:text="@string/section_featured"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/on_surface"
+                    android:paddingHorizontal="24dp"
+                    android:layout_marginBottom="20dp" />
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/vpFeaturedBooks"
+                    tools:listitem="@layout/list_item_featured_book"
+                    android:layout_width="match_parent"
+                    android:layout_height="240dp"
+                    android:layout_marginBottom="40dp"
+                    android:clipToPadding="false"
+                    android:paddingHorizontal="24dp" />
+
+                <!-- RECENTLY UPDATED SECTION -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/section_recent"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/on_surface"
+                    android:paddingHorizontal="24dp"
+                    android:layout_marginBottom="20dp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvRecentlyUpdated"
+                    tools:listitem="@layout/list_item_book_rview"
+                    tools:itemCount="2"
+                    tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:paddingHorizontal="16dp"
+                    android:layout_marginBottom="32dp" />
+
+                <!-- CATEGORY SECTION -->
+                <TextView
+                    android:id="@+id/txtSectionCategory"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Tiểu thuyết"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/on_surface"
+                    android:paddingHorizontal="24dp"
+                    android:layout_marginBottom="20dp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvNovels"
+                    tools:listitem="@layout/list_item_book_rview"
+                    tools:itemCount="2"
+                    tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:paddingHorizontal="16dp"
+                    android:layout_marginBottom="16dp" />
+
             </LinearLayout>
-        </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+        <!-- BOTTOM NAVIGATION -->
         <LinearLayout
+            android:id="@+id/bottomNavContainer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center">
-            <LinearLayout
-                android:id="@+id/nav_library"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="12dp">
-                <ImageView
-                    android:id="@+id/icon_library"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_library_books"
-                    app:tint="@color/nav_inactive" />
-                <TextView
-                    android:id="@+id/text_library"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/nav_library"
-                    android:textColor="@color/nav_inactive"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:background="@drawable/bottom_nav_bg"
+            android:elevation="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="24dp"
+            android:paddingHorizontal="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+            <LinearLayout android:id="@+id/nav_home" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:padding="12dp">
+                <ImageView android:id="@+id/icon_home" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_home_filled" />
+                <TextView android:id="@+id/text_home" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/nav_home" android:textSize="11sp" android:textStyle="bold" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/nav_library" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:padding="12dp">
+                <ImageView android:id="@+id/icon_library" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_library_books" />
+                <TextView android:id="@+id/text_library" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/nav_library" android:textSize="11sp" android:textStyle="bold" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/nav_reader" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:padding="12dp">
+                <ImageView android:id="@+id/icon_reader" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_auto_stories" />
+                <TextView android:id="@+id/text_reader" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/nav_reader" android:textSize="11sp" android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center">
-            <LinearLayout
-                android:id="@+id/nav_reader"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="12dp">
-                <ImageView
-                    android:id="@+id/icon_reader"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_auto_stories"
-                    app:tint="@color/nav_inactive" />
-                <TextView
-                    android:id="@+id/text_reader"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/nav_reader"
-                    android:textColor="@color/nav_inactive"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navigationView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:menu="@menu/drawer_menu"
+        app:headerLayout="@layout/nav_header" />
+
+</androidx.drawerlayout.widget.DrawerLayout>
