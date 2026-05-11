@@ -159,6 +159,93 @@
                     android:layout_marginBottom="16dp"
                     android:visibility="gone" />
 
+                <!-- CATEGORY CHIPS -->
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:layout_marginBottom="32dp"
+                    android:clipToPadding="false"
+                    android:paddingHorizontal="24dp">
+                    <LinearLayout
+                        android:id="@+id/chipContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:id="@+id/chipAll"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/chip_active_bg"
+                            android:text="@string/cat_all"
+                            android:textColor="@color/on_primary"
+                            android:paddingHorizontal="24dp"
+                            android:paddingVertical="10dp"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-medium" />
+                        <TextView
+                            android:id="@+id/chipLifeSkills"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/chip_bg"
+                            android:text="@string/cat_life_skills"
+                            android:textColor="@color/on_surface_variant"
+                            android:paddingHorizontal="24dp"
+                            android:paddingVertical="10dp"
+                            android:layout_marginStart="12dp"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-medium" />
+                        <TextView
+                            android:id="@+id/chipPsychology"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/chip_bg"
+                            android:text="@string/cat_psychology"
+                            android:textColor="@color/on_surface_variant"
+                            android:paddingHorizontal="24dp"
+                            android:paddingVertical="10dp"
+                            android:layout_marginStart="12dp"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-medium" />
+                        <TextView
+                            android:id="@+id/chipClassic"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/chip_bg"
+                            android:text="@string/cat_classic"
+                            android:textColor="@color/on_surface_variant"
+                            android:paddingHorizontal="24dp"
+                            android:paddingVertical="10dp"
+                            android:layout_marginStart="12dp"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-medium" />
+                        <TextView
+                            android:id="@+id/chipEconomics"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/chip_bg"
+                            android:text="@string/cat_economics"
+                            android:textColor="@color/on_surface_variant"
+                            android:paddingHorizontal="24dp"
+                            android:paddingVertical="10dp"
+                            android:layout_marginStart="12dp"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-medium" />
+                        <TextView
+                            android:id="@+id/chipLiterature"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/chip_bg"
+                            android:text="@string/cat_literature"
+                            android:textColor="@color/on_surface_variant"
+                            android:paddingHorizontal="24dp"
+                            android:paddingVertical="10dp"
+                            android:layout_marginStart="12dp"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-medium" />
+                    </LinearLayout>
+                </HorizontalScrollView>
+
                 <!-- FEATURED SECTION -->
                 <TextView
                     android:layout_width="match_parent"
