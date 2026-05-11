@@ -25,6 +25,7 @@ public class CurrentlyReadingListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_reading_booklist);
 
         setupNavigation();
+        setupEmptyState();
 
         // Setup Reminder Button - Mở danh sách báo thức kiểu iPhone
         ImageButton btnReminder = findViewById(R.id.btnReminder);
@@ -42,6 +43,28 @@ public class CurrentlyReadingListActivity extends AppCompatActivity {
             });
         }
     }
+
+    private void setupEmptyState() {
+        View emptyState = findViewById(R.id.emptyStateReading);
+        View rvReading = findViewById(R.id.rvReading);
+        
+        if (emptyState != null && rvReading != null) {
+            // Mặc định hiện trạng thái rỗng do chưa có dữ liệu thật
+            rvReading.setVisibility(View.GONE);
+            emptyState.setVisibility(View.VISIBLE);
+            
+            android.widget.ImageView imgEmptyIcon = emptyState.findViewById(R.id.imgEmptyIcon);
+            android.widget.TextView txtEmptyMessage = emptyState.findViewById(R.id.txtEmptyMessage);
+            
+            if (imgEmptyIcon != null) {
+                imgEmptyIcon.setImageResource(R.drawable.ic_auto_stories);
+            }
+            if (txtEmptyMessage != null) {
+                txtEmptyMessage.setText("Bạn chưa đọc cuốn sách nào. Bắt đầu đọc ngay!");
+            }
+        }
+    }
+
 
     private void openReminderActivity() {
         Intent intent = new Intent(this, ReminderActivity.class);

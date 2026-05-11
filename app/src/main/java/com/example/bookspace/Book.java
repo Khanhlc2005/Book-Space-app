@@ -1,5 +1,7 @@
 package com.example.bookspace;
 
+import com.example.bookspace.database.entity.BookEntity;
+
 public class Book {
     private int id; // ID định danh (tự động phát sinh từ DB)
     private String title;
@@ -88,6 +90,19 @@ public class Book {
     
     public void setCategory(String category) { 
         this.category = category; 
+    }
+
+    public static Book fromEntity(BookEntity entity) {
+        Book book = new Book(
+                entity.coverUrl,
+                entity.title,
+                entity.author,
+                entity.pages,
+                entity.description,
+                entity.category
+        );
+        book.setId(entity.id);
+        return book;
     }
 
     @Override

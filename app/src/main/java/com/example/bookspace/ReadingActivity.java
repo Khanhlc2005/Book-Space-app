@@ -47,6 +47,7 @@ public class ReadingActivity extends AppCompatActivity {
 
         db = AppDatabase.getInstance(this);
         progressDao = db.readingProgressDao();
+        bookId = getIntent().getIntExtra("BOOK_ID", bookId);
 
         bookId = getIntent().getIntExtra("bookId", 1);
 

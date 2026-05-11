@@ -1,9 +1,15 @@
 package com.example.bookspace.database.entity;
 
 import androidx.room.Entity;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "books")
+@Entity(
+        tableName = "books",
+        indices = {
+                @Index(value = {"title", "author"}, unique = true)
+        }
+)
 public class BookEntity {
     @PrimaryKey(autoGenerate = true)
     public int id;
@@ -14,4 +20,5 @@ public class BookEntity {
     public int pages;
     public String description;
     public String category;
+    public boolean isDownloaded;
 }
