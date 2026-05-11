@@ -356,13 +356,5 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         });
 
         bottomSheetDialog.show();
-
-        // Nút "Đọc ngay" — truyền bookId sang ReadingActivity
-        bottomSheetView.findViewById(R.id.btnDownload).setOnClickListener(v -> {
-            bottomSheetDialog.dismiss();
-            Intent intent = new Intent(MainActivity.this, ReadingActivity.class);
-            intent.putExtra("bookId", book.getId());
-            startActivity(intent);
-        });
     }
 }
