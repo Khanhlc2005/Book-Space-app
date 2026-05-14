@@ -77,6 +77,8 @@ public abstract class AppDatabase extends RoomDatabase {
                 sampleBooks.add(createBook("Tuổi Trẻ Đáng Giá Bao Nhiêu", "Rosie Nguyễn", "https://picsum.photos/600/400?random=104", 250, "Mô tả 4", "KỸ NĂNG SỐNG"));
                 sampleBooks.add(createBook("Dám Bị Ghét", "Kishimi Ichiro", "https://picsum.photos/600/400?random=105", 320, "Mô tả 5", "TÂM LÝ"));
                 sampleBooks.add(createBook("Đắc Nhân Tâm", "Dale Carnegie", "https://picsum.photos/600/400?random=106", 320, "Sách kỹ năng sống hay nhất...", "KỸ NĂNG SỐNG"));
+                sampleBooks.add(createBook("Quẳng Gánh Lo Đi Và Vui Sống", "Dale Carnegie", "https://picsum.photos/600/400?random=107", 340, "Những nguyên tắc giúp người đọc quản lý lo âu và sống nhẹ nhàng hơn.", "KỸ NĂNG SỐNG"));
+                sampleBooks.add(createBook("Hành Trình Về Phương Đông", "Nguyên Phong", "https://picsum.photos/600/400?random=108", 320, "Những ghi chép về văn hóa, triết học và trải nghiệm tâm linh phương Đông.", "TÂM LÝ"));
                 
                 dao.insertAll(sampleBooks);
             });

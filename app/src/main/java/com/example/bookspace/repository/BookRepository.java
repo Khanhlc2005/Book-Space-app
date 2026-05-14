@@ -7,6 +7,7 @@ import com.example.bookspace.database.AppDatabase;
 import com.example.bookspace.database.dao.BookDao;
 import com.example.bookspace.database.entity.BookEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BookRepository {
@@ -22,6 +23,10 @@ public class BookRepository {
 
     public List<BookEntity> getByCategory(String category) {
         return bookDao.getBooksByCategory(category);
+    }
+
+    public List<Book> getBooksByAuthorExcept(String author, int bookId, int limit) {
+        return toBooks(bookDao.getBooksByAuthorExcept(author, bookId, limit));
     }
 
     public List<BookEntity> searchBooks(String keyword) {
@@ -58,6 +63,14 @@ public class BookRepository {
 
     public void markDownloaded(int bookId) {
         bookDao.updateDownloadedState(bookId, true);
+    }
+
+    private List<Book> toBooks(List<BookEntity> entities) {
+        List<Book> books = new ArrayList<>();
+        for (BookEntity entity : entities) {
+            books.add(Book.fromEntity(entity));
+        }
+        return books;
     }
 
     private BookEntity toEntity(Book book) {
