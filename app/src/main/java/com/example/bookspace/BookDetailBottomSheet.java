@@ -75,7 +75,7 @@ public final class BookDetailBottomSheet {
             btnPrimaryAction.setOnClickListener(v -> {
                 if (bookRepository.isDownloaded(bookId)) {
                     Intent intent = new Intent(activity, ReadingActivity.class);
-                    intent.putExtra("BOOK_ID", bookId);
+                    intent.putExtra(ReadingActivity.EXTRA_BOOK_ID, bookId);
                     intent.putExtra("BOOK_TITLE", book.getTitle());
                     activity.startActivity(intent);
                     bottomSheetDialog.dismiss();

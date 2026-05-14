@@ -20,6 +20,8 @@ import java.util.List;
 
 public class ReadingActivity extends AppCompatActivity {
 
+    public static final String EXTRA_BOOK_ID = "BOOK_ID";
+
     private ActivityReadingBinding binding;
     private AppDatabase db;
     private ReadingProgressDao progressDao;
@@ -27,8 +29,7 @@ public class ReadingActivity extends AppCompatActivity {
     // Trạng thái đọc
     private int currentChapter = 1;
     private int totalChapters = 10;
-    private int pagesPerChapter = 10;
-    private int bookId = 1;
+    private int bookId = -1;
     private String userId = "default_user";
 
     // Cỡ chữ
@@ -44,10 +45,16 @@ public class ReadingActivity extends AppCompatActivity {
         binding = ActivityReadingBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        bookId = getIntent().getIntExtra(EXTRA_BOOK_ID, -1);
+        if (bookId <= 0) {
+            Toast.makeText(this, "Không thể mở sách: thiếu mã sách", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         // Khởi tạo database
         db = AppDatabase.getInstance(this);
         progressDao = db.readingProgressDao();
-        bookId = getIntent().getIntExtra("BOOK_ID", bookId);
 
         // Tải dữ liệu chương
         initChapterData();
