@@ -23,6 +23,9 @@ public interface BookDao {
     @Query("SELECT * FROM books WHERE category = :category")
     List<BookEntity> getBooksByCategory(String category);
 
+    @Query("SELECT * FROM books WHERE author = :author AND id != :bookId LIMIT :limit")
+    List<BookEntity> getBooksByAuthorExcept(String author, int bookId, int limit);
+
     @Query("SELECT * FROM books WHERE title LIKE '%' || :keyword || '%'")
     List<BookEntity> searchBooks(String keyword);
 
