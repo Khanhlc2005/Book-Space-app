@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingVertical="14dp"
+    android:paddingHorizontal="28dp"
+    android:background="?android:attr/selectableItemBackground">
+
+    <!-- Chapter number — hidden, only name shown -->
+    <TextView
+        android:id="@+id/tv_chapter_number"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone" />
+
+    <!-- Chapter name -->
+    <TextView
+        android:id="@+id/tv_chapter_name"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:textSize="15sp"
+        android:textColor="@color/on_surface"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:text="Chương 1" />
+
+    <!-- Active indicator dot -->
+    <View
+        android:id="@+id/toc_active_dot"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:background="@drawable/toc_active_dot"
+        android:visibility="gone" />
+
+</LinearLayout>
