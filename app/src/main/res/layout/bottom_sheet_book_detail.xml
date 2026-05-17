@@ -562,7 +562,7 @@
                         android:id="@+id/imgPrimaryActionIcon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_download"
+                        android:src="@drawable/ic_auto_stories"
                         app:tint="@color/on_primary"
                         android:layout_marginEnd="12dp"/>
 

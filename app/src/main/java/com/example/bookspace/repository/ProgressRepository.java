@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ProgressRepository {
     private final ReadingProgressDao progressDao;
-    private final String userId = "user1";
+    private final String userId = "default_user";
 
     public ProgressRepository(Context context) {
         progressDao = AppDatabase.getInstance(context).readingProgressDao();
@@ -35,5 +35,11 @@ public class ProgressRepository {
 
     public List<BookEntity> getBooksInReadingProgress() {
         return progressDao.getBooksInReadingProgress(userId);
+    }
+
+    public void deleteProgress(int bookId) {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            progressDao.deleteProgress(userId, bookId);
+        });
     }
 }

@@ -4,15 +4,23 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bookspace.database.entity.BookEntity;
 import com.example.bookspace.repository.FavouriteRepository;
 
-public class FavouritesActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.List;
+
+public class FavouritesActivity extends AppCompatActivity implements FavouriteBookAdapter.OnFavouriteActionListener {
     private FavouriteRepository favouriteRepository;
-    private FavouriteBookAdapter favouriteBookAdapter;
+    private FavouriteBookAdapter adapter;
+    private FavouriteManager favouriteManager;
+    private RecyclerView rvFavorites;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +30,14 @@ public class FavouritesActivity extends AppCompatActivity {
 
         setupNavigation();
         setupEmptyState();
+        
+        favouriteManager = new FavouriteManager(this);
+
+        // Thiết lập RecyclerView
+        rvFavorites = findViewById(R.id.rvFavorites);
+        rvFavorites.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new FavouriteBookAdapter(new ArrayList<>(), this);
+        rvFavorites.setAdapter(adapter);
     }
 
     private void setupEmptyState() {
@@ -41,6 +57,21 @@ public class FavouritesActivity extends AppCompatActivity {
     }
 
     private void setupNavigation() {
+        // Nút Quay lại
+        View btnBack = findViewById(R.id.btnBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish());
+        }
+
+        // Nút Nhắc nhở
+        View btnReminder = findViewById(R.id.btnReminder);
+        if (btnReminder != null) {
+            btnReminder.setOnClickListener(v -> {
+                Intent intent = new Intent(this, ReminderActivity.class);
+                startActivity(intent);
+            });
+        }
+
         // 1. Find the Đang Đọc tab
         TextView tabReading = findViewById(R.id.tabReading);
         if (tabReading != null) {
@@ -51,24 +82,6 @@ public class FavouritesActivity extends AppCompatActivity {
                 finish();
             });
         }
-
-        favouriteBookAdapter = new FavouriteBookAdapter(new FavouriteBookAdapter.Listener() {
-            @Override
-            public void onBookClick(BookEntity book) {
-                BookDetailBottomSheet.show(FavouritesActivity.this, Book.fromEntity(book));
-            }
-
-            @Override
-            public void onRemoveFavourite(BookEntity book) {
-                favouriteRepository.setFavourite(book.id, false);
-                loadFavouriteBooks();
-            }
-        });
-
-        androidx.recyclerview.widget.RecyclerView rvFavorites = findViewById(R.id.rvFavorites);
-        rvFavorites.setLayoutManager(new LinearLayoutManager(this));
-        rvFavorites.setAdapter(favouriteBookAdapter);
-        loadFavouriteBooks();
 
         // Home Navigation in Bottom Nav
         View navHome = findViewById(R.id.nav_home);
@@ -88,19 +101,53 @@ public class FavouritesActivity extends AppCompatActivity {
                 // Already in library/favorites, maybe just refresh or do nothing
             });
         }
+        
+        // Reader Navigation in Bottom Nav
+        View navReader = findViewById(R.id.nav_reader);
+        if (navReader != null) {
+            navReader.setOnClickListener(v -> {
+                Intent intent = new Intent(this, ReadingActivity.class);
+                startActivity(intent);
+            });
+        }
+    }
+
+    @Override
+    public void onRemoveFavourite(Book book, int position) {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Xóa sách")
+            .setMessage("Bạn có chắc chắn muốn xóa sách '" + book.getTitle() + "' khỏi danh sách yêu thích không?")
+            .setPositiveButton("Xóa", (dialog, which) -> {
+                // Bỏ yêu thích trong DB
+                favouriteManager.toggleFavourite(book.getId());
+                // Xóa khỏi danh sách UI
+                adapter.removeItem(position);
+                Toast.makeText(this, "Đã xóa: " + book.getTitle(), Toast.LENGTH_SHORT).show();
+                loadFavouriteBooks();
+            })
+            .setNegativeButton("Hủy", null)
+            .show();
+    }
+
+    @Override
+    public void onBookClick(Book book) {
+        // Mở ReadingActivity với bookId
+        Intent intent = new Intent(this, ReadingActivity.class);
+        intent.putExtra("BOOK_ID", book.getId());
+        startActivity(intent);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (favouriteBookAdapter != null) {
+        if (adapter != null) {
             loadFavouriteBooks();
         }
     }
 
     private void loadFavouriteBooks() {
-        java.util.List<BookEntity> books = favouriteRepository.getFavouriteBooks();
-        favouriteBookAdapter.submitList(books);
+        List<Book> books = favouriteManager.getFauvourites();
+        adapter.updateData(books);
         
         View emptyState = findViewById(R.id.emptyStateFavorite);
         View rvFavorites = findViewById(R.id.rvFavorites);

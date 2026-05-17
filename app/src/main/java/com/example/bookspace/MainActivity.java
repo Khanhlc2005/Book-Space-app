@@ -22,6 +22,13 @@ import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.example.bookspace.database.entity.BookEntity;
+import com.example.bookspace.databinding.ActivityMainBinding;
+import com.example.bookspace.repository.BookRepository;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.example.bookspace.database.AppDatabase;
 import com.example.bookspace.database.dao.BookDao;
 import com.example.bookspace.database.entity.BookEntity;
@@ -35,6 +42,10 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity implements OnBookClickListener {
     private ActivityMainBinding binding;
     private BookRepository repo;
+    private static final String TAG = "MainActivity";
+    private BookRepository bookRepository;
+    private Handler sliderHandler = new Handler();
+    private Runnable sliderRunnable = new Runnable() {
     private final Handler sliderHandler = new Handler();
     private final Runnable sliderRunnable = new Runnable() {
         @Override
@@ -67,6 +78,10 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // Khởi tạo Repository
+        bookRepository = new BookRepository(this);
+
+        // System Bar Insets
         ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
             binding.topBar.setPadding(binding.topBar.getPaddingLeft(), insets.top + 16, binding.topBar.getPaddingRight(), binding.topBar.getPaddingBottom());
@@ -155,8 +170,13 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
     }
 
     private void setupFeaturedViewPager() {
-        List<BookEntity> featuredEntities = repo.getAllBooks();
+        // Lấy tất cả sách từ DB để hiển thị trên Featured slider
+        List<BookEntity> entities = bookRepository.getAllBooks();
         List<Book> listFeatured = new ArrayList<>();
+        for (BookEntity e : entities) {
+            Book book = new Book(e.coverUrl, e.title, e.author, e.pages, e.description, e.category);
+            book.setId(e.id);
+            listFeatured.add(book);
         for (int i = 0; i < Math.min(5, featuredEntities.size()); i++) {
             listFeatured.add(Book.fromEntity(featuredEntities.get(i)));
         }
@@ -170,12 +190,27 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
     }
 
     private void setupRecyclerViews() {
-        List<BookEntity> allBooks = repo.getAllBooks();
+        // Lấy tất cả sách từ DB hiển thị ở "Mới cập nhật"
+        List<BookEntity> allEntities = bookRepository.getAllBooks();
         List<Book> listRecent = new ArrayList<>();
+        for (BookEntity e : allEntities) {
+            Book book = new Book(e.coverUrl, e.title, e.author, e.pages, e.description, e.category);
+            book.setId(e.id);
+            listRecent.add(book);
+        }
         for (BookEntity entity : allBooks) listRecent.add(Book.fromEntity(entity));
 
         binding.rvNovels.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
         binding.rvNovels.setAdapter(new BookAdapter(listRecent, this));
+
+        // Lọc sách "Tiểu thuyết" từ DB
+        List<BookEntity> novelEntities = bookRepository.getByCategory("TIỂU THUYẾT");
+        List<Book> listNovel = new ArrayList<>();
+        for (BookEntity e : novelEntities) {
+            Book book = new Book(e.coverUrl, e.title, e.author, e.pages, e.description, e.category);
+            book.setId(e.id);
+            listNovel.add(book);
+        }
 
         binding.rvRecentlyUpdated.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
         binding.rvRecentlyUpdated.setAdapter(new BookAdapter(listRecent, this));
@@ -183,6 +218,7 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
 
     private void setupSearch() {
         binding.recyclerBooks.setLayoutManager(new LinearLayoutManager(this));
+        // Search Mode = true (Dạng list text)
         searchAdapter = new BookAdapter(new ArrayList<>(), true, this);
         binding.recyclerBooks.setAdapter(searchAdapter);
         binding.searchInput.addTextChangedListener(new TextWatcher() {
@@ -193,6 +229,12 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
                     binding.recyclerBooks.setVisibility(View.GONE);
                     binding.emptyStateSearch.getRoot().setVisibility(View.GONE);
                 } else {
+                    // Tìm kiếm từ Database (theo tên sách hoặc tác giả)
+                    List<BookEntity> results = bookRepository.searchBooks(keyword);
+                    List<Book> filtered = new ArrayList<>();
+                    for (BookEntity e : results) {
+                        filtered.add(Book.fromEntity(e));
+                    }
                     List<BookEntity> entities = repo.searchBooks(keyword);
                     List<Book> filtered = new ArrayList<>();
                     for (BookEntity e : entities) filtered.add(Book.fromEntity(e));
@@ -227,6 +269,26 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         updateBottomNavUi(R.id.nav_home, activeColor, inactiveColor);
     }
 
+    /**
+     * Mở ReadingActivity với bookId từ Database.
+     */
+    private void openReadingActivity(Book book) {
+        Intent intent = new Intent(this, ReadingActivity.class);
+        intent.putExtra("BOOK_ID", book.getId());
+        startActivity(intent);
+    }
+
+    private void showBookDetailBottomSheet(Book book) {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        View bottomSheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_book_detail, null);
+        bottomSheetDialog.setContentView(bottomSheetView);
+
+        // Map views
+        TextView txtTitle = bottomSheetView.findViewById(R.id.txtDetailTitle);
+        TextView txtAuthor = bottomSheetView.findViewById(R.id.txtDetailAuthor);
+        TextView txtPages = bottomSheetView.findViewById(R.id.txtDetailPages);
+        TextView txtSummary = bottomSheetView.findViewById(R.id.txtDetailSummary);
+        ImageView imgCover = bottomSheetView.findViewById(R.id.imgDetailCover);
     private void updateBottomNavUi(int activeId, int activeColor, int inactiveColor) {
         binding.iconHome.setColorFilter(activeId == R.id.nav_home ? activeColor : inactiveColor);
         binding.textHome.setTextColor(activeId == R.id.nav_home ? activeColor : inactiveColor);
@@ -236,6 +298,58 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         binding.textLibrary.setTextColor(activeId == R.id.nav_library ? activeColor : inactiveColor);
         binding.navLibrary.setBackgroundResource(activeId == R.id.nav_library ? R.drawable.bottom_nav_active_bg : 0);
 
+        // Nút "Đọc sách" — mở ReadingActivity với bookId
+        View btnRead = bottomSheetView.findViewById(R.id.btnDownload);
+        if (btnRead != null) {
+            btnRead.setOnClickListener(v -> {
+                bottomSheetDialog.dismiss();
+                openReadingActivity(book);
+            });
+        }
+
+        // Nút "Yêu thích" — toggle favourite trong DB qua FavouriteManager
+        View btnFav = bottomSheetView.findViewById(R.id.btnFavorite);
+        if (btnFav != null) {
+            com.example.bookspace.FavouriteManager favManager =
+                    new com.example.bookspace.FavouriteManager(this);
+            // Cập nhật icon ban đầu
+            ImageView iconFav = btnFav.findViewById(android.R.id.icon);
+            // CardView chứa ImageView bên trong — tìm ImageView con
+            if (btnFav instanceof androidx.cardview.widget.CardView) {
+                ImageView favIcon = (ImageView) ((androidx.cardview.widget.CardView) btnFav).getChildAt(0);
+                if (favIcon != null) {
+                    favIcon.setImageResource(
+                            favManager.isFavourite(book.getId()) ? R.drawable.ic_favorite : R.drawable.ic_favorite_border
+                    );
+                }
+            }
+
+            btnFav.setOnClickListener(v -> {
+                favManager.toggleFavourite(book.getId());
+                // Cập nhật icon sau khi toggle (delay nhỏ để DB kịp xử lý)
+                v.postDelayed(() -> {
+                    if (btnFav instanceof androidx.cardview.widget.CardView) {
+                        ImageView favIcon = (ImageView) ((androidx.cardview.widget.CardView) btnFav).getChildAt(0);
+                        if (favIcon != null) {
+                            favIcon.setImageResource(
+                                    favManager.isFavourite(book.getId()) ? R.drawable.ic_favorite : R.drawable.ic_favorite_border
+                            );
+                        }
+                    }
+                }, 300);
+            });
+        }
+
+        bottomSheetDialog.setOnShowListener(dialogInterface -> {
+            com.google.android.material.bottomsheet.BottomSheetDialog dialog = (com.google.android.material.bottomsheet.BottomSheetDialog) dialogInterface;
+            View bottomSheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                BottomSheetBehavior.from(bottomSheet).setState(BottomSheetBehavior.STATE_EXPANDED);
+                BottomSheetBehavior.from(bottomSheet).setSkipCollapsed(true);
+            }
+        });
+
+        bottomSheetDialog.show();
         binding.iconReader.setColorFilter(activeId == R.id.nav_reader ? activeColor : inactiveColor);
         binding.textReader.setTextColor(activeId == R.id.nav_reader ? activeColor : inactiveColor);
         binding.navReader.setBackgroundResource(activeId == R.id.nav_reader ? R.drawable.bottom_nav_active_bg : 0);

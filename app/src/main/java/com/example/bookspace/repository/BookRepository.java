@@ -65,6 +65,8 @@ public class BookRepository {
         bookDao.updateDownloadedState(bookId, true);
     }
 
+    public void removeDownloaded(int bookId) {
+        bookDao.updateDownloadedState(bookId, false);
     private List<Book> toBooks(List<BookEntity> entities) {
         List<Book> books = new ArrayList<>();
         for (BookEntity entity : entities) {
@@ -83,5 +85,9 @@ public class BookRepository {
         entity.category = book.getCategory();
         entity.isDownloaded = false;
         return entity;
+    }
+
+    public BookEntity getBookById(int bookId) {
+        return bookDao.getBookById(bookId);
     }
 }

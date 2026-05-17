@@ -28,17 +28,6 @@
     </androidx.cardview.widget.CardView>
 
     <ImageButton
-        android:id="@+id/btnRemoveFavorite"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="32dp"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_favorite_border"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/cardCover"
-        app:tint="#757575" />
-
-    <ImageButton
         android:id="@+id/btnDelete"
         android:layout_width="48dp"
         android:layout_height="48dp"
@@ -46,6 +35,7 @@
         android:src="@android:drawable/ic_menu_delete"
         app:tint="#D32F2F"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/cardCover"
         app:layout_constraintBottom_toBottomOf="@id/cardCover" />
 
     <TextView
@@ -62,7 +52,7 @@
         tools:text="Xa Ngoài Kia Nơi Loài..."
         app:layout_constraintTop_toTopOf="@id/cardCover"
         app:layout_constraintStart_toEndOf="@id/cardCover"
-        app:layout_constraintEnd_toStartOf="@id/btnRemoveFavorite" /> <TextView
+        app:layout_constraintEnd_toStartOf="@id/btnDelete" /> <TextView
     android:id="@+id/txtAuthor"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
