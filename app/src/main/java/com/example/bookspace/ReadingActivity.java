@@ -1,6 +1,5 @@
 package com.example.bookspace;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -9,6 +8,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bookspace.database.AppDatabase;
 import com.example.bookspace.database.dao.ReadingProgressDao;
@@ -23,11 +24,11 @@ public class ReadingActivity extends AppCompatActivity {
     private ActivityReadingBinding binding;
     private AppDatabase db;
     private ReadingProgressDao progressDao;
+    private TocAdapter tocAdapter;
 
     // Trạng thái đọc
     private int currentChapter = 1;
     private int totalChapters = 10;
-    private int pagesPerChapter = 10;
     private int bookId = 1;
     private String userId = "default_user";
     private String bookTitle = "Sách"; // Tên sách lấy từ DB
@@ -45,7 +46,6 @@ public class ReadingActivity extends AppCompatActivity {
         binding = ActivityReadingBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Khởi tạo database
         db = AppDatabase.getInstance(this);
         progressDao = db.readingProgressDao();
         bookId = getIntent().getIntExtra("BOOK_ID", bookId);
@@ -61,8 +61,11 @@ public class ReadingActivity extends AppCompatActivity {
 
         // Lấy trang đọc cuối cùng (getLastPage)
         currentChapter = getLastPage();
+        bookId = getIntent().getIntExtra("bookId", 1);
 
-        // Cài đặt các thành phần
+        initChapterData();
+        loadReadingProgress();
+
         setupTopBar();
         setupBottomBar();
         setupSettingsPanel();
@@ -71,7 +74,6 @@ public class ReadingActivity extends AppCompatActivity {
         setupThemeButtons();
         setupScrollListener();
 
-        // Cập nhật giao diện
         updateDisplay();
     }
 
@@ -89,23 +91,23 @@ public class ReadingActivity extends AppCompatActivity {
         }
     }
 
-    // Khởi tạo danh sách chương
     private void initChapterData() {
         chapterNames = new ArrayList<>();
-        chapterNames.add("1: Má");
-        chapterNames.add("2: Bà");
-        chapterNames.add("3: Cha");
-        chapterNames.add("4: Người lạ");
-        chapterNames.add("5: Cô hàng xóm");
-        chapterNames.add("6: Ông già");
-        chapterNames.add("7: Hồi ức");
-        chapterNames.add("8: Bóng đêm");
-        chapterNames.add("9: Ánh sáng");
-        chapterNames.add("10: Tái ngộ");
+        chapterNames.add("Má");
+        chapterNames.add("Bà");
+        chapterNames.add("Cha");
+        chapterNames.add("Người lạ");
+        chapterNames.add("Cô hàng xóm");
+        chapterNames.add("Ông già");
+        chapterNames.add("Hồi ức");
+        chapterNames.add("Bóng đêm");
+        chapterNames.add("Ánh sáng");
+        chapterNames.add("Tái ngộ");
     }
 
     // Tải tiến độ đã lưu qua hàm getLastPage()
     private int getLastPage() {
+    private void loadReadingProgress() {
         ReadingProgressEntity progress = progressDao.getProgress(userId, bookId);
         if (progress != null) {
             int savedChapter = progress.currentPage + 1;
@@ -119,6 +121,7 @@ public class ReadingActivity extends AppCompatActivity {
 
     // Lưu tiến độ qua hàm saveLastPage()
     private void saveLastPage(int page) {
+    private void saveReadingProgress() {
         ReadingProgressEntity progress = new ReadingProgressEntity();
         progress.userId = userId;
         progress.bookId = bookId;
@@ -131,37 +134,29 @@ public class ReadingActivity extends AppCompatActivity {
         });
     }
 
-    // Cập nhật hiển thị
     private void updateDisplay() {
-        // Cập nhật nhãn chương
         String chapterName = chapterNames.size() > currentChapter - 1
                 ? chapterNames.get(currentChapter - 1)
                 : "Chương " + currentChapter;
         binding.tvChapterLabel.setText("CHƯƠNG " + currentChapter);
         binding.tvBookTitle.setText(chapterName);
-
-        // Cập nhật số trang
         binding.tvPageNumber.setText("Trang " + currentChapter + " / " + totalChapters);
-
-        // Cập nhật nội dung
         updateContent();
+
+        if (tocAdapter != null) {
+            tocAdapter.setCurrentChapter(currentChapter);
+        }
     }
 
-    // Cập nhật nội dung đọc
     private void updateContent() {
         String[] paragraphs = {
                 "We are but stewards of these echoes, the Head Librarian had once told him. Elias hadn't understood it then. He was young, obsessed with the digital infinite, the way a billion books could be distilled into a single shard of glass. But as the years turned into a slow, rhythmic dance of cataloging and preservation, he realized that the infinite was often a mask for the empty.",
-
                 "In the heart of the library, the air smelled of almond and old dust—a scent he had come to associate with truth. There were no search bars here. No algorithms to suggest what he might like next. There was only the weight of the book in his hands and the silence that demanded he listen.",
-
                 "He turned the page. The sound was like a sharp intake of breath in the quiet room. On page eighty-four, he found it. A marginal note, written in a hand so fine it looked like lace. It wasn't a correction or a citation. It was a confession.",
-
                 "The curator leaned closer, the Light Teal glow of his modern interface momentarily forgotten on the desk behind him. He was no longer a man of the modern world; he was a traveler in someone else's memory.",
-
                 "The sun began to dip below the horizon of the city outside, casting long, bruised shadows through the high windows of the archive. Elias did not reach for the light switch. He let the darkness bloom, knowing that some words were only meant to be read in the twilight."
         };
 
-        // Lặp lại nội dung theo chương
         int index = (currentChapter - 1) % paragraphs.length;
         binding.tvParagraph1.setText(paragraphs[index]);
         binding.tvParagraph2.setText(paragraphs[(index + 1) % paragraphs.length]);
@@ -170,38 +165,29 @@ public class ReadingActivity extends AppCompatActivity {
         binding.tvParagraph5.setText(paragraphs[(index + 4) % paragraphs.length]);
     }
 
-    // Lắng nghe scroll để cập nhật %
     private void setupScrollListener() {
         binding.readingScrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
-            // Lấy vị trí scroll hiện tại
             View scrollChild = binding.readingScrollView.getChildAt(0);
             if (scrollChild == null) return;
 
             int scrollViewHeight = binding.readingScrollView.getHeight();
             int totalScrollHeight = scrollChild.getHeight();
-
-            // Tính % dựa trên scroll
             int scrollY = binding.readingScrollView.getScrollY();
             int maxScroll = totalScrollHeight - scrollViewHeight;
 
             if (maxScroll <= 0) {
-                // Không cuộn được (nội dung ngắn)
                 binding.tvProgressPercent.setText("100%");
                 return;
             }
 
-            // Tính %: scroll đầu = 1%, cuối = 100%
             int percent = Math.round((scrollY * 100f) / maxScroll);
-            percent = Math.max(1, Math.min(100, percent)); // 1% - 100%
-
+            percent = Math.max(1, Math.min(100, percent));
             binding.tvProgressPercent.setText(percent + "%");
         });
     }
 
-    // ── Thanh trên ──
     private void setupTopBar() {
         binding.btnBack.setOnClickListener(v -> finish());
-
         binding.btnMenu.setOnClickListener(v -> showTableOfContents());
 
         binding.btnSettings.setOnClickListener(v -> {
@@ -210,7 +196,6 @@ public class ReadingActivity extends AppCompatActivity {
         });
     }
 
-    // ── Thanh chuyển trang ──
     private void setupBottomBar() {
         binding.btnPrevChapter.setOnClickListener(v -> goToPrevPage());
         binding.btnNextChapter.setOnClickListener(v -> goToNextPage());
@@ -226,10 +211,17 @@ public class ReadingActivity extends AppCompatActivity {
         // Change saveReadingProgress(); to:
         saveLastPage(currentChapter);
 
+    private void goToPrevPage() {
+        if (currentChapter <= 1) {
+            Toast.makeText(this, "Đang ở trang đầu tiên", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        currentChapter--;
+        updateDisplay();
+        saveReadingProgress();
         binding.readingScrollView.scrollTo(0, 0);
     }
 
-    // Chuyển trang tiếp
     private void goToNextPage() {
         if (currentChapter >= totalChapters) {
             Toast.makeText(this, "Đang ở trang cuối cùng", Toast.LENGTH_SHORT).show();
@@ -240,10 +232,11 @@ public class ReadingActivity extends AppCompatActivity {
         // Change saveReadingProgress(); to:
         saveLastPage(currentChapter);
 
+        saveReadingProgress();
         binding.readingScrollView.scrollTo(0, 0);
     }
 
-    // Hiện mục lục
+    // Hiện mục lục — panel trượt từ dưới lên bằng Dialog
     private void showTableOfContents() {
         String[] chapters = new String[chapterNames.size()];
         chapterNames.toArray(chapters);
@@ -259,9 +252,60 @@ public class ReadingActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("Đóng", null)
                 .show();
+        android.app.Dialog dialog = new android.app.Dialog(this,
+                android.R.style.Theme_Translucent_NoTitleBar);
+        dialog.setContentView(R.layout.bottom_sheet_toc);
+
+        dialog.getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
+
+        View tocContainer = dialog.findViewById(R.id.toc_container);
+        dialog.getWindow().getDecorView().setOnTouchListener((v, event) -> {
+            if (tocContainer != null) {
+                int[] location = new int[2];
+                tocContainer.getLocationOnScreen(location);
+                float sheetTop = location[1];
+                if (event.getY() < sheetTop) {
+                    dialog.dismiss();
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        RecyclerView recyclerView = dialog.findViewById(R.id.toc_recycler);
+        if (recyclerView == null) return;
+
+        TocAdapter adapter = new TocAdapter(chapterNames);
+        adapter.setListener(position -> {
+            currentChapter = position + 1;
+            updateDisplay();
+            saveReadingProgress();
+            binding.readingScrollView.scrollTo(0, 0);
+            dialog.dismiss();
+        });
+        adapter.setCurrentChapter(currentChapter);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
+        recyclerView.post(() ->
+                recyclerView.scrollToPosition(Math.max(0, currentChapter - 1)));
+
+        dialog.show();
+
+        // Chiều cao dialog = 95% chiều cao màn hình
+        int screenHeight = getResources().getDisplayMetrics().heightPixels;
+        int dialogHeight = (int) (screenHeight * 0.90f);
+
+        WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
+        params.width = WindowManager.LayoutParams.MATCH_PARENT;
+        params.height = dialogHeight;
+        params.gravity = android.view.Gravity.BOTTOM;
+        dialog.getWindow().setAttributes(params);
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
     }
 
-    // ── Panel cài đặt ──
     private void setupSettingsPanel() {
         binding.sliderBrightness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -279,7 +323,6 @@ public class ReadingActivity extends AppCompatActivity {
         });
     }
 
-    // ── Nút cỡ chữ ──
     private void setupTextSizeButtons() {
         binding.btnTextMinus.setOnClickListener(v -> changeFontSize(-1));
         binding.btnTextPlus.setOnClickListener(v -> changeFontSize(1));
@@ -299,7 +342,6 @@ public class ReadingActivity extends AppCompatActivity {
         binding.tvPullQuote.setTextSize(size);
     }
 
-    // ── Nút phông chữ ──
     private void setupFontButtons() {
         binding.btnFontLiterata.setOnClickListener(v -> {
             binding.btnFontLiterata.setBackgroundResource(R.drawable.reading_btn_bg);
@@ -312,7 +354,6 @@ public class ReadingActivity extends AppCompatActivity {
         });
     }
 
-    // ── Nút chủ đề ──
     private void setupThemeButtons() {
         binding.btnThemeLight.setOnClickListener(v -> applyTheme(
                 R.color.reading_bg, R.color.reading_text,

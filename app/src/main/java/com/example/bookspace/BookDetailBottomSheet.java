@@ -9,6 +9,8 @@ import android.widget.Toast;
 
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
@@ -17,6 +19,9 @@ import com.example.bookspace.repository.BookRepository;
 import com.example.bookspace.repository.FavouriteRepository;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+
+import java.util.List;
+import java.util.Locale;
 
 public final class BookDetailBottomSheet {
     private BookDetailBottomSheet() {
@@ -63,6 +68,8 @@ public final class BookDetailBottomSheet {
 
         updateDownloadUi(activity, bookRepository, bookId, btnPrimaryAction, txtPrimaryAction, imgPrimaryActionIcon, txtDownloadStatus, false);
         updateFavouriteAction(favouriteRepository.isFavourite(bookId), imgFavoriteAction);
+        setupReviews(activity, book, bottomSheetView);
+        setupRelatedBooks(activity, bottomSheetDialog, bookRepository, book, bookId, bottomSheetView);
 
         if (btnPrimaryAction != null) {
             btnPrimaryAction.setOnClickListener(v -> {
@@ -106,6 +113,122 @@ public final class BookDetailBottomSheet {
         });
 
         bottomSheetDialog.show();
+    }
+
+    private static void setupReviews(Activity activity, Book book, View bottomSheetView) {
+        TextView txtAverageRating = bottomSheetView.findViewById(R.id.txtAverageRating);
+        TextView txtReviewCount = bottomSheetView.findViewById(R.id.txtReviewCount);
+        TextView txtDetailFavorites = bottomSheetView.findViewById(R.id.txtDetailFavorites);
+        TextView txtReviewOneName = bottomSheetView.findViewById(R.id.txtReviewOneName);
+        TextView txtReviewOneRating = bottomSheetView.findViewById(R.id.txtReviewOneRating);
+        TextView txtReviewOneBody = bottomSheetView.findViewById(R.id.txtReviewOneBody);
+        TextView txtReviewTwoName = bottomSheetView.findViewById(R.id.txtReviewTwoName);
+        TextView txtReviewTwoRating = bottomSheetView.findViewById(R.id.txtReviewTwoRating);
+        TextView txtReviewTwoBody = bottomSheetView.findViewById(R.id.txtReviewTwoBody);
+
+        long seed = Math.abs((long) (safeText(book.getTitle()) + safeText(book.getAuthor())).hashCode());
+        double averageRating = 4.2d + (seed % 7) / 10.0d;
+        int reviewCount = 48 + (int) (seed % 560);
+        String formattedAverage = String.format(Locale.getDefault(), "%.1f", averageRating);
+
+        if (txtAverageRating != null) {
+            txtAverageRating.setText(formattedAverage);
+        }
+        if (txtReviewCount != null) {
+            txtReviewCount.setText(activity.getString(R.string.book_review_count_format, reviewCount));
+        }
+        if (txtDetailFavorites != null) {
+            txtDetailFavorites.setText(formattedAverage);
+        }
+
+        String[] reviewers = activity.getResources().getStringArray(R.array.book_reviewers);
+        String[] reviewBodies = activity.getResources().getStringArray(R.array.book_review_bodies);
+
+        int firstIndex = (int) (seed % reviewers.length);
+        int secondIndex = (firstIndex + 2) % reviewers.length;
+        bindReview(
+                txtReviewOneName,
+                txtReviewOneRating,
+                txtReviewOneBody,
+                reviewers[firstIndex],
+                averageRating,
+                reviewBodies[firstIndex]
+        );
+        bindReview(
+                txtReviewTwoName,
+                txtReviewTwoRating,
+                txtReviewTwoBody,
+                reviewers[secondIndex],
+                Math.max(4.0d, averageRating - 0.2d),
+                reviewBodies[secondIndex]
+        );
+    }
+
+    private static void setupRelatedBooks(Activity activity,
+                                          BottomSheetDialog currentDialog,
+                                          BookRepository bookRepository,
+                                          Book book,
+                                          int bookId,
+                                          View bottomSheetView) {
+        TextView txtRelatedTitle = bottomSheetView.findViewById(R.id.txtRelatedTitle);
+        TextView txtRelatedEmpty = bottomSheetView.findViewById(R.id.txtRelatedEmpty);
+        RecyclerView rvRelatedBooks = bottomSheetView.findViewById(R.id.rvRelatedBooks);
+
+        List<Book> relatedBooks = null;
+        if (!isBlank(book.getAuthor())) {
+            relatedBooks = bookRepository.getBooksByAuthorExcept(book.getAuthor(), bookId, 8);
+        }
+
+        if (txtRelatedTitle != null) {
+            txtRelatedTitle.setText(R.string.book_related_same_author);
+        }
+
+        if (relatedBooks == null || relatedBooks.isEmpty()) {
+            if (rvRelatedBooks != null) {
+                rvRelatedBooks.setVisibility(View.GONE);
+            }
+            if (txtRelatedEmpty != null) {
+                txtRelatedEmpty.setVisibility(View.VISIBLE);
+            }
+            return;
+        }
+
+        if (txtRelatedEmpty != null) {
+            txtRelatedEmpty.setVisibility(View.GONE);
+        }
+        if (rvRelatedBooks != null) {
+            rvRelatedBooks.setVisibility(View.VISIBLE);
+            rvRelatedBooks.setLayoutManager(new LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false));
+            rvRelatedBooks.setAdapter(new RelatedBookAdapter(relatedBooks, relatedBook -> {
+                currentDialog.dismiss();
+                show(activity, relatedBook);
+            }));
+        }
+    }
+
+    private static void bindReview(TextView txtName,
+                                   TextView txtRating,
+                                   TextView txtBody,
+                                   String reviewer,
+                                   double rating,
+                                   String body) {
+        if (txtName != null) {
+            txtName.setText(reviewer);
+        }
+        if (txtRating != null) {
+            txtRating.setText(String.format(Locale.getDefault(), "%.1f/5", rating));
+        }
+        if (txtBody != null) {
+            txtBody.setText(body);
+        }
+    }
+
+    private static boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    private static String safeText(String value) {
+        return value == null ? "" : value;
     }
 
     private static void updateDownloadUi(Activity activity,

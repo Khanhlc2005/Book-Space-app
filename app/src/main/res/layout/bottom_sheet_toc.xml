@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#99000000">
+
+    <!-- Sheet Content -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/toc_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        android:background="@drawable/bottom_sheet_bg">
+
+        <!-- Drag Handle -->
+        <View
+            android:id="@+id/toc_drag_handle"
+            android:layout_width="48dp"
+            android:layout_height="6dp"
+            android:background="@drawable/drag_handle_bg"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/toc_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mục lục"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/on_surface"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="28dp"
+            app:layout_constraintTop_toBottomOf="@id/toc_drag_handle"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- Divider -->
+        <View
+            android:id="@+id/toc_divider"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="#1Abdc9c8"
+            android:layout_marginTop="14dp"
+            android:layout_marginHorizontal="28dp"
+            app:layout_constraintTop_toBottomOf="@id/toc_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Chapter List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/toc_recycler"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:clipToPadding="false"
+            android:paddingTop="4dp"
+            android:paddingBottom="8dp"
+            android:overScrollMode="never"
+            app:layout_constraintTop_toBottomOf="@id/toc_divider"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

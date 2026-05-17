@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="116dp"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="14dp"
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_marginBottom="8dp"
+        app:cardBackgroundColor="@color/surface_container_low"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="0dp">
+
+        <ImageView
+            android:id="@+id/imgRelatedCover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/book_cover_bg"
+            android:contentDescription="@string/cd_book_cover"
+            android:scaleType="centerCrop" />
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/txtRelatedTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:lineSpacingMultiplier="1.1"
+        android:maxLines="2"
+        android:textColor="@color/on_surface"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/txtRelatedAuthor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@color/on_surface_variant"
+        android:textSize="11sp" />
+</LinearLayout>
