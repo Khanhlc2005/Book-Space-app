@@ -11,7 +11,7 @@ import java.util.List;
 
 public class FavouriteRepository {
     private final FavouriteDao favouriteDao;
-    private final String userId = "user1"; // Tạm thời dùng tài khoản mặc định
+    private final String userId = "default_user";
 
     public FavouriteRepository(Context context) {
         favouriteDao = AppDatabase.getInstance(context).favouriteDao();

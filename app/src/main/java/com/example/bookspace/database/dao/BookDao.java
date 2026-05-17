@@ -19,11 +19,10 @@ public interface BookDao {
 
     @Query("SELECT * FROM books WHERE title = :title AND author = :author LIMIT 1")
     BookEntity findByTitleAndAuthor(String title, String author);
-
     @Query("SELECT * FROM books WHERE category = :category")
     List<BookEntity> getBooksByCategory(String category);
 
-    @Query("SELECT * FROM books WHERE title LIKE '%' || :keyword || '%'")
+    @Query("SELECT * FROM books WHERE title LIKE '%' || :keyword || '%' OR author LIKE '%' || :keyword || '%'")
     List<BookEntity> searchBooks(String keyword);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

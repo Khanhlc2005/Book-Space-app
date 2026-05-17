@@ -20,4 +20,7 @@ public interface ReadingProgressDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void updateProgress(ReadingProgressEntity progress);
+
+    @Query("DELETE FROM reading_progress WHERE userId = :userId AND bookId = :bookId")
+    void deleteProgress(String userId, int bookId);
 }

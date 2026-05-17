@@ -25,7 +25,9 @@ import androidx.viewpager2.widget.MarginPageTransformer;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.example.bookspace.database.entity.BookEntity;
 import com.example.bookspace.databinding.ActivityMainBinding;
+import com.example.bookspace.repository.BookRepository;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
     private ActivityMainBinding binding;
     private BookRepository repo;
     private static final String TAG = "MainActivity";
+    private BookRepository bookRepository;
     private Handler sliderHandler = new Handler();
     private Runnable sliderRunnable = new Runnable() {
         @Override
@@ -51,7 +54,6 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
             sliderHandler.postDelayed(this, 3000);
         }
     };
-    private ArrayList<Book> allBooksForSearch = new ArrayList<>();
     private BookAdapter searchAdapter;
 
     @Override
@@ -60,6 +62,9 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         EdgeToEdge.enable(this);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // Khởi tạo Repository
+        bookRepository = new BookRepository(this);
 
         // System Bar Insets
         ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, windowInsets) -> {
@@ -147,13 +152,12 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
      * Cấu hình thêm khoảng cách giữa các trang (MarginPageTransformer) cho ViewPager2.
      */
     private void setupFeaturedViewPager() {
-        List<BookEntity> featuredEntities = repo.getAllBooks();
+        // Lấy tất cả sách từ DB để hiển thị trên Featured slider
+        List<BookEntity> entities = bookRepository.getAllBooks();
         List<Book> listFeatured = new ArrayList<>();
-        // Lấy 5 cuốn sách đầu tiên làm featured (hoặc theo logic riêng)
-        for (int i = 0; i < Math.min(5, featuredEntities.size()); i++) {
-            BookEntity entity = featuredEntities.get(i);
-            Book book = new Book(entity.coverUrl, entity.title, entity.author, entity.pages, entity.description, entity.category);
-            book.setId(entity.id);
+        for (BookEntity e : entities) {
+            Book book = new Book(e.coverUrl, e.title, e.author, e.pages, e.description, e.category);
+            book.setId(e.id);
             listFeatured.add(book);
         }
 
@@ -173,12 +177,22 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
      * vào các RecyclerView tương ứng chạy trượt ngang.
      */
     private void setupRecyclerViews() {
-        List<BookEntity> allBooks = repo.getAllBooks();
+        // Lấy tất cả sách từ DB hiển thị ở "Mới cập nhật"
+        List<BookEntity> allEntities = bookRepository.getAllBooks();
         List<Book> listRecent = new ArrayList<>();
-        for (BookEntity entity : allBooks) {
-            Book book = new Book(entity.coverUrl, entity.title, entity.author, entity.pages, entity.description, entity.category);
-            book.setId(entity.id);
+        for (BookEntity e : allEntities) {
+            Book book = new Book(e.coverUrl, e.title, e.author, e.pages, e.description, e.category);
+            book.setId(e.id);
             listRecent.add(book);
+        }
+
+        // Lọc sách "Tiểu thuyết" từ DB
+        List<BookEntity> novelEntities = bookRepository.getByCategory("TIỂU THUYẾT");
+        List<Book> listNovel = new ArrayList<>();
+        for (BookEntity e : novelEntities) {
+            Book book = new Book(e.coverUrl, e.title, e.author, e.pages, e.description, e.category);
+            book.setId(e.id);
+            listNovel.add(book);
         }
 
         binding.rvRecentlyUpdated.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
@@ -211,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
 
     private void setupSearch() {
         binding.recyclerBooks.setLayoutManager(new LinearLayoutManager(this));
-        // Search Mode = true (Dạng list text như lúc trước)
+        // Search Mode = true (Dạng list text)
         searchAdapter = new BookAdapter(new ArrayList<>(), true, this);
         binding.recyclerBooks.setAdapter(searchAdapter);
 
@@ -223,10 +237,10 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
                     binding.recyclerBooks.setVisibility(View.GONE);
                     binding.emptyStateSearch.getRoot().setVisibility(View.GONE);
                 } else {
-                    com.example.bookspace.repository.BookRepository repo = new com.example.bookspace.repository.BookRepository(MainActivity.this);
-                    java.util.List<com.example.bookspace.database.entity.BookEntity> entities = repo.searchBooks(keyword);
+                    // Tìm kiếm từ Database (theo tên sách hoặc tác giả)
+                    List<BookEntity> results = bookRepository.searchBooks(keyword);
                     List<Book> filtered = new ArrayList<>();
-                    for (com.example.bookspace.database.entity.BookEntity e : entities) {
+                    for (BookEntity e : results) {
                         filtered.add(Book.fromEntity(e));
                     }
                     searchAdapter.updateData(filtered);
@@ -314,6 +328,15 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         BookDetailBottomSheet.show(this, book);
     }
 
+    /**
+     * Mở ReadingActivity với bookId từ Database.
+     */
+    private void openReadingActivity(Book book) {
+        Intent intent = new Intent(this, ReadingActivity.class);
+        intent.putExtra("BOOK_ID", book.getId());
+        startActivity(intent);
+    }
+
     private void showBookDetailBottomSheet(Book book) {
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
         View bottomSheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_book_detail, null);
@@ -344,6 +367,48 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
                  .load(book.getCoverUrl())
                  .transform(new CenterCrop(), new RoundedCorners(24))
                  .into(imgCover);
+        }
+
+        // Nút "Đọc sách" — mở ReadingActivity với bookId
+        View btnRead = bottomSheetView.findViewById(R.id.btnDownload);
+        if (btnRead != null) {
+            btnRead.setOnClickListener(v -> {
+                bottomSheetDialog.dismiss();
+                openReadingActivity(book);
+            });
+        }
+
+        // Nút "Yêu thích" — toggle favourite trong DB qua FavouriteManager
+        View btnFav = bottomSheetView.findViewById(R.id.btnFavorite);
+        if (btnFav != null) {
+            com.example.bookspace.FavouriteManager favManager =
+                    new com.example.bookspace.FavouriteManager(this);
+            // Cập nhật icon ban đầu
+            ImageView iconFav = btnFav.findViewById(android.R.id.icon);
+            // CardView chứa ImageView bên trong — tìm ImageView con
+            if (btnFav instanceof androidx.cardview.widget.CardView) {
+                ImageView favIcon = (ImageView) ((androidx.cardview.widget.CardView) btnFav).getChildAt(0);
+                if (favIcon != null) {
+                    favIcon.setImageResource(
+                            favManager.isFavourite(book.getId()) ? R.drawable.ic_favorite : R.drawable.ic_favorite_border
+                    );
+                }
+            }
+
+            btnFav.setOnClickListener(v -> {
+                favManager.toggleFavourite(book.getId());
+                // Cập nhật icon sau khi toggle (delay nhỏ để DB kịp xử lý)
+                v.postDelayed(() -> {
+                    if (btnFav instanceof androidx.cardview.widget.CardView) {
+                        ImageView favIcon = (ImageView) ((androidx.cardview.widget.CardView) btnFav).getChildAt(0);
+                        if (favIcon != null) {
+                            favIcon.setImageResource(
+                                    favManager.isFavourite(book.getId()) ? R.drawable.ic_favorite : R.drawable.ic_favorite_border
+                            );
+                        }
+                    }
+                }, 300);
+            });
         }
 
         bottomSheetDialog.setOnShowListener(dialogInterface -> {

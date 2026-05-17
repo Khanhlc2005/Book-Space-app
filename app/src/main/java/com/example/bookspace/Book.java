@@ -43,6 +43,13 @@ public class Book {
         this.category = category;
     }
 
+    // Chuyển từ BookEntity (Room) sang Book model
+    public static Book fromEntity(com.example.bookspace.database.entity.BookEntity entity) {
+        Book book = new Book(entity.coverUrl, entity.title, entity.author, entity.pages, entity.description, entity.category);
+        book.setId(entity.id);
+        return book;
+    }
+
     // Các hàm Getters & Setters
     public int getId() {
         return id;
@@ -90,19 +97,6 @@ public class Book {
     
     public void setCategory(String category) { 
         this.category = category; 
-    }
-
-    public static Book fromEntity(BookEntity entity) {
-        Book book = new Book(
-                entity.coverUrl,
-                entity.title,
-                entity.author,
-                entity.pages,
-                entity.description,
-                entity.category
-        );
-        book.setId(entity.id);
-        return book;
     }
 
     @Override

@@ -60,6 +60,10 @@ public class BookRepository {
         bookDao.updateDownloadedState(bookId, true);
     }
 
+    public void removeDownloaded(int bookId) {
+        bookDao.updateDownloadedState(bookId, false);
+    }
+
     private BookEntity toEntity(Book book) {
         BookEntity entity = new BookEntity();
         entity.title = book.getTitle();
@@ -70,5 +74,9 @@ public class BookRepository {
         entity.category = book.getCategory();
         entity.isDownloaded = false;
         return entity;
+    }
+
+    public BookEntity getBookById(int bookId) {
+        return bookDao.getBookById(bookId);
     }
 }

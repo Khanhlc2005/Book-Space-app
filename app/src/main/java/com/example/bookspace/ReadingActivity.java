@@ -30,6 +30,7 @@ public class ReadingActivity extends AppCompatActivity {
     private int pagesPerChapter = 10;
     private int bookId = 1;
     private String userId = "default_user";
+    private String bookTitle = "Sách"; // Tên sách lấy từ DB
 
     // Cỡ chữ
     private final int[] fontSizes = {16, 17, 18, 19, 20, 21, 22};
@@ -49,11 +50,17 @@ public class ReadingActivity extends AppCompatActivity {
         progressDao = db.readingProgressDao();
         bookId = getIntent().getIntExtra("BOOK_ID", bookId);
 
+        // Nhận bookId từ Intent (nếu có)
+        bookId = getIntent().getIntExtra("BOOK_ID", 1);
+
+        // Tải thông tin sách từ DB
+        loadBookInfo();
+
         // Tải dữ liệu chương
         initChapterData();
 
-        // Tải tiến độ đã lưu
-        loadReadingProgress();
+        // Lấy trang đọc cuối cùng (getLastPage)
+        currentChapter = getLastPage();
 
         // Cài đặt các thành phần
         setupTopBar();
@@ -71,7 +78,15 @@ public class ReadingActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        saveReadingProgress();
+        saveLastPage(currentChapter);
+    }
+
+    // Tải thông tin sách từ Database
+    private void loadBookInfo() {
+        com.example.bookspace.database.entity.BookEntity bookEntity = db.bookDao().getBookById(bookId);
+        if (bookEntity != null) {
+            bookTitle = bookEntity.title;
+        }
     }
 
     // Khởi tạo danh sách chương
@@ -89,21 +104,25 @@ public class ReadingActivity extends AppCompatActivity {
         chapterNames.add("10: Tái ngộ");
     }
 
-    // Tải tiến độ đã lưu
-    private void loadReadingProgress() {
+    // Tải tiến độ đã lưu qua hàm getLastPage()
+    private int getLastPage() {
         ReadingProgressEntity progress = progressDao.getProgress(userId, bookId);
         if (progress != null) {
-            currentChapter = progress.currentPage + 1;
-            if (currentChapter > totalChapters) currentChapter = totalChapters;
+            int savedChapter = progress.currentPage + 1;
+            if (savedChapter > totalChapters) {
+                return totalChapters;
+            }
+            return savedChapter;
         }
+        return 1;
     }
 
-    // Lưu tiến độ
-    private void saveReadingProgress() {
+    // Lưu tiến độ qua hàm saveLastPage()
+    private void saveLastPage(int page) {
         ReadingProgressEntity progress = new ReadingProgressEntity();
         progress.userId = userId;
         progress.bookId = bookId;
-        progress.currentPage = currentChapter - 1;
+        progress.currentPage = page - 1;
         progress.totalPages = totalChapters;
         progress.lastReadAt = System.currentTimeMillis();
 
@@ -198,16 +217,15 @@ public class ReadingActivity extends AppCompatActivity {
     }
 
     // Chuyển trang trước
-    private void goToPrevPage() {
-        if (currentChapter <= 1) {
-            Toast.makeText(this, "Đang ở trang đầu tiên", Toast.LENGTH_SHORT).show();
-            return;
-        }
+    private void goToPrevPage() {if (currentChapter <= 1) {
+        Toast.makeText(this, "Đang ở trang đầu tiên", Toast.LENGTH_SHORT).show();
+        return;
+    }
         currentChapter--;
         updateDisplay();
-        saveReadingProgress();
+        // Change saveReadingProgress(); to:
+        saveLastPage(currentChapter);
 
-        // Cuộn lên đầu
         binding.readingScrollView.scrollTo(0, 0);
     }
 
@@ -219,9 +237,9 @@ public class ReadingActivity extends AppCompatActivity {
         }
         currentChapter++;
         updateDisplay();
-        saveReadingProgress();
+        // Change saveReadingProgress(); to:
+        saveLastPage(currentChapter);
 
-        // Cuộn lên đầu
         binding.readingScrollView.scrollTo(0, 0);
     }
 
@@ -235,7 +253,8 @@ public class ReadingActivity extends AppCompatActivity {
                 .setItems(chapters, (dialog, which) -> {
                     currentChapter = which + 1;
                     updateDisplay();
-                    saveReadingProgress();
+                    // Change saveReadingProgress(); to:
+                    saveLastPage(currentChapter);
                     binding.readingScrollView.scrollTo(0, 0);
                 })
                 .setNegativeButton("Đóng", null)

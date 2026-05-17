@@ -9,13 +9,27 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-public class CurrentlyReadingListActivity extends AppCompatActivity {
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.bookspace.database.entity.BookEntity;
+import com.example.bookspace.database.entity.ReadingProgressEntity;
+import com.example.bookspace.repository.ProgressRepository;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class CurrentlyReadingListActivity extends AppCompatActivity implements ReadingListAdapter.OnReadingListActionListener {
+
+    private RecyclerView rvReading;
+    private ReadingListAdapter adapter;
+    private ProgressRepository progressRepository;
 
     private static final int PERMISSION_REQUEST_CODE = 100;
 
@@ -23,6 +37,8 @@ public class CurrentlyReadingListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reading_booklist);
+
+        progressRepository = new ProgressRepository(this);
 
         setupNavigation();
         setupEmptyState();
@@ -42,6 +58,12 @@ public class CurrentlyReadingListActivity extends AppCompatActivity {
                 }
             });
         }
+        
+        // Thiết lập RecyclerView
+        rvReading = findViewById(R.id.rvReading);
+        rvReading.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new ReadingListAdapter(new ArrayList<>(), new ArrayList<>(), this);
+        rvReading.setAdapter(adapter);
     }
 
     private void setupEmptyState() {
@@ -64,7 +86,6 @@ public class CurrentlyReadingListActivity extends AppCompatActivity {
             }
         }
     }
-
 
     private void openReminderActivity() {
         Intent intent = new Intent(this, ReminderActivity.class);
@@ -98,7 +119,7 @@ public class CurrentlyReadingListActivity extends AppCompatActivity {
             });
         }
 
-        View navReader = findViewById(R.id.imgCurrentReading);
+        View navReader = findViewById(R.id.nav_reader);
         if (navReader != null) {
             navReader.setOnClickListener(v -> {
                 Intent intent = new Intent(this, ReadingActivity.class);
@@ -117,5 +138,85 @@ public class CurrentlyReadingListActivity extends AppCompatActivity {
                 Toast.makeText(this, "Cần quyền thông báo để quản lý nhắc nhở", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadReadingList();
+    }
+
+    /**
+     * Tải danh sách sách đang đọc từ Database (JOIN books + reading_progress).
+     */
+    private void loadReadingList() {
+        List<BookEntity> bookEntities = progressRepository.getBooksInReadingProgress();
+        List<Book> books = new ArrayList<>();
+        List<ReadingProgressEntity> progressList = new ArrayList<>();
+
+        for (BookEntity entity : bookEntities) {
+            books.add(Book.fromEntity(entity));
+            // Lấy tiến độ cho từng cuốn sách
+            ReadingProgressEntity progress = progressRepository.getProgress(entity.id);
+            if (progress != null) {
+                progressList.add(progress);
+            } else {
+                // Tạo progress mặc định nếu chưa có
+                ReadingProgressEntity empty = new ReadingProgressEntity();
+                empty.currentPage = 0;
+                empty.totalPages = 0;
+                progressList.add(empty);
+            }
+        }
+
+        adapter.updateData(books, progressList);
+        
+        View emptyState = findViewById(R.id.emptyStateReading);
+        View rvReading = findViewById(R.id.rvReading);
+        
+        if (emptyState != null && rvReading != null) {
+            if (books.isEmpty()) {
+                rvReading.setVisibility(View.GONE);
+                emptyState.setVisibility(View.VISIBLE);
+            } else {
+                rvReading.setVisibility(View.VISIBLE);
+                emptyState.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    @Override
+    public void onDeleteBook(Book book, int position) {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Xác nhận xóa")
+            .setMessage("Bạn có chắc chắn muốn xóa sách '" + book.getTitle() + "' khỏi danh sách không?")
+            .setPositiveButton("Xóa", (dialog, which) -> {
+                // Xóa tiến độ đọc khỏi DB
+                progressRepository.deleteProgress(book.getId());
+                
+                // Cập nhật trạng thái chưa tải về máy (giả lập xóa file)
+                com.example.bookspace.repository.BookRepository bookRepo = new com.example.bookspace.repository.BookRepository(this);
+                bookRepo.removeDownloaded(book.getId());
+                
+                // Xóa khỏi danh sách UI
+                adapter.removeItem(position);
+                Toast.makeText(this, "Đã xóa sách: " + book.getTitle(), Toast.LENGTH_SHORT).show();
+                
+                // Cập nhật UI rỗng nếu hết sách
+                if (adapter.getItemCount() == 0) {
+                    setupEmptyState();
+                }
+            })
+            .setNegativeButton("Hủy", null)
+            .show();
+    }
+
+    @Override
+    public void onBookClick(Book book) {
+        // Mở ReadingActivity với bookId
+        Intent intent = new Intent(this, ReadingActivity.class);
+        intent.putExtra("BOOK_ID", book.getId());
+        startActivity(intent);
+
     }
 }
