@@ -1,11 +1,13 @@
 package com.example.bookspace;
 
+import android.app.Dialog;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,6 +17,7 @@ import com.example.bookspace.database.AppDatabase;
 import com.example.bookspace.database.dao.ReadingProgressDao;
 import com.example.bookspace.database.entity.ReadingProgressEntity;
 import com.example.bookspace.databinding.ActivityReadingBinding;
+import com.example.bookspace.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,20 +27,16 @@ public class ReadingActivity extends AppCompatActivity {
     private ActivityReadingBinding binding;
     private AppDatabase db;
     private ReadingProgressDao progressDao;
-    private TocAdapter tocAdapter;
 
-    // Trạng thái đọc
     private int currentChapter = 1;
     private int totalChapters = 10;
     private int bookId = 1;
-    private String userId = "default_user";
-    private String bookTitle = "Sách"; // Tên sách lấy từ DB
+    private String bookTitle = "Sách";
+    private int sourceNavId = R.id.nav_home;
 
-    // Cỡ chữ
     private final int[] fontSizes = {16, 17, 18, 19, 20, 21, 22};
-    private int fontSizeIndex = 3; // mặc định 19sp
+    private int fontSizeIndex = 3;
 
-    // Danh sách chương
     private List<String> chapterNames;
 
     @Override
@@ -48,21 +47,10 @@ public class ReadingActivity extends AppCompatActivity {
 
         db = AppDatabase.getInstance(this);
         progressDao = db.readingProgressDao();
-        bookId = getIntent().getIntExtra("BOOK_ID", bookId);
 
-        // Nhận bookId từ Intent (nếu có)
         bookId = getIntent().getIntExtra("BOOK_ID", 1);
-
-        // Tải thông tin sách từ DB
+        sourceNavId = getIntent().getIntExtra("SOURCE_PAGE", R.id.nav_home);
         loadBookInfo();
-
-        // Tải dữ liệu chương
-        initChapterData();
-
-        // Lấy trang đọc cuối cùng (getLastPage)
-        currentChapter = getLastPage();
-        bookId = getIntent().getIntExtra("bookId", 1);
-
         initChapterData();
         loadReadingProgress();
 
@@ -80,14 +68,20 @@ public class ReadingActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        saveLastPage(currentChapter);
+        saveReadingProgress();
     }
 
-    // Tải thông tin sách từ Database
+    @Override
+    public void onBackPressed() {
+        MainActivity.updateBottomNavIcon(this, sourceNavId);
+        super.onBackPressed();
+    }
+
     private void loadBookInfo() {
         com.example.bookspace.database.entity.BookEntity bookEntity = db.bookDao().getBookById(bookId);
         if (bookEntity != null) {
             bookTitle = bookEntity.title;
+            totalChapters = bookEntity.pages;
         }
     }
 
@@ -105,27 +99,19 @@ public class ReadingActivity extends AppCompatActivity {
         chapterNames.add("Tái ngộ");
     }
 
-    // Tải tiến độ đã lưu qua hàm getLastPage()
-    private int getLastPage() {
     private void loadReadingProgress() {
-        ReadingProgressEntity progress = progressDao.getProgress(userId, bookId);
+        ReadingProgressEntity progress = progressDao.getProgress("default_user", bookId);
         if (progress != null) {
             int savedChapter = progress.currentPage + 1;
-            if (savedChapter > totalChapters) {
-                return totalChapters;
-            }
-            return savedChapter;
+            currentChapter = Math.min(savedChapter, totalChapters);
         }
-        return 1;
     }
 
-    // Lưu tiến độ qua hàm saveLastPage()
-    private void saveLastPage(int page) {
     private void saveReadingProgress() {
         ReadingProgressEntity progress = new ReadingProgressEntity();
-        progress.userId = userId;
+        progress.userId = "default_user";
         progress.bookId = bookId;
-        progress.currentPage = page - 1;
+        progress.currentPage = currentChapter - 1;
         progress.totalPages = totalChapters;
         progress.lastReadAt = System.currentTimeMillis();
 
@@ -143,8 +129,8 @@ public class ReadingActivity extends AppCompatActivity {
         binding.tvPageNumber.setText("Trang " + currentChapter + " / " + totalChapters);
         updateContent();
 
-        if (tocAdapter != null) {
-            tocAdapter.setCurrentChapter(currentChapter);
+        if (binding.tocRecycler.getAdapter() != null) {
+            ((TocAdapter) binding.tocRecycler.getAdapter()).setCurrentChapter(currentChapter);
         }
     }
 
@@ -187,7 +173,10 @@ public class ReadingActivity extends AppCompatActivity {
     }
 
     private void setupTopBar() {
-        binding.btnBack.setOnClickListener(v -> finish());
+        binding.btnBack.setOnClickListener(v -> {
+            MainActivity.updateBottomNavIcon(this, sourceNavId);
+            finish();
+        });
         binding.btnMenu.setOnClickListener(v -> showTableOfContents());
 
         binding.btnSettings.setOnClickListener(v -> {
@@ -200,16 +189,6 @@ public class ReadingActivity extends AppCompatActivity {
         binding.btnPrevChapter.setOnClickListener(v -> goToPrevPage());
         binding.btnNextChapter.setOnClickListener(v -> goToNextPage());
     }
-
-    // Chuyển trang trước
-    private void goToPrevPage() {if (currentChapter <= 1) {
-        Toast.makeText(this, "Đang ở trang đầu tiên", Toast.LENGTH_SHORT).show();
-        return;
-    }
-        currentChapter--;
-        updateDisplay();
-        // Change saveReadingProgress(); to:
-        saveLastPage(currentChapter);
 
     private void goToPrevPage() {
         if (currentChapter <= 1) {
@@ -229,31 +208,12 @@ public class ReadingActivity extends AppCompatActivity {
         }
         currentChapter++;
         updateDisplay();
-        // Change saveReadingProgress(); to:
-        saveLastPage(currentChapter);
-
         saveReadingProgress();
         binding.readingScrollView.scrollTo(0, 0);
     }
 
-    // Hiện mục lục — panel trượt từ dưới lên bằng Dialog
     private void showTableOfContents() {
-        String[] chapters = new String[chapterNames.size()];
-        chapterNames.toArray(chapters);
-
-        new AlertDialog.Builder(this)
-                .setTitle("Mục lục")
-                .setItems(chapters, (dialog, which) -> {
-                    currentChapter = which + 1;
-                    updateDisplay();
-                    // Change saveReadingProgress(); to:
-                    saveLastPage(currentChapter);
-                    binding.readingScrollView.scrollTo(0, 0);
-                })
-                .setNegativeButton("Đóng", null)
-                .show();
-        android.app.Dialog dialog = new android.app.Dialog(this,
-                android.R.style.Theme_Translucent_NoTitleBar);
+        Dialog dialog = new Dialog(this, android.R.style.Theme_Translucent_NoTitleBar);
         dialog.setContentView(R.layout.bottom_sheet_toc);
 
         dialog.getWindow().setFlags(
@@ -292,9 +252,6 @@ public class ReadingActivity extends AppCompatActivity {
         recyclerView.post(() ->
                 recyclerView.scrollToPosition(Math.max(0, currentChapter - 1)));
 
-        dialog.show();
-
-        // Chiều cao dialog = 95% chiều cao màn hình
         int screenHeight = getResources().getDisplayMetrics().heightPixels;
         int dialogHeight = (int) (screenHeight * 0.90f);
 
@@ -304,6 +261,8 @@ public class ReadingActivity extends AppCompatActivity {
         params.gravity = android.view.Gravity.BOTTOM;
         dialog.getWindow().setAttributes(params);
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        dialog.show();
     }
 
     private void setupSettingsPanel() {

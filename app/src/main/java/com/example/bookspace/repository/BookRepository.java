@@ -25,10 +25,6 @@ public class BookRepository {
         return bookDao.getBooksByCategory(category);
     }
 
-    public List<Book> getBooksByAuthorExcept(String author, int bookId, int limit) {
-        return toBooks(bookDao.getBooksByAuthorExcept(author, bookId, limit));
-    }
-
     public List<BookEntity> searchBooks(String keyword) {
         return bookDao.searchBooks(keyword);
     }
@@ -67,6 +63,12 @@ public class BookRepository {
 
     public void removeDownloaded(int bookId) {
         bookDao.updateDownloadedState(bookId, false);
+    }
+
+    public List<BookEntity> getAllBooksInReadingProgress() {
+        return bookDao.getAllBooks();
+    }
+
     private List<Book> toBooks(List<BookEntity> entities) {
         List<Book> books = new ArrayList<>();
         for (BookEntity entity : entities) {
