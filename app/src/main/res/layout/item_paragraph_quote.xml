@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_marginStart="24dp"
+    android:layout_marginBottom="@dimen/reading_paragraph_spacing">
+
+    <View
+        android:id="@+id/accent_bar"
+        android:layout_width="3dp"
+        android:layout_height="match_parent"
+        android:background="@color/reading_accent" />
+
+    <TextView
+        android:id="@+id/tv_quote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/reading_text_size"
+        android:textStyle="italic"
+        android:lineSpacingMultiplier="1.7"
+        android:textColor="@color/reading_text_muted"
+        android:paddingStart="16dp" />
+</LinearLayout>

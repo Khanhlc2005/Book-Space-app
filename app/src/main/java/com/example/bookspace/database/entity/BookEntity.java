@@ -21,4 +21,5 @@ public class BookEntity {
     public String description;
     public String category;
     public boolean isDownloaded;
+    public String bookFilePath;  // Đường dẫn file sách trong assets, VD: "books/dac_nhan_tam.txt"
 }
