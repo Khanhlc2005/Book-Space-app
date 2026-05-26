@@ -100,80 +100,14 @@
             android:paddingTop="28dp"
             android:paddingBottom="20dp">
 
-            <!-- Nội dung đọc -->
-            <TextView
-                android:id="@+id/tv_paragraph_1"
+            <!-- Nội dung đọc - RecyclerView động -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="We are but stewards of these echoes, the Head Librarian had once told him. Elias hadn't understood it then. He was young, obsessed with the digital infinite, the way a billion books could be distilled into a single shard of glass. But as the years turned into a slow, rhythmic dance of cataloging and preservation, he realized that the infinite was often a mask for the empty."
-                android:textSize="@dimen/reading_text_size"
-                android:lineSpacingMultiplier="1.65"
-                android:textColor="@color/reading_text"
-                android:layout_marginBottom="@dimen/reading_paragraph_spacing" />
-
-            <LinearLayout
-                android:id="@+id/pull_quote_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginStart="24dp"
-                android:layout_marginBottom="@dimen/reading_paragraph_spacing">
-
-                <View
-                    android:layout_width="3dp"
-                    android:layout_height="match_parent"
-                    android:background="@color/reading_accent" />
-
-                <TextView
-                    android:id="@+id/tv_pull_quote"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text='"The archive is not a place where things are kept; it is a place where things are allowed to remain."'
-                    android:textSize="@dimen/reading_text_size"
-                    android:textStyle="italic"
-                    android:lineSpacingMultiplier="1.7"
-                    android:textColor="@color/reading_text_muted"
-                    android:paddingStart="16dp" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tv_paragraph_2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="In the heart of the library, the air smelled of almond and old dust—a scent he had come to associate with truth. There were no search bars here. No algorithms to suggest what he might like next. There was only the weight of the book in his hands and the silence that demanded he listen."
-                android:textSize="@dimen/reading_text_size"
-                android:lineSpacingMultiplier="1.65"
-                android:textColor="@color/reading_text"
-                android:layout_marginBottom="@dimen/reading_paragraph_spacing" />
-
-            <TextView
-                android:id="@+id/tv_paragraph_3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="He turned the page. The sound was like a sharp intake of breath in the quiet room. On page eighty-four, he found it. A marginal note, written in a hand so fine it looked like lace. It wasn't a correction or a citation. It was a confession."
-                android:textSize="@dimen/reading_text_size"
-                android:lineSpacingMultiplier="1.65"
-                android:textColor="@color/reading_text"
-                android:layout_marginBottom="@dimen/reading_paragraph_spacing" />
-
-            <TextView
-                android:id="@+id/tv_paragraph_4"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="The curator leaned closer, the Light Teal glow of his modern interface momentarily forgotten on the desk behind him. He was no longer a man of the modern world; he was a traveler in someone else's memory."
-                android:textSize="@dimen/reading_text_size"
-                android:lineSpacingMultiplier="1.65"
-                android:textColor="@color/reading_text"
-                android:layout_marginBottom="@dimen/reading_paragraph_spacing" />
-
-            <TextView
-                android:id="@+id/tv_paragraph_5"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="The sun began to dip below the horizon of the city outside, casting long, bruised shadows through the high windows of the archive. Elias did not reach for the light switch. He let the darkness bloom, knowing that some words were only meant to be read in the twilight."
-                android:textSize="@dimen/reading_text_size"
-                android:lineSpacingMultiplier="1.65"
-                android:textColor="@color/reading_text"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                android:nestedScrollingEnabled="true"
                 android:layout_marginBottom="24dp" />
 
             <!-- Thanh chuyển trang - nằm ở cuối mỗi trang đọc -->

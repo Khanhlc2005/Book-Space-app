@@ -39,4 +39,7 @@ public interface BookDao {
 
     @Query("UPDATE books SET isDownloaded = :isDownloaded WHERE id = :bookId")
     void updateDownloadedState(int bookId, boolean isDownloaded);
+
+    @Query("SELECT * FROM books WHERE author = :author AND id != :bookId LIMIT :limit")
+    List<BookEntity> getBooksByAuthorExcept(String author, int bookId, int limit);
 }

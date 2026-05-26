@@ -10,6 +10,7 @@ public class Book {
     private int pages;       
     private String description;
     private String category;
+    private String bookFilePath;
 
     // Constructor 2 tham số (của nhánh main)
     public Book(String title, String author) {
@@ -47,6 +48,7 @@ public class Book {
     public static Book fromEntity(com.example.bookspace.database.entity.BookEntity entity) {
         Book book = new Book(entity.coverUrl, entity.title, entity.author, entity.pages, entity.description, entity.category);
         book.setId(entity.id);
+        book.setBookFilePath(entity.bookFilePath);
         return book;
     }
 
@@ -97,6 +99,14 @@ public class Book {
     
     public void setCategory(String category) { 
         this.category = category; 
+    }
+
+    public String getBookFilePath() {
+        return bookFilePath;
+    }
+
+    public void setBookFilePath(String bookFilePath) {
+        this.bookFilePath = bookFilePath;
     }
 
     @Override

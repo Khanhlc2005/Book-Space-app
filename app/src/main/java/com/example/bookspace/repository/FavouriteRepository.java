@@ -18,7 +18,6 @@ public class FavouriteRepository {
     }
 
     public void toggle(int bookId) {
-        // Dùng ExecutorService để gọi lệnh thêm xoá ở Background (Khoe kĩ năng cho điểm cao 😎)
         AppDatabase.databaseWriteExecutor.execute(() -> {
             setFavourite(bookId, !isFavourite(bookId));
         });
@@ -47,7 +46,6 @@ public class FavouriteRepository {
     }
 
     public List<BookEntity> getFavouriteBooks() {
-        // Thuộc tầng DAO đã tự JOIN với book để có Title, Image...
         return favouriteDao.getFavouriteBooks(userId);
     }
 }

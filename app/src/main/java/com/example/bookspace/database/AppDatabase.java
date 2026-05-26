@@ -33,7 +33,7 @@ import java.util.concurrent.Executors;
         ReadingSettingsEntity.class,
         ReminderEntity.class
     },
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -55,7 +55,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             AppDatabase.class, "bookspace_room_db")
                             .allowMainThreadQueries() // Mặc định cho phép học tập/Đồ án
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                             .fallbackToDestructiveMigration() // Tự xóa DB cũ khi thay đổi version
                             .addCallback(roomCallback)
                             .build();
@@ -72,24 +72,24 @@ public abstract class AppDatabase extends RoomDatabase {
             databaseWriteExecutor.execute(() -> {
                 BookDao dao = INSTANCE.bookDao();
                 List<BookEntity> sampleBooks = new ArrayList<>();
-                sampleBooks.add(createBook("Trưởng Thành Sau Ngàn Lần Tranh Đấu", "Rando Kim", "https://picsum.photos/600/400?random=101", 300, "Hành trình trưởng thành qua những thử thách cuộc sống.", "KỸ NĂNG SỐNG"));
-                sampleBooks.add(createBook("Một Thoáng Ta Rực Rỡ Ở Nhân Gian", "Ocean Vuong", "https://picsum.photos/600/400?random=102", 350, "Câu chuyện đầy chất thơ về gia đình, ký ức và bản sắc.", "TIỂU THUYẾT"));
-                sampleBooks.add(createBook("Thiên Tài Bên Trái, Kẻ Điên Bên Phải", "Cao Minh", "https://picsum.photos/600/400?random=103", 400, "Ranh giới mong manh giữa thiên tài và kẻ điên.", "TÂM LÝ"));
-                sampleBooks.add(createBook("Tuổi Trẻ Đáng Giá Bao Nhiêu", "Rosie Nguyễn", "https://picsum.photos/600/400?random=104", 250, "Những bài học quý giá cho tuổi trẻ Việt Nam.", "KỸ NĂNG SỐNG"));
-                sampleBooks.add(createBook("Dám Bị Ghét", "Kishimi Ichiro", "https://picsum.photos/600/400?random=105", 320, "Triết lý Adler về sự tự do và hạnh phúc.", "TÂM LÝ"));
-                sampleBooks.add(createBook("Đắc Nhân Tâm", "Dale Carnegie", "https://picsum.photos/600/400?random=106", 320, "Sách kỹ năng sống kinh điển về nghệ thuật giao tiếp.", "KỸ NĂNG SỐNG"));
-                sampleBooks.add(createBook("Harry Potter và Hòn Đá Phù Thủy", "J.K. Rowling", "https://picsum.photos/600/400?random=107", 500, "Thế giới phù thủy kỳ bí cùng cậu bé Harry.", "TIỂU THUYẾT"));
-                sampleBooks.add(createBook("Nhà Giả Kim", "Paulo Coelho", "https://picsum.photos/600/400?random=108", 200, "Hành trình tìm kiếm vận mệnh của chàng chăn cừu Santiago.", "TIỂU THUYẾT"));
-                sampleBooks.add(createBook("Tư Duy Nhanh Và Chậm", "Daniel Kahneman", "https://picsum.photos/600/400?random=109", 500, "Hai hệ thống tư duy chi phối quyết định của con người.", "TÂM LÝ"));
-                sampleBooks.add(createBook("Muôn Kiếp Nhân Sinh", "Nguyên Phong", "https://picsum.photos/600/400?random=110", 450, "Luân hồi và nhân quả qua các kiếp sống.", "TÂM LINH"));
-                sampleBooks.add(createBook("Sapiens: Lược Sử Loài Người", "Yuval Noah Harari", "https://picsum.photos/600/400?random=111", 550, "Lịch sử 70.000 năm phát triển của loài người.", "KINH TẾ"));
-                sampleBooks.add(createBook("Chúa Tể Nhẫn", "J.R.R. Tolkien", "https://picsum.photos/600/400?random=112", 1200, "Cuộc chiến giành chiếc nhẫn quyền năng ở Middle-earth.", "TIỂU THUYẾT"));
+                sampleBooks.add(createBook("Trưởng Thành Sau Ngàn Lần Tranh Đấu", "Rando Kim", "https://picsum.photos/600/400?random=101", 300, "Hành trình trưởng thành qua những thử thách cuộc sống.", "KỸ NĂNG SỐNG", null));
+                sampleBooks.add(createBook("Một Thoáng Ta Rực Rỡ Ở Nhân Gian", "Ocean Vuong", "https://picsum.photos/600/400?random=102", 350, "Câu chuyện đầy chất thơ về gia đình, ký ức và bản sắc.", "TIỂU THUYẾT", null));
+                sampleBooks.add(createBook("Thiên Tài Bên Trái, Kẻ Điên Bên Phải", "Cao Minh", "https://picsum.photos/600/400?random=103", 400, "Ranh giới mong manh giữa thiên tài và kẻ điên.", "TÂM LÝ", null));
+                sampleBooks.add(createBook("Tuổi Trẻ Đáng Giá Bao Nhiêu", "Rosie Nguyễn", "https://picsum.photos/600/400?random=104", 250, "Những bài học quý giá cho tuổi trẻ Việt Nam.", "KỸ NĂNG SỐNG", null));
+                sampleBooks.add(createBook("Dám Bị Ghét", "Kishimi Ichiro", "https://picsum.photos/600/400?random=105", 320, "Triết lý Adler về sự tự do và hạnh phúc.", "TÂM LÝ", null));
+                sampleBooks.add(createBook("Đắc Nhân Tâm", "Dale Carnegie", "https://picsum.photos/600/400?random=106", 320, "Sách kỹ năng sống kinh điển về nghệ thuật giao tiếp.", "KỸ NĂNG SỐNG", "books/dac_nhan_tam.txt"));
+                sampleBooks.add(createBook("Harry Potter và Hòn Đá Phù Thủy", "J.K. Rowling", "https://picsum.photos/600/400?random=107", 500, "Thế giới phù thủy kỳ bí cùng cậu bé Harry.", "TIỂU THUYẾT", null));
+                sampleBooks.add(createBook("Nhà Giả Kim", "Paulo Coelho", "https://picsum.photos/600/400?random=108", 200, "Hành trình tìm kiếm vận mệnh của chàng chăn cừu Santiago.", "TIỂU THUYẾT", "books/nha_gia_kim.txt"));
+                sampleBooks.add(createBook("Tư Duy Nhanh Và Chậm", "Daniel Kahneman", "https://picsum.photos/600/400?random=109", 500, "Hai hệ thống tư duy chi phối quyết định của con người.", "TÂM LÝ", null));
+                sampleBooks.add(createBook("Muôn Kiếp Nhân Sinh", "Nguyên Phong", "https://picsum.photos/600/400?random=110", 450, "Luân hồi và nhân quả qua các kiếp sống.", "TÂM LINH", null));
+                sampleBooks.add(createBook("Sapiens: Lược Sử Loài Người", "Yuval Noah Harari", "https://picsum.photos/600/400?random=111", 550, "Lịch sử 70.000 năm phát triển của loài người.", "KINH TẾ", null));
+                sampleBooks.add(createBook("Chúa Tể Nhẫn", "J.R.R. Tolkien", "https://picsum.photos/600/400?random=112", 1200, "Cuộc chiến giành chiếc nhẫn quyền năng ở Middle-earth.", "TIỂU THUYẾT", null));
                 dao.insertAll(sampleBooks);
             });
         }
     };
 
-    private static BookEntity createBook(String title, String author, String cover, int pages, String desc, String cat) {
+    private static BookEntity createBook(String title, String author, String cover, int pages, String desc, String cat, String bookFilePath) {
         BookEntity b = new BookEntity();
         b.title = title;
         b.author = author;
@@ -98,6 +98,7 @@ public abstract class AppDatabase extends RoomDatabase {
         b.description = desc;
         b.category = cat;
         b.isDownloaded = false;
+        b.bookFilePath = bookFilePath;
         return b;
     }
 
@@ -113,6 +114,16 @@ public abstract class AppDatabase extends RoomDatabase {
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE books ADD COLUMN isDownloaded INTEGER NOT NULL DEFAULT 0");
             database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_books_title_author ON books(title, author)");
+        }
+    };
+
+    private static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE books ADD COLUMN bookFilePath TEXT");
+            // Cập nhật bookFilePath cho 2 cuốn sách có sẵn nội dung
+            database.execSQL("UPDATE books SET bookFilePath = 'books/dac_nhan_tam.txt' WHERE title = 'Đắc Nhân Tâm'");
+            database.execSQL("UPDATE books SET bookFilePath = 'books/nha_gia_kim.txt' WHERE title = 'Nhà Giả Kim'");
         }
     };
 }

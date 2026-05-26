@@ -37,8 +37,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements OnBookClickListener {
     private ActivityMainBinding binding;
-    private BookRepository repo;
-    private static int currentNavId = R.id.nav_home;
+    private BookRepository bookRepository;
     private final Handler sliderHandler = new Handler();
     private final Runnable sliderRunnable = new Runnable() {
         @Override
@@ -88,8 +87,6 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
             return WindowInsetsCompat.CONSUMED;
         });
 
-        repo = new BookRepository(this);
-
         setupStaticUI();
         setupFeaturedViewPager();
         setupDrawerMenu();
@@ -100,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
     }
 
     private void seedDatabase() {
-        if (repo.getAllBooks().size() < 14) {
+        if (bookRepository.getAllBooks().size() < 14) {
             AppDatabase.databaseWriteExecutor.execute(() -> {
                 BookDao dao = AppDatabase.getInstance(this).bookDao();
                 List<BookEntity> sampleBooks = new ArrayList<>();
@@ -182,10 +179,10 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
     }
 
     private void setupFeaturedViewPager() {
-        List<BookEntity> entities = repo.getAllBooks();
+        List<BookEntity> featuredEntities = bookRepository.getAllBooks();
         List<Book> listFeatured = new ArrayList<>();
-        for (BookEntity e : entities) {
-            listFeatured.add(Book.fromEntity(e));
+        for (int i = 0; i < Math.min(5, featuredEntities.size()); i++) {
+            listFeatured.add(Book.fromEntity(featuredEntities.get(i)));
         }
         FeaturedBookAdapter adapter = new FeaturedBookAdapter(listFeatured, this);
         binding.vpFeaturedBooks.setAdapter(adapter);
@@ -197,17 +194,23 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
     }
 
     private void setupRecyclerViews() {
-        List<BookEntity> allEntities = repo.getAllBooks();
+        // Lấy tất cả sách từ DB hiển thị ở "Mới cập nhật"
+        List<BookEntity> allBooks = bookRepository.getAllBooks();
         List<Book> listRecent = new ArrayList<>();
-        for (BookEntity e : allEntities) {
-            listRecent.add(Book.fromEntity(e));
-        }
-
-        binding.rvNovels.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
-        binding.rvNovels.setAdapter(new BookAdapter(listRecent, this));
+        for (BookEntity entity : allBooks) listRecent.add(Book.fromEntity(entity));
 
         binding.rvRecentlyUpdated.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
         binding.rvRecentlyUpdated.setAdapter(new BookAdapter(listRecent, this));
+
+        // Lọc sách "Tiểu thuyết" từ DB
+        List<BookEntity> novelEntities = bookRepository.getByCategory("TIỂU THUYẾT");
+        List<Book> listNovel = new ArrayList<>();
+        for (BookEntity e : novelEntities) {
+            listNovel.add(Book.fromEntity(e));
+        }
+
+        binding.rvNovels.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
+        binding.rvNovels.setAdapter(new BookAdapter(listNovel, this));
     }
 
     private void setupSearch() {
@@ -224,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
                     binding.recyclerBooks.setVisibility(View.GONE);
                     binding.emptyStateSearch.getRoot().setVisibility(View.GONE);
                 } else {
-                    List<BookEntity> results = repo.searchBooks(keyword);
+                    List<BookEntity> entities = bookRepository.searchBooks(keyword);
                     List<Book> filtered = new ArrayList<>();
                     for (BookEntity e : results) filtered.add(Book.fromEntity(e));
                     searchAdapter.updateData(filtered);
@@ -269,70 +272,18 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
             startActivity(new Intent(this, FavouritesActivity.class));
         });
 
-        updateBottomNavUi(currentNavId, activeColor, inactiveColor);
-    }
-
-    public static void updateBottomNavIcon(Activity activity, int navId) {
-        currentNavId = navId;
-        if (activity instanceof MainActivity) {
-            return;
-        }
-        int activeColor = ContextCompat.getColor(activity, R.color.teal_600);
-        int inactiveColor = ContextCompat.getColor(activity, R.color.nav_inactive);
-
-        View bottomNavContainer = activity.findViewById(R.id.bottomNav);
-        if (bottomNavContainer == null) return;
-
-        LinearLayout navHome = bottomNavContainer.findViewById(R.id.nav_home);
-        LinearLayout navReader = bottomNavContainer.findViewById(R.id.nav_reader);
-        LinearLayout navLibrary = bottomNavContainer.findViewById(R.id.nav_library);
-
-        if (navHome != null) {
-            ImageView icon = navHome.findViewById(R.id.icon_home);
-            TextView text = navHome.findViewById(R.id.text_home);
-            if (icon != null) icon.setColorFilter(navId == R.id.nav_home ? activeColor : inactiveColor);
-            if (text != null) text.setTextColor(navId == R.id.nav_home ? activeColor : inactiveColor);
-        }
-        if (navReader != null) {
-            ImageView icon = navReader.findViewById(R.id.icon_reader);
-            TextView text = navReader.findViewById(R.id.text_reader);
-            if (icon != null) icon.setColorFilter(navId == R.id.nav_reader ? activeColor : inactiveColor);
-            if (text != null) text.setTextColor(navId == R.id.nav_reader ? activeColor : inactiveColor);
-        }
-        if (navLibrary != null) {
-            ImageView icon = navLibrary.findViewById(R.id.icon_library);
-            TextView text = navLibrary.findViewById(R.id.text_library);
-            if (icon != null) icon.setColorFilter(navId == R.id.nav_library ? activeColor : inactiveColor);
-            if (text != null) text.setTextColor(navId == R.id.nav_library ? activeColor : inactiveColor);
-        }
-    }
-
-    public static int getCurrentNavId() {
-        return currentNavId;
-    }
-
     private void updateBottomNavUi(int activeId, int activeColor, int inactiveColor) {
-        binding.bottomNav.iconHome.setColorFilter(activeId == R.id.nav_home ? activeColor : inactiveColor);
-        binding.bottomNav.textHome.setTextColor(activeId == R.id.nav_home ? activeColor : inactiveColor);
+        binding.iconHome.setColorFilter(activeId == R.id.nav_home ? activeColor : inactiveColor);
+        binding.textHome.setTextColor(activeId == R.id.nav_home ? activeColor : inactiveColor);
+        binding.navHome.setBackgroundResource(activeId == R.id.nav_home ? R.drawable.bottom_nav_active_bg : 0);
 
-        binding.bottomNav.iconReader.setColorFilter(activeId == R.id.nav_reader ? activeColor : inactiveColor);
-        binding.bottomNav.textReader.setTextColor(activeId == R.id.nav_reader ? activeColor : inactiveColor);
+        binding.iconLibrary.setColorFilter(activeId == R.id.nav_library ? activeColor : inactiveColor);
+        binding.textLibrary.setTextColor(activeId == R.id.nav_library ? activeColor : inactiveColor);
+        binding.navLibrary.setBackgroundResource(activeId == R.id.nav_library ? R.drawable.bottom_nav_active_bg : 0);
 
-        binding.bottomNav.iconLibrary.setColorFilter(activeId == R.id.nav_library ? activeColor : inactiveColor);
-        binding.bottomNav.textLibrary.setTextColor(activeId == R.id.nav_library ? activeColor : inactiveColor);
-    }
-
-    private void loadMostRecentBookCover() {
-        ProgressRepository progressRepo = new ProgressRepository(this);
-        List<BookEntity> books = progressRepo.getBooksInReadingProgress();
-        if (!books.isEmpty()) {
-            BookEntity mostRecent = books.get(0);
-            Glide.with(this)
-                    .load(mostRecent.coverUrl)
-                    .centerCrop()
-                    .placeholder(R.drawable.ic_menu_book)
-                    .into(binding.bottomNav.iconReader);
-        }
+        binding.iconReader.setColorFilter(activeId == R.id.nav_reader ? activeColor : inactiveColor);
+        binding.textReader.setTextColor(activeId == R.id.nav_reader ? activeColor : inactiveColor);
+        binding.navReader.setBackgroundResource(activeId == R.id.nav_reader ? R.drawable.bottom_nav_active_bg : 0);
     }
 
     @Override

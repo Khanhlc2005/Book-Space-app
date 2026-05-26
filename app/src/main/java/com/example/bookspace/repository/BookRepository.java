@@ -65,10 +65,6 @@ public class BookRepository {
         bookDao.updateDownloadedState(bookId, false);
     }
 
-    public List<BookEntity> getAllBooksInReadingProgress() {
-        return bookDao.getAllBooks();
-    }
-
     private List<Book> toBooks(List<BookEntity> entities) {
         List<Book> books = new ArrayList<>();
         for (BookEntity entity : entities) {
