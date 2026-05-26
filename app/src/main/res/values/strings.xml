@@ -90,9 +90,9 @@
     </string-array>
 
     <!-- Bottom Nav -->
-    <string name="nav_home">HOME</string>
-    <string name="nav_library">LIBRARY</string>
-    <string name="nav_reader">READER</string>
+    <string name="nav_home">Trang chủ</string>
+    <string name="nav_library">Thư viện</string>
+    <string name="nav_reader">Đọc sách</string>
 
     <!-- Profile -->
     <string name="profile_title">Hồ sơ cá nhân</string>

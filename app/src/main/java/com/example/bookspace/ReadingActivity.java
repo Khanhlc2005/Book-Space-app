@@ -1,11 +1,13 @@
 package com.example.bookspace;
 
+import android.app.Dialog;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -49,9 +51,8 @@ public class ReadingActivity extends AppCompatActivity {
     private List<List<BookContent.Paragraph>> allPages; // Danh sách tất cả các trang
     private List<Integer> pageToChapterMap;              // Map: page index → chapter index
 
-    // Cỡ chữ
     private final int[] fontSizes = {16, 17, 18, 19, 20, 21, 22};
-    private int fontSizeIndex = 3; // mặc định 19sp
+    private int fontSizeIndex = 3;
 
     // Theme hiện tại
     private String currentTheme = "light";
@@ -110,6 +111,7 @@ public class ReadingActivity extends AppCompatActivity {
         BookEntity bookEntity = db.bookDao().getBookById(bookId);
         if (bookEntity != null) {
             bookTitle = bookEntity.title;
+            totalChapters = bookEntity.pages;
         }
     }
 
@@ -186,7 +188,7 @@ public class ReadingActivity extends AppCompatActivity {
     // ====================================================================
 
     private void loadReadingProgress() {
-        ReadingProgressEntity progress = progressDao.getProgress(userId, bookId);
+        ReadingProgressEntity progress = progressDao.getProgress("default_user", bookId);
         if (progress != null) {
             int savedPage = progress.currentPage + 1; // DB lưu 0-indexed
             if (savedPage > totalPages) {
@@ -203,7 +205,7 @@ public class ReadingActivity extends AppCompatActivity {
 
     private void saveReadingProgress() {
         ReadingProgressEntity progress = new ReadingProgressEntity();
-        progress.userId = userId;
+        progress.userId = "default_user";
         progress.bookId = bookId;
         progress.currentPage = currentPage - 1; // Lưu 0-indexed
         progress.totalPages = totalPages;
@@ -296,7 +298,10 @@ public class ReadingActivity extends AppCompatActivity {
     // ====================================================================
 
     private void setupTopBar() {
-        binding.btnBack.setOnClickListener(v -> finish());
+        binding.btnBack.setOnClickListener(v -> {
+            MainActivity.updateBottomNavIcon(this, sourceNavId);
+            finish();
+        });
         binding.btnMenu.setOnClickListener(v -> showTableOfContents());
 
         binding.btnSettings.setOnClickListener(v -> {
@@ -410,6 +415,8 @@ public class ReadingActivity extends AppCompatActivity {
         params.gravity = android.view.Gravity.BOTTOM;
         dialog.getWindow().setAttributes(params);
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        dialog.show();
     }
 
     /**

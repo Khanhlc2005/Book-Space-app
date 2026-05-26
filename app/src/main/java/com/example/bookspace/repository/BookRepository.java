@@ -25,10 +25,6 @@ public class BookRepository {
         return bookDao.getBooksByCategory(category);
     }
 
-    public List<Book> getBooksByAuthorExcept(String author, int bookId, int limit) {
-        return toBooks(bookDao.getBooksByAuthorExcept(author, bookId, limit));
-    }
-
     public List<BookEntity> searchBooks(String keyword) {
         return bookDao.searchBooks(keyword);
     }

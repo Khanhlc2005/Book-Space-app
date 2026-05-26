@@ -7,19 +7,23 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bookspace.database.entity.BookEntity;
 import com.example.bookspace.database.entity.ReadingProgressEntity;
+import com.example.bookspace.databinding.ActivityReadingBooklistBinding;
+import com.example.bookspace.MainActivity;
 import com.example.bookspace.repository.ProgressRepository;
 
 import java.util.ArrayList;
@@ -27,7 +31,7 @@ import java.util.List;
 
 public class CurrentlyReadingListActivity extends AppCompatActivity implements ReadingListAdapter.OnReadingListActionListener {
 
-    private RecyclerView rvReading;
+    private ActivityReadingBooklistBinding binding;
     private ReadingListAdapter adapter;
     private ProgressRepository progressRepository;
 
@@ -36,15 +40,36 @@ public class CurrentlyReadingListActivity extends AppCompatActivity implements R
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_reading_booklist);
+        binding = ActivityReadingBooklistBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         progressRepository = new ProgressRepository(this);
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            binding.topBar.setPadding(
+                    binding.topBar.getPaddingLeft(),
+                    binding.topBar.getPaddingTop() + insets.top,
+                    binding.topBar.getPaddingRight(),
+                    binding.topBar.getPaddingBottom()
+            );
+            binding.bottomNav.bottomNavContainer.setPadding(
+                    binding.bottomNav.bottomNavContainer.getPaddingLeft(),
+                    binding.bottomNav.bottomNavContainer.getPaddingTop(),
+                    binding.bottomNav.bottomNavContainer.getPaddingRight(),
+                    insets.bottom + 24
+            );
+            return WindowInsetsCompat.CONSUMED;
+        });
 
         setupNavigation();
         setupEmptyState();
 
-        // Setup Reminder Button - Mở danh sách báo thức kiểu iPhone
-        ImageButton btnReminder = findViewById(R.id.btnReminder);
+        binding.rvReading.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new ReadingListAdapter(new ArrayList<>(), new ArrayList<>(), this);
+        binding.rvReading.setAdapter(adapter);
+
+        ImageButton btnReminder = binding.btnReminder;
         if (btnReminder != null) {
             btnReminder.setOnClickListener(v -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -58,26 +83,25 @@ public class CurrentlyReadingListActivity extends AppCompatActivity implements R
                 }
             });
         }
-        
-        // Thiết lập RecyclerView
-        rvReading = findViewById(R.id.rvReading);
-        rvReading.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ReadingListAdapter(new ArrayList<>(), new ArrayList<>(), this);
-        rvReading.setAdapter(adapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadReadingList();
+        MainActivity.updateBottomNavIcon(this, R.id.nav_reader);
     }
 
     private void setupEmptyState() {
         View emptyState = findViewById(R.id.emptyStateReading);
-        View rvReading = findViewById(R.id.rvReading);
-        
-        if (emptyState != null && rvReading != null) {
-            // Mặc định hiện trạng thái rỗng do chưa có dữ liệu thật
-            rvReading.setVisibility(View.GONE);
+
+        if (emptyState != null) {
+            binding.rvReading.setVisibility(View.GONE);
             emptyState.setVisibility(View.VISIBLE);
-            
+
             android.widget.ImageView imgEmptyIcon = emptyState.findViewById(R.id.imgEmptyIcon);
             android.widget.TextView txtEmptyMessage = emptyState.findViewById(R.id.txtEmptyMessage);
-            
+
             if (imgEmptyIcon != null) {
                 imgEmptyIcon.setImageResource(R.drawable.ic_auto_stories);
             }
@@ -93,13 +117,21 @@ public class CurrentlyReadingListActivity extends AppCompatActivity implements R
     }
 
     private void setupNavigation() {
-        // Nút Quay lại
+        int activeColor = ContextCompat.getColor(this, R.color.teal_600);
+        int inactiveColor = ContextCompat.getColor(this, R.color.nav_inactive);
+
         View btnBack = findViewById(R.id.btnBack);
         if (btnBack != null) {
-            btnBack.setOnClickListener(v -> finish());
+            btnBack.setOnClickListener(v -> {
+                MainActivity.updateBottomNavIcon(this, R.id.nav_library);
+                Intent intent = new Intent(this, FavouritesActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                finish();
+            });
         }
 
-        TextView tabFavorite = findViewById(R.id.tabFavorite);
+        android.widget.TextView tabFavorite = findViewById(R.id.tabFavorite);
         if (tabFavorite != null) {
             tabFavorite.setOnClickListener(v -> {
                 Intent intent = new Intent(this, FavouritesActivity.class);
@@ -109,23 +141,104 @@ public class CurrentlyReadingListActivity extends AppCompatActivity implements R
             });
         }
 
-        View navHome = findViewById(R.id.nav_home);
-        if (navHome != null) {
-            navHome.setOnClickListener(v -> {
-                Intent intent = new Intent(this, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
+        binding.bottomNav.navHome.setOnClickListener(v -> {
+            MainActivity.updateBottomNavIcon(this, R.id.nav_home);
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            finish();
+        });
+
+        binding.bottomNav.navReader.setOnClickListener(v -> {
+            MainActivity.updateBottomNavIcon(this, R.id.nav_reader);
+        });
+
+        binding.bottomNav.navLibrary.setOnClickListener(v -> {
+            MainActivity.updateBottomNavIcon(this, R.id.nav_library);
+            Intent intent = new Intent(this, FavouritesActivity.class);
+            startActivity(intent);
+            overridePendingTransition(0, 0);
+            finish();
+        });
+
+        updateBottomNavUi(R.id.nav_reader);
+    }
+
+    private void updateBottomNavUi(int activeId) {
+        int activeColor = ContextCompat.getColor(this, R.color.teal_600);
+        int inactiveColor = ContextCompat.getColor(this, R.color.nav_inactive);
+
+        binding.bottomNav.iconHome.setColorFilter(activeId == R.id.nav_home ? activeColor : inactiveColor);
+        binding.bottomNav.textHome.setTextColor(activeId == R.id.nav_home ? activeColor : inactiveColor);
+
+        binding.bottomNav.iconReader.setColorFilter(activeId == R.id.nav_reader ? activeColor : inactiveColor);
+        binding.bottomNav.textReader.setTextColor(activeId == R.id.nav_reader ? activeColor : inactiveColor);
+
+        binding.bottomNav.iconLibrary.setColorFilter(activeId == R.id.nav_library ? activeColor : inactiveColor);
+        binding.bottomNav.textLibrary.setTextColor(activeId == R.id.nav_library ? activeColor : inactiveColor);
+    }
+
+    private void loadReadingList() {
+        List<BookEntity> bookEntities = progressRepository.getBooksInReadingProgress();
+        List<Book> books = new ArrayList<>();
+        List<ReadingProgressEntity> progressList = new ArrayList<>();
+
+        for (BookEntity entity : bookEntities) {
+            books.add(Book.fromEntity(entity));
+            ReadingProgressEntity progress = progressRepository.getProgress(entity.id);
+            if (progress != null) {
+                progressList.add(progress);
+            } else {
+                ReadingProgressEntity empty = new ReadingProgressEntity();
+                empty.currentPage = 0;
+                empty.totalPages = 0;
+                progressList.add(empty);
+            }
         }
 
-        View navReader = findViewById(R.id.nav_reader);
-        if (navReader != null) {
-            navReader.setOnClickListener(v -> {
-                Intent intent = new Intent(this, ReadingActivity.class);
-                startActivity(intent);
-            });
+        adapter.updateData(books, progressList);
+
+        View emptyState = findViewById(R.id.emptyStateReading);
+
+        if (emptyState != null) {
+            if (books.isEmpty()) {
+                binding.rvReading.setVisibility(View.GONE);
+                emptyState.setVisibility(View.VISIBLE);
+            } else {
+                binding.rvReading.setVisibility(View.VISIBLE);
+                emptyState.setVisibility(View.GONE);
+            }
         }
+    }
+
+    @Override
+    public void onDeleteBook(Book book, int position) {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Xác nhận xóa")
+                .setMessage("Bạn có chắc chắn muốn xóa sách '" + book.getTitle() + "' khỏi danh sách không?")
+                .setPositiveButton("Xóa", (dialog, which) -> {
+                    progressRepository.deleteProgress(book.getId());
+
+                    com.example.bookspace.repository.BookRepository bookRepo =
+                            new com.example.bookspace.repository.BookRepository(this);
+                    bookRepo.removeDownloaded(book.getId());
+
+                    adapter.removeItem(position);
+                    Toast.makeText(this, "Đã xóa sách: " + book.getTitle(), Toast.LENGTH_SHORT).show();
+
+                    if (adapter.getItemCount() == 0) {
+                        setupEmptyState();
+                    }
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
+    }
+
+    @Override
+    public void onBookClick(Book book) {
+        Intent intent = new Intent(this, ReadingActivity.class);
+        intent.putExtra("BOOK_ID", book.getId());
+        startActivity(intent);
     }
 
     @Override
@@ -138,85 +251,5 @@ public class CurrentlyReadingListActivity extends AppCompatActivity implements R
                 Toast.makeText(this, "Cần quyền thông báo để quản lý nhắc nhở", Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        loadReadingList();
-    }
-
-    /**
-     * Tải danh sách sách đang đọc từ Database (JOIN books + reading_progress).
-     */
-    private void loadReadingList() {
-        List<BookEntity> bookEntities = progressRepository.getBooksInReadingProgress();
-        List<Book> books = new ArrayList<>();
-        List<ReadingProgressEntity> progressList = new ArrayList<>();
-
-        for (BookEntity entity : bookEntities) {
-            books.add(Book.fromEntity(entity));
-            // Lấy tiến độ cho từng cuốn sách
-            ReadingProgressEntity progress = progressRepository.getProgress(entity.id);
-            if (progress != null) {
-                progressList.add(progress);
-            } else {
-                // Tạo progress mặc định nếu chưa có
-                ReadingProgressEntity empty = new ReadingProgressEntity();
-                empty.currentPage = 0;
-                empty.totalPages = 0;
-                progressList.add(empty);
-            }
-        }
-
-        adapter.updateData(books, progressList);
-        
-        View emptyState = findViewById(R.id.emptyStateReading);
-        View rvReading = findViewById(R.id.rvReading);
-        
-        if (emptyState != null && rvReading != null) {
-            if (books.isEmpty()) {
-                rvReading.setVisibility(View.GONE);
-                emptyState.setVisibility(View.VISIBLE);
-            } else {
-                rvReading.setVisibility(View.VISIBLE);
-                emptyState.setVisibility(View.GONE);
-            }
-        }
-    }
-
-    @Override
-    public void onDeleteBook(Book book, int position) {
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Xác nhận xóa")
-            .setMessage("Bạn có chắc chắn muốn xóa sách '" + book.getTitle() + "' khỏi danh sách không?")
-            .setPositiveButton("Xóa", (dialog, which) -> {
-                // Xóa tiến độ đọc khỏi DB
-                progressRepository.deleteProgress(book.getId());
-                
-                // Cập nhật trạng thái chưa tải về máy (giả lập xóa file)
-                com.example.bookspace.repository.BookRepository bookRepo = new com.example.bookspace.repository.BookRepository(this);
-                bookRepo.removeDownloaded(book.getId());
-                
-                // Xóa khỏi danh sách UI
-                adapter.removeItem(position);
-                Toast.makeText(this, "Đã xóa sách: " + book.getTitle(), Toast.LENGTH_SHORT).show();
-                
-                // Cập nhật UI rỗng nếu hết sách
-                if (adapter.getItemCount() == 0) {
-                    setupEmptyState();
-                }
-            })
-            .setNegativeButton("Hủy", null)
-            .show();
-    }
-
-    @Override
-    public void onBookClick(Book book) {
-        // Mở ReadingActivity với bookId
-        Intent intent = new Intent(this, ReadingActivity.class);
-        intent.putExtra("BOOK_ID", book.getId());
-        startActivity(intent);
-
     }
 }

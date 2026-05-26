@@ -1,5 +1,6 @@
 package com.example.bookspace;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -7,6 +8,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -27,6 +29,7 @@ import com.example.bookspace.database.dao.BookDao;
 import com.example.bookspace.database.entity.BookEntity;
 import com.example.bookspace.databinding.ActivityMainBinding;
 import com.example.bookspace.repository.BookRepository;
+import com.example.bookspace.repository.ProgressRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,14 +70,20 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Khởi tạo Repository
-        bookRepository = new BookRepository(this);
-
-        // System Bar Insets
         ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-            binding.topBar.setPadding(binding.topBar.getPaddingLeft(), insets.top + 16, binding.topBar.getPaddingRight(), binding.topBar.getPaddingBottom());
-            binding.bottomNavContainer.setPadding(binding.bottomNavContainer.getPaddingLeft(), binding.bottomNavContainer.getPaddingTop(), binding.bottomNavContainer.getPaddingRight(), insets.bottom + 24);
+            binding.topBar.setPadding(
+                    binding.topBar.getPaddingLeft(),
+                    insets.top + 16,
+                    binding.topBar.getPaddingRight(),
+                    binding.topBar.getPaddingBottom()
+            );
+            binding.bottomNav.bottomNavContainer.setPadding(
+                    binding.bottomNav.bottomNavContainer.getPaddingLeft(),
+                    binding.bottomNav.bottomNavContainer.getPaddingTop(),
+                    binding.bottomNav.bottomNavContainer.getPaddingRight(),
+                    insets.bottom + 24
+            );
             return WindowInsetsCompat.CONSUMED;
         });
 
@@ -110,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
                 runOnUiThread(() -> {
                     setupRecyclerViews();
                     setupFeaturedViewPager();
+                    loadMostRecentBookCover();
                 });
             });
         }
@@ -122,8 +132,20 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         return b;
     }
 
-    @Override protected void onResume() { super.onResume(); sliderHandler.postDelayed(sliderRunnable, 3000); }
-    @Override protected void onPause() { super.onPause(); sliderHandler.removeCallbacks(sliderRunnable); }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sliderHandler.postDelayed(sliderRunnable, 3000);
+        int activeColor = ContextCompat.getColor(this, R.color.teal_600);
+        int inactiveColor = ContextCompat.getColor(this, R.color.nav_inactive);
+        updateBottomNavUi(currentNavId, activeColor, inactiveColor);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sliderHandler.removeCallbacks(sliderRunnable);
+    }
 
     private void setupStaticUI() {
         String urlProfile = "https://lh3.googleusercontent.com/aida-public/AB6AXuChsxoWmzwCRstgLqcTDca1SbPewXFrd0uJ5OY1FXuxAbdAscBM9j6kIhXhpstpImEZ9gAb_dxSYbqQ89m8NaPr6el5OQ5Z2YUeNfDh0DY4W0jb1KgYJVGAhvrANoMbLUrLg6s2DwyywmvegE394jntrgSqpxeej_IVKMPbHm8FqQoKbRYehHyNI1CF5738hoct6Bq7hD7ropM4BGBt9-geFXn1Cn9dj1fImBsanHfifcxjGf18spz-dcrPi17FerhLiXzmbr4o2FiP";
@@ -193,12 +215,13 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
 
     private void setupSearch() {
         binding.recyclerBooks.setLayoutManager(new LinearLayoutManager(this));
-        // Search Mode = true (Dạng list text)
         searchAdapter = new BookAdapter(new ArrayList<>(), true, this);
         binding.recyclerBooks.setAdapter(searchAdapter);
         binding.searchInput.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String keyword = s.toString().trim();
                 if (keyword.isEmpty()) {
                     binding.recyclerBooks.setVisibility(View.GONE);
@@ -206,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
                 } else {
                     List<BookEntity> entities = bookRepository.searchBooks(keyword);
                     List<Book> filtered = new ArrayList<>();
-                    for (BookEntity e : entities) filtered.add(Book.fromEntity(e));
+                    for (BookEntity e : results) filtered.add(Book.fromEntity(e));
                     searchAdapter.updateData(filtered);
                     if (filtered.isEmpty()) {
                         binding.recyclerBooks.setVisibility(View.GONE);
@@ -219,24 +242,35 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
                     }
                 }
             }
-            @Override public void afterTextChanged(Editable s) {}
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
     }
 
     private void setupBottomNav() {
         int activeColor = ContextCompat.getColor(this, R.color.teal_600);
         int inactiveColor = ContextCompat.getColor(this, R.color.nav_inactive);
-        binding.navHome.setOnClickListener(v -> updateBottomNavUi(R.id.nav_home, activeColor, inactiveColor));
-        binding.navLibrary.setOnClickListener(v -> {
-            updateBottomNavUi(R.id.nav_library, activeColor, inactiveColor);
-            startActivity(new Intent(this, CurrentlyReadingListActivity.class));
+
+        binding.bottomNav.navHome.setOnClickListener(v -> {
+            if (currentNavId != R.id.nav_home) {
+                currentNavId = R.id.nav_home;
+                updateBottomNavUi(R.id.nav_home, activeColor, inactiveColor);
+            }
         });
-        binding.navReader.setOnClickListener(v -> {
-            updateBottomNavUi(R.id.nav_reader, activeColor, inactiveColor);
+        binding.bottomNav.navReader.setOnClickListener(v -> {
+            if (currentNavId != R.id.nav_reader) {
+                currentNavId = R.id.nav_reader;
+                updateBottomNavUi(R.id.nav_reader, activeColor, inactiveColor);
+            }
             startActivity(new Intent(this, ReadingActivity.class));
         });
-        updateBottomNavUi(R.id.nav_home, activeColor, inactiveColor);
-    }
+        binding.bottomNav.navLibrary.setOnClickListener(v -> {
+            if (currentNavId != R.id.nav_library) {
+                currentNavId = R.id.nav_library;
+                updateBottomNavUi(R.id.nav_library, activeColor, inactiveColor);
+            }
+            startActivity(new Intent(this, FavouritesActivity.class));
+        });
 
     private void updateBottomNavUi(int activeId, int activeColor, int inactiveColor) {
         binding.iconHome.setColorFilter(activeId == R.id.nav_home ? activeColor : inactiveColor);
