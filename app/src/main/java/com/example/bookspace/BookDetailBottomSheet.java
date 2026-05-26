@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.example.bookspace.database.entity.BookEntity;
 import com.example.bookspace.repository.BookRepository;
 import com.example.bookspace.repository.FavouriteRepository;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -77,6 +78,7 @@ public final class BookDetailBottomSheet {
                     Intent intent = new Intent(activity, ReadingActivity.class);
                     intent.putExtra("BOOK_ID", bookId);
                     intent.putExtra("BOOK_TITLE", book.getTitle());
+                    intent.putExtra("SOURCE_PAGE", R.id.nav_library);
                     activity.startActivity(intent);
                     bottomSheetDialog.dismiss();
                 } else {
@@ -176,7 +178,14 @@ public final class BookDetailBottomSheet {
 
         List<Book> relatedBooks = null;
         if (!isBlank(book.getAuthor())) {
-            relatedBooks = bookRepository.getBooksByAuthorExcept(book.getAuthor(), bookId, 8);
+            List<BookEntity> all = bookRepository.getAllBooks();
+            relatedBooks = new java.util.ArrayList<>();
+            for (BookEntity e : all) {
+                if (e.author.equals(book.getAuthor()) && e.id != bookId) {
+                    relatedBooks.add(Book.fromEntity(e));
+                    if (relatedBooks.size() >= 8) break;
+                }
+            }
         }
 
         if (txtRelatedTitle != null) {

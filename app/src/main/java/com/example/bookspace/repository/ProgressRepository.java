@@ -2,6 +2,7 @@ package com.example.bookspace.repository;
 
 import android.content.Context;
 
+import com.example.bookspace.SessionManager;
 import com.example.bookspace.database.AppDatabase;
 import com.example.bookspace.database.dao.ReadingProgressDao;
 import com.example.bookspace.database.entity.BookEntity;
@@ -11,10 +12,11 @@ import java.util.List;
 
 public class ProgressRepository {
     private final ReadingProgressDao progressDao;
-    private final String userId = "default_user";
+    private final String userId;
 
     public ProgressRepository(Context context) {
         progressDao = AppDatabase.getInstance(context).readingProgressDao();
+        userId = SessionManager.getLoginUsername(context);
     }
 
     public void updateProgress(int bookId, int currentPage, int totalPages) {
