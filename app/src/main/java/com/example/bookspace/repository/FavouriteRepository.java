@@ -2,6 +2,7 @@ package com.example.bookspace.repository;
 
 import android.content.Context;
 
+import com.example.bookspace.SessionManager;
 import com.example.bookspace.database.AppDatabase;
 import com.example.bookspace.database.dao.FavouriteDao;
 import com.example.bookspace.database.entity.BookEntity;
@@ -11,10 +12,11 @@ import java.util.List;
 
 public class FavouriteRepository {
     private final FavouriteDao favouriteDao;
-    private final String userId = "default_user";
+    private final String userId;
 
     public FavouriteRepository(Context context) {
         favouriteDao = AppDatabase.getInstance(context).favouriteDao();
+        userId = SessionManager.getCurrentUserId(context);
     }
 
     public void toggle(int bookId) {

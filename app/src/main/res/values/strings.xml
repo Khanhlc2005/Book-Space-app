@@ -73,6 +73,16 @@
     <string name="book_review_average_label">Điểm trung bình</string>
     <string name="book_review_highlight">Bạn đọc đánh giá cao nhịp kể, độ dễ đọc và giá trị ứng dụng của cuốn sách.</string>
 
+    <!-- Review/comment do người dùng tạo -->
+    <string name="review_input_hint">Viết nhận xét của bạn về cuốn sách…</string>
+    <string name="review_submit">Gửi đánh giá</string>
+    <string name="reviews_empty">Chưa có đánh giá nào. Hãy là người đầu tiên!</string>
+    <string name="review_need_rating">Vui lòng chấm sao trước khi gửi</string>
+    <string name="review_need_content">Vui lòng viết nhận xét</string>
+    <string name="review_submitted">Đã gửi đánh giá</string>
+    <string name="review_deleted">Đã xoá đánh giá của bạn</string>
+    <string name="review_delete">Xoá đánh giá</string>
+
     <string-array name="book_reviewers">
         <item>Minh Anh</item>
         <item>Hoàng Nam</item>

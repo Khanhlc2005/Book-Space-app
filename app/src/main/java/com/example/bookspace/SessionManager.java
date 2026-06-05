@@ -31,6 +31,15 @@ public final class SessionManager {
         return getPreferences(context).getString(KEY_LOGIN_USERNAME, "");
     }
 
+    /**
+     * Nguồn userId thống nhất cho mọi dữ liệu theo người dùng (review, favourite,
+     * settings, progress). Trả về username đang đăng nhập, fallback "guest" nếu rỗng.
+     */
+    public static String getCurrentUserId(Context context) {
+        String username = getLoginUsername(context);
+        return (username == null || username.isEmpty()) ? "guest" : username;
+    }
+
     private static SharedPreferences getPreferences(Context context) {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
     }

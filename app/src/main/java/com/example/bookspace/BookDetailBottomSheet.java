@@ -1,9 +1,14 @@
 package com.example.bookspace;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,8 +21,10 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.bookspace.database.entity.BookEntity;
+import com.example.bookspace.database.entity.ReviewEntity;
 import com.example.bookspace.repository.BookRepository;
 import com.example.bookspace.repository.FavouriteRepository;
+import com.example.bookspace.repository.ReviewRepository;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
@@ -32,6 +39,9 @@ public final class BookDetailBottomSheet {
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity);
         View bottomSheetView = activity.getLayoutInflater().inflate(R.layout.bottom_sheet_book_detail, null);
         bottomSheetDialog.setContentView(bottomSheetView);
+        if (bottomSheetDialog.getWindow() != null) {
+            bottomSheetDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        }
 
         BookRepository bookRepository = new BookRepository(activity);
         FavouriteRepository favouriteRepository = new FavouriteRepository(activity);
@@ -69,7 +79,7 @@ public final class BookDetailBottomSheet {
 
         updateDownloadUi(activity, bookRepository, bookId, btnPrimaryAction, txtPrimaryAction, imgPrimaryActionIcon, txtDownloadStatus, false);
         updateFavouriteAction(favouriteRepository.isFavourite(bookId), imgFavoriteAction);
-        setupReviews(activity, book, bottomSheetView);
+        setupReviews(activity, bookId, bottomSheetView);
         setupRelatedBooks(activity, bottomSheetDialog, bookRepository, book, bookId, bottomSheetView);
 
         if (btnPrimaryAction != null) {
@@ -117,53 +127,93 @@ public final class BookDetailBottomSheet {
         bottomSheetDialog.show();
     }
 
-    private static void setupReviews(Activity activity, Book book, View bottomSheetView) {
+    private static void setupReviews(Activity activity, int bookId, View bottomSheetView) {
+        ReviewRepository reviewRepo = new ReviewRepository(activity);
+
         TextView txtAverageRating = bottomSheetView.findViewById(R.id.txtAverageRating);
         TextView txtReviewCount = bottomSheetView.findViewById(R.id.txtReviewCount);
         TextView txtDetailFavorites = bottomSheetView.findViewById(R.id.txtDetailFavorites);
-        TextView txtReviewOneName = bottomSheetView.findViewById(R.id.txtReviewOneName);
-        TextView txtReviewOneRating = bottomSheetView.findViewById(R.id.txtReviewOneRating);
-        TextView txtReviewOneBody = bottomSheetView.findViewById(R.id.txtReviewOneBody);
-        TextView txtReviewTwoName = bottomSheetView.findViewById(R.id.txtReviewTwoName);
-        TextView txtReviewTwoRating = bottomSheetView.findViewById(R.id.txtReviewTwoRating);
-        TextView txtReviewTwoBody = bottomSheetView.findViewById(R.id.txtReviewTwoBody);
+        RatingBar rbInput = bottomSheetView.findViewById(R.id.rbInput);
+        EditText etReviewInput = bottomSheetView.findViewById(R.id.etReviewInput);
+        View btnSubmitReview = bottomSheetView.findViewById(R.id.btnSubmitReview);
+        RecyclerView rvReviews = bottomSheetView.findViewById(R.id.rvReviews);
+        TextView txtReviewsEmpty = bottomSheetView.findViewById(R.id.txtReviewsEmpty);
 
-        long seed = Math.abs((long) (safeText(book.getTitle()) + safeText(book.getAuthor())).hashCode());
-        double averageRating = 4.2d + (seed % 7) / 10.0d;
-        int reviewCount = 48 + (int) (seed % 560);
-        String formattedAverage = String.format(Locale.getDefault(), "%.1f", averageRating);
-
-        if (txtAverageRating != null) {
-            txtAverageRating.setText(formattedAverage);
-        }
-        if (txtReviewCount != null) {
-            txtReviewCount.setText(activity.getString(R.string.book_review_count_format, reviewCount));
-        }
-        if (txtDetailFavorites != null) {
-            txtDetailFavorites.setText(formattedAverage);
+        if (rvReviews != null) {
+            rvReviews.setLayoutManager(new LinearLayoutManager(activity));
         }
 
-        String[] reviewers = activity.getResources().getStringArray(R.array.book_reviewers);
-        String[] reviewBodies = activity.getResources().getStringArray(R.array.book_review_bodies);
+        // reloadHolder để phá vòng phụ thuộc: callback xoá cần gọi reload, reload cần adapter.
+        final Runnable[] reloadHolder = new Runnable[1];
+        ReviewAdapter adapter = new ReviewAdapter(new java.util.ArrayList<>(), reviewRepo.getCurrentUserId(), review -> {
+            reviewRepo.deleteMyReview(bookId);
+            if (rbInput != null) rbInput.setRating(0);
+            if (etReviewInput != null) etReviewInput.setText("");
+            reloadHolder[0].run();
+            Toast.makeText(activity, R.string.review_deleted, Toast.LENGTH_SHORT).show();
+        });
+        if (rvReviews != null) {
+            rvReviews.setAdapter(adapter);
+        }
 
-        int firstIndex = (int) (seed % reviewers.length);
-        int secondIndex = (firstIndex + 2) % reviewers.length;
-        bindReview(
-                txtReviewOneName,
-                txtReviewOneRating,
-                txtReviewOneBody,
-                reviewers[firstIndex],
-                averageRating,
-                reviewBodies[firstIndex]
-        );
-        bindReview(
-                txtReviewTwoName,
-                txtReviewTwoRating,
-                txtReviewTwoBody,
-                reviewers[secondIndex],
-                Math.max(4.0d, averageRating - 0.2d),
-                reviewBodies[secondIndex]
-        );
+        Runnable reload = () -> {
+            List<ReviewEntity> list = reviewRepo.getReviews(bookId);
+            adapter.updateData(list);
+            String formattedAverage = String.format(Locale.getDefault(), "%.1f", reviewRepo.getAverage(bookId));
+            if (txtAverageRating != null) {
+                txtAverageRating.setText(formattedAverage);
+            }
+            if (txtDetailFavorites != null) {
+                txtDetailFavorites.setText(formattedAverage);
+            }
+            if (txtReviewCount != null) {
+                txtReviewCount.setText(activity.getString(R.string.book_review_count_format, reviewRepo.getCount(bookId)));
+            }
+            boolean empty = list.isEmpty();
+            if (rvReviews != null) {
+                rvReviews.setVisibility(empty ? View.GONE : View.VISIBLE);
+            }
+            if (txtReviewsEmpty != null) {
+                txtReviewsEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
+            }
+        };
+        reloadHolder[0] = reload;
+
+        // Prefill review cũ của người dùng (nếu có) để cho phép sửa
+        ReviewEntity mine = reviewRepo.getMyReview(bookId);
+        if (mine != null) {
+            if (rbInput != null) rbInput.setRating(mine.rating);
+            if (etReviewInput != null) etReviewInput.setText(mine.content);
+        }
+
+        if (btnSubmitReview != null) {
+            btnSubmitReview.setOnClickListener(v -> {
+                int rating = rbInput == null ? 0 : (int) rbInput.getRating();
+                String content = etReviewInput == null ? "" : etReviewInput.getText().toString().trim();
+                if (rating < 1) {
+                    Toast.makeText(activity, R.string.review_need_rating, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (content.isEmpty()) {
+                    Toast.makeText(activity, R.string.review_need_content, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                reviewRepo.submitReview(bookId, rating, content);
+                hideKeyboard(activity, etReviewInput);
+                reload.run();
+                Toast.makeText(activity, R.string.review_submitted, Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        reload.run();
+    }
+
+    private static void hideKeyboard(Activity activity, View view) {
+        if (view == null) return;
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     private static void setupRelatedBooks(Activity activity,
@@ -215,29 +265,8 @@ public final class BookDetailBottomSheet {
         }
     }
 
-    private static void bindReview(TextView txtName,
-                                   TextView txtRating,
-                                   TextView txtBody,
-                                   String reviewer,
-                                   double rating,
-                                   String body) {
-        if (txtName != null) {
-            txtName.setText(reviewer);
-        }
-        if (txtRating != null) {
-            txtRating.setText(String.format(Locale.getDefault(), "%.1f/5", rating));
-        }
-        if (txtBody != null) {
-            txtBody.setText(body);
-        }
-    }
-
     private static boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
-    }
-
-    private static String safeText(String value) {
-        return value == null ? "" : value;
     }
 
     private static void updateDownloadUi(Activity activity,

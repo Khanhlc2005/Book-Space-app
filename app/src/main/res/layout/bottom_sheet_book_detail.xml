@@ -379,6 +379,7 @@
                         </LinearLayout>
                     </LinearLayout>
 
+                    <!-- Ô nhập đánh giá của người dùng -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -386,87 +387,52 @@
                         android:orientation="vertical"
                         android:padding="14dp">
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
+                        <RatingBar
+                            android:id="@+id/rbInput"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
+                            android:numStars="5"
+                            android:stepSize="1" />
 
-                            <TextView
-                                android:id="@+id/txtReviewOneName"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:textColor="@color/on_surface"
-                                android:textSize="13sp"
-                                android:textStyle="bold"
-                                tools:text="Minh Anh" />
-
-                            <TextView
-                                android:id="@+id/txtReviewOneRating"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/tertiary"
-                                android:textSize="13sp"
-                                android:textStyle="bold"
-                                tools:text="4.8/5" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/txtReviewOneBody"
+                        <EditText
+                            android:id="@+id/etReviewInput"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:lineSpacingMultiplier="1.3"
-                            android:textColor="@color/on_surface_variant"
-                            android:textSize="13sp"
-                            tools:text="Nội dung dễ theo dõi, hợp để đọc từng chương ngắn." />
+                            android:background="@android:color/transparent"
+                            android:hint="@string/review_input_hint"
+                            android:inputType="textMultiLine|textCapSentences"
+                            android:maxLines="4"
+                            android:minLines="2"
+                            android:textColor="@color/on_surface"
+                            android:textColorHint="@color/on_surface_variant"
+                            android:textSize="13sp" />
+
+                        <Button
+                            android:id="@+id/btnSubmitReview"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="8dp"
+                            android:text="@string/review_submit" />
                     </LinearLayout>
 
-                    <LinearLayout
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvReviews"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:background="@drawable/login_hint_bg"
-                        android:orientation="vertical"
-                        android:padding="14dp">
+                        android:nestedScrollingEnabled="false" />
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:id="@+id/txtReviewTwoName"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:textColor="@color/on_surface"
-                                android:textSize="13sp"
-                                android:textStyle="bold"
-                                tools:text="Hoàng Nam" />
-
-                            <TextView
-                                android:id="@+id/txtReviewTwoRating"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/tertiary"
-                                android:textSize="13sp"
-                                android:textStyle="bold"
-                                tools:text="4.6/5" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/txtReviewTwoBody"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:lineSpacingMultiplier="1.3"
-                            android:textColor="@color/on_surface_variant"
-                            android:textSize="13sp"
-                            tools:text="Phần tóm tắt và nhịp kể ổn, phù hợp lưu vào thư viện cá nhân." />
-                    </LinearLayout>
+                    <TextView
+                        android:id="@+id/txtReviewsEmpty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/reviews_empty"
+                        android:textColor="@color/on_surface_variant"
+                        android:textSize="13sp"
+                        android:visibility="gone" />
                 </LinearLayout>
 
                 <!-- Related Books -->

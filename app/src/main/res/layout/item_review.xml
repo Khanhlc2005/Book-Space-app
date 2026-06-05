@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    android:background="@drawable/login_hint_bg"
+    android:orientation="vertical"
+    android:padding="14dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/txtReviewAuthor"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/on_surface"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            tools:text="minhanh"
+            xmlns:tools="http://schemas.android.com/tools" />
+
+        <RatingBar
+            android:id="@+id/rbReviewStars"
+            style="?android:attr/ratingBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:isIndicator="true"
+            android:numStars="5"
+            android:stepSize="1" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txtReviewContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:lineSpacingMultiplier="1.3"
+        android:textColor="@color/on_surface_variant"
+        android:textSize="13sp"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:text="Nội dung dễ theo dõi, hợp để đọc từng chương ngắn." />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/txtReviewDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/on_surface_variant"
+            android:textSize="11sp"
+            xmlns:tools="http://schemas.android.com/tools"
+            tools:text="06/06/2026 04:17" />
+
+        <ImageView
+            android:id="@+id/btnDeleteReview"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:contentDescription="@string/review_delete"
+            android:src="@drawable/ic_remove_circle"
+            android:visibility="gone"
+            app:tint="@color/on_surface_variant"
+            xmlns:app="http://schemas.android.com/apk/res-auto" />
+    </LinearLayout>
+</LinearLayout>

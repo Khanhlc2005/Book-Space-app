@@ -14,11 +14,13 @@ import com.example.bookspace.database.dao.FavouriteDao;
 import com.example.bookspace.database.dao.ReadingProgressDao;
 import com.example.bookspace.database.dao.ReadingSettingsDao;
 import com.example.bookspace.database.dao.ReminderDao;
+import com.example.bookspace.database.dao.ReviewDao;
 import com.example.bookspace.database.entity.BookEntity;
 import com.example.bookspace.database.entity.FavouriteEntity;
 import com.example.bookspace.database.entity.ReadingProgressEntity;
 import com.example.bookspace.database.entity.ReadingSettingsEntity;
 import com.example.bookspace.database.entity.ReminderEntity;
+import com.example.bookspace.database.entity.ReviewEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,9 +33,10 @@ import java.util.concurrent.Executors;
         FavouriteEntity.class,
         ReadingProgressEntity.class,
         ReadingSettingsEntity.class,
-        ReminderEntity.class
+        ReminderEntity.class,
+        ReviewEntity.class
     },
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -43,6 +46,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract ReadingProgressDao readingProgressDao();
     public abstract ReadingSettingsDao readingSettingsDao();
     public abstract ReminderDao reminderDao();
+    public abstract ReviewDao reviewDao();
 
     private static volatile AppDatabase INSTANCE;
     public static final ExecutorService databaseWriteExecutor =
@@ -55,7 +59,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             AppDatabase.class, "bookspace_room_db")
                             .allowMainThreadQueries() // Mặc định cho phép học tập/Đồ án
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                             .fallbackToDestructiveMigration() // Tự xóa DB cũ khi thay đổi version
                             .addCallback(roomCallback)
                             .build();
@@ -124,6 +128,16 @@ public abstract class AppDatabase extends RoomDatabase {
             // Cập nhật bookFilePath cho 2 cuốn sách có sẵn nội dung
             database.execSQL("UPDATE books SET bookFilePath = 'books/dac_nhan_tam.txt' WHERE title = 'Đắc Nhân Tâm'");
             database.execSQL("UPDATE books SET bookFilePath = 'books/nha_gia_kim.txt' WHERE title = 'Nhà Giả Kim'");
+        }
+    };
+
+    private static final Migration MIGRATION_4_5 = new Migration(4, 5) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE IF NOT EXISTS `reviews` (" +
+                    "`userId` TEXT NOT NULL, `bookId` INTEGER NOT NULL, `rating` INTEGER NOT NULL, " +
+                    "`content` TEXT, `createdAt` INTEGER NOT NULL, " +
+                    "PRIMARY KEY(`userId`, `bookId`))");
         }
     };
 }

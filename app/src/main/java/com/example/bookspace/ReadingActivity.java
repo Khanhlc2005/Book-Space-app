@@ -43,7 +43,9 @@ public class ReadingActivity extends AppCompatActivity {
     // Trạng thái đọc
     private int currentPage = 1;     // Trang hiện tại (global, tính trên toàn bộ sách)
     private int totalPages = 1;      // Tổng số trang
+    private int totalChapters = 1;   // Tổng số chương (theo metadata sách)
     private int bookId = 1;
+    private int sourceNavId = R.id.nav_reader; // Tab điều hướng đã mở màn đọc (để khôi phục khi quay lại)
     private String userId = "default_user";
     private String bookTitle = "Sách";
 
@@ -66,10 +68,12 @@ public class ReadingActivity extends AppCompatActivity {
 
         db = AppDatabase.getInstance(this);
         progressDao = db.readingProgressDao();
+        userId = SessionManager.getCurrentUserId(this);
         settingsRepo = new SettingsRepository(this);
 
         // Nhận bookId từ Intent
         bookId = getIntent().getIntExtra("BOOK_ID", 1);
+        sourceNavId = getIntent().getIntExtra("SOURCE_PAGE", R.id.nav_reader);
 
         // Setup RecyclerView cho nội dung
         paragraphAdapter = new ParagraphAdapter();
@@ -188,7 +192,7 @@ public class ReadingActivity extends AppCompatActivity {
     // ====================================================================
 
     private void loadReadingProgress() {
-        ReadingProgressEntity progress = progressDao.getProgress("default_user", bookId);
+        ReadingProgressEntity progress = progressDao.getProgress(userId, bookId);
         if (progress != null) {
             int savedPage = progress.currentPage + 1; // DB lưu 0-indexed
             if (savedPage > totalPages) {
@@ -205,7 +209,7 @@ public class ReadingActivity extends AppCompatActivity {
 
     private void saveReadingProgress() {
         ReadingProgressEntity progress = new ReadingProgressEntity();
-        progress.userId = "default_user";
+        progress.userId = userId;
         progress.bookId = bookId;
         progress.currentPage = currentPage - 1; // Lưu 0-indexed
         progress.totalPages = totalPages;
