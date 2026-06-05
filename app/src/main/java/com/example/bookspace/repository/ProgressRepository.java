@@ -16,7 +16,7 @@ public class ProgressRepository {
 
     public ProgressRepository(Context context) {
         progressDao = AppDatabase.getInstance(context).readingProgressDao();
-        userId = SessionManager.getLoginUsername(context);
+        userId = SessionManager.getCurrentUserId(context);
     }
 
     public void updateProgress(int bookId, int currentPage, int totalPages) {

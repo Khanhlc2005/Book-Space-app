@@ -38,6 +38,7 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity implements OnBookClickListener {
     private ActivityMainBinding binding;
     private BookRepository bookRepository;
+    private int currentNavId = R.id.nav_home;
     private final Handler sliderHandler = new Handler();
     private final Runnable sliderRunnable = new Runnable() {
         @Override
@@ -69,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         EdgeToEdge.enable(this);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        bookRepository = new BookRepository(this);
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -119,7 +122,6 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
                 runOnUiThread(() -> {
                     setupRecyclerViews();
                     setupFeaturedViewPager();
-                    loadMostRecentBookCover();
                 });
             });
         }
@@ -229,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
                 } else {
                     List<BookEntity> entities = bookRepository.searchBooks(keyword);
                     List<Book> filtered = new ArrayList<>();
-                    for (BookEntity e : results) filtered.add(Book.fromEntity(e));
+                    for (BookEntity e : entities) filtered.add(Book.fromEntity(e));
                     searchAdapter.updateData(filtered);
                     if (filtered.isEmpty()) {
                         binding.recyclerBooks.setVisibility(View.GONE);
@@ -271,19 +273,45 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
             }
             startActivity(new Intent(this, FavouritesActivity.class));
         });
+    }
 
     private void updateBottomNavUi(int activeId, int activeColor, int inactiveColor) {
-        binding.iconHome.setColorFilter(activeId == R.id.nav_home ? activeColor : inactiveColor);
-        binding.textHome.setTextColor(activeId == R.id.nav_home ? activeColor : inactiveColor);
-        binding.navHome.setBackgroundResource(activeId == R.id.nav_home ? R.drawable.bottom_nav_active_bg : 0);
+        binding.bottomNav.iconHome.setColorFilter(activeId == R.id.nav_home ? activeColor : inactiveColor);
+        binding.bottomNav.textHome.setTextColor(activeId == R.id.nav_home ? activeColor : inactiveColor);
+        binding.bottomNav.navHome.setBackgroundResource(activeId == R.id.nav_home ? R.drawable.bottom_nav_active_bg : 0);
 
-        binding.iconLibrary.setColorFilter(activeId == R.id.nav_library ? activeColor : inactiveColor);
-        binding.textLibrary.setTextColor(activeId == R.id.nav_library ? activeColor : inactiveColor);
-        binding.navLibrary.setBackgroundResource(activeId == R.id.nav_library ? R.drawable.bottom_nav_active_bg : 0);
+        binding.bottomNav.iconLibrary.setColorFilter(activeId == R.id.nav_library ? activeColor : inactiveColor);
+        binding.bottomNav.textLibrary.setTextColor(activeId == R.id.nav_library ? activeColor : inactiveColor);
+        binding.bottomNav.navLibrary.setBackgroundResource(activeId == R.id.nav_library ? R.drawable.bottom_nav_active_bg : 0);
 
-        binding.iconReader.setColorFilter(activeId == R.id.nav_reader ? activeColor : inactiveColor);
-        binding.textReader.setTextColor(activeId == R.id.nav_reader ? activeColor : inactiveColor);
-        binding.navReader.setBackgroundResource(activeId == R.id.nav_reader ? R.drawable.bottom_nav_active_bg : 0);
+        binding.bottomNav.iconReader.setColorFilter(activeId == R.id.nav_reader ? activeColor : inactiveColor);
+        binding.bottomNav.textReader.setTextColor(activeId == R.id.nav_reader ? activeColor : inactiveColor);
+        binding.bottomNav.navReader.setBackgroundResource(activeId == R.id.nav_reader ? R.drawable.bottom_nav_active_bg : 0);
+    }
+
+    /**
+     * Tô sáng tab điều hướng dưới cùng cho BẤT KỲ activity nào include layout_bottom_nav.xml.
+     * Dùng findViewById để hoạt động chung, không phụ thuộc binding của từng màn.
+     */
+    public static void updateBottomNavIcon(Activity activity, int activeId) {
+        int activeColor = ContextCompat.getColor(activity, R.color.teal_600);
+        int inactiveColor = ContextCompat.getColor(activity, R.color.nav_inactive);
+        applyNavItem(activity, R.id.nav_home, R.id.icon_home, R.id.text_home, activeId == R.id.nav_home, activeColor, inactiveColor);
+        applyNavItem(activity, R.id.nav_reader, R.id.icon_reader, R.id.text_reader, activeId == R.id.nav_reader, activeColor, inactiveColor);
+        applyNavItem(activity, R.id.nav_library, R.id.icon_library, R.id.text_library, activeId == R.id.nav_library, activeColor, inactiveColor);
+    }
+
+    private static void applyNavItem(Activity activity, int containerId, int iconId, int textId,
+                                     boolean isActive, int activeColor, int inactiveColor) {
+        int color = isActive ? activeColor : inactiveColor;
+        ImageView icon = activity.findViewById(iconId);
+        if (icon != null) icon.setColorFilter(color);
+        TextView text = activity.findViewById(textId);
+        if (text != null) text.setTextColor(color);
+        View container = activity.findViewById(containerId);
+        if (container != null) {
+            container.setBackgroundResource(isActive ? R.drawable.bottom_nav_active_bg : 0);
+        }
     }
 
     @Override

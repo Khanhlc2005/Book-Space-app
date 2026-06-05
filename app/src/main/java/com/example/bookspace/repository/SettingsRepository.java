@@ -2,16 +2,18 @@ package com.example.bookspace.repository;
 
 import android.content.Context;
 
+import com.example.bookspace.SessionManager;
 import com.example.bookspace.database.AppDatabase;
 import com.example.bookspace.database.dao.ReadingSettingsDao;
 import com.example.bookspace.database.entity.ReadingSettingsEntity;
 
 public class SettingsRepository {
     private final ReadingSettingsDao settingsDao;
-    private final String userId = "user1";
+    private final String userId;
 
     public SettingsRepository(Context context) {
         settingsDao = AppDatabase.getInstance(context).readingSettingsDao();
+        userId = SessionManager.getCurrentUserId(context);
     }
 
     public ReadingSettingsEntity getSettings() {
