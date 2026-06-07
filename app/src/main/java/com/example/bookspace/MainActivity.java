@@ -155,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
 
         binding.btnProfile.setOnClickListener(v -> startActivity(new Intent(this, ProfileActivity.class)));
         binding.btnMenu.setOnClickListener(v -> binding.drawerLayout.openDrawer(GravityCompat.START));
+        binding.main.requestFocus();
     }
 
     private void setupDrawerMenu() {

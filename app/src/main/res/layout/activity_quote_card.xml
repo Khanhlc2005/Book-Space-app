@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/quoteCardRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".QuoteCardActivity">
+
+    <LinearLayout
+        android:id="@+id/quoteTopBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/white_80"
+        android:elevation="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cd_back"
+            android:padding="10dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@color/on_surface" />
+
+        <TextView
+            android:id="@+id/txtQuoteCardTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="@string/quote_card_title"
+            android:textColor="@color/on_surface"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/quoteContent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:fillViewport="false"
+        android:overScrollMode="never"
+        android:paddingBottom="18dp"
+        app:layout_constraintBottom_toTopOf="@id/quoteActionBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/quoteTopBar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="18dp"
+            android:paddingTop="18dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/previewFrame"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="4dp">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/quoteCardPreview"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:contentDescription="@string/quote_card_preview_cd"
+                    app:cardCornerRadius="26dp"
+                    app:cardElevation="10dp"
+                    app:cardPreventCornerOverlap="false"
+                    app:cardUseCompatPadding="true"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintDimensionRatio="4:5"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintWidth_max="370dp">
+
+                    <FrameLayout
+                        android:id="@+id/quoteCardSurface"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <com.example.bookspace.quote.QuotePatternView
+                            android:id="@+id/patternOverlay"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:importantForAccessibility="no" />
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/quoteCardTextLayer"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="30dp">
+
+                            <TextView
+                                android:id="@+id/txtQuoteDecor"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="serif"
+                                android:includeFontPadding="false"
+                                android:text="“"
+                                android:textColor="@color/quote_card_decor_dark"
+                                android:textSize="72sp"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <TextView
+                                android:id="@+id/txtQuote"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:gravity="center"
+                                android:includeFontPadding="false"
+                                android:lineSpacingExtra="6dp"
+                                android:maxLines="12"
+                                android:textColor="@color/quote_card_text_dark"
+                                android:textSize="24sp"
+                                app:layout_constraintBottom_toTopOf="@id/txtQuoteSource"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintVertical_chainStyle="packed"
+                                tools:text="Một cuốn sách hay mở ra một căn phòng yên tĩnh để ta gặp lại chính mình." />
+
+                            <TextView
+                                android:id="@+id/txtQuoteSource"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="22dp"
+                                android:ellipsize="end"
+                                android:gravity="center"
+                                android:includeFontPadding="false"
+                                android:maxLines="2"
+                                android:textColor="@color/quote_card_text_dark"
+                                android:textSize="13sp"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/txtQuote"
+                                tools:text="Book Space - Tác giả" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </FrameLayout>
+                </androidx.cardview.widget.CardView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <LinearLayout
+                android:id="@+id/editorPanel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/stats_row_bg"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    style="@style/QuoteCardEditorLabel"
+                    android:text="@string/quote_card_template_label" />
+
+                <HorizontalScrollView
+                    style="@style/QuoteCardOptionScroll">
+                    <LinearLayout
+                        android:id="@+id/presetOptions"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
+
+                <TextView
+                    style="@style/QuoteCardEditorLabel"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/quote_card_background_label" />
+
+                <HorizontalScrollView
+                    style="@style/QuoteCardOptionScroll">
+                    <LinearLayout
+                        android:id="@+id/backgroundOptions"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
+
+                <TextView
+                    style="@style/QuoteCardEditorLabel"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/quote_card_pattern_label" />
+
+                <HorizontalScrollView
+                    style="@style/QuoteCardOptionScroll">
+                    <LinearLayout
+                        android:id="@+id/patternOptions"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
+
+                <TextView
+                    style="@style/QuoteCardEditorLabel"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/quote_card_font_label" />
+
+                <HorizontalScrollView
+                    style="@style/QuoteCardOptionScroll">
+                    <LinearLayout
+                        android:id="@+id/fontOptions"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/QuoteCardEditorLabel"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/quote_card_text_size_label" />
+
+                    <EditText
+                        android:id="@+id/inputTextSize"
+                        android:layout_width="72dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/quote_card_input_bg"
+                        android:gravity="center"
+                        android:inputType="number"
+                        android:maxLength="2"
+                        android:paddingHorizontal="8dp"
+                        android:selectAllOnFocus="true"
+                        android:textColor="@color/on_surface"
+                        android:textSize="15sp"
+                        tools:text="24" />
+                </LinearLayout>
+
+                <SeekBar
+                    android:id="@+id/sliderTextSize"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:max="38"
+                    android:progress="10"
+                    android:progressTint="@color/primary"
+                    android:thumbTint="@color/primary" />
+
+                <TextView
+                    android:id="@+id/txtTextSizeError"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/quote_card_text_size_error"
+                    android:textColor="@color/error"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+
+                <TextView
+                    style="@style/QuoteCardEditorLabel"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/quote_card_text_color_label" />
+
+                <HorizontalScrollView
+                    style="@style/QuoteCardOptionScroll">
+                    <LinearLayout
+                        android:id="@+id/textColorOptions"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
+
+                <TextView
+                    style="@style/QuoteCardEditorLabel"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/quote_card_alignment_label" />
+
+                <LinearLayout
+                    android:id="@+id/alignmentOptions"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:id="@+id/quoteActionBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/quote_card_surface"
+        android:elevation="8dp"
+        android:orientation="horizontal"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSaveImage"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
+            android:text="@string/quote_card_save_image"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            app:cornerRadius="14dp"
+            app:icon="@drawable/ic_save"
+            app:iconGravity="textStart"
+            app:iconTint="@color/on_primary" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnShareImage"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:text="@string/quote_card_share"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            app:cornerRadius="14dp" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
