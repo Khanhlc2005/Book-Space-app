@@ -37,7 +37,8 @@ import java.util.concurrent.Executors;
         ReadingSettingsEntity.class,
         ReminderEntity.class,
         ReviewEntity.class,
-        BookLoanEntity.class
+        BookLoanEntity.class,
+        ChallengeEntity.class
     },
     version = 6,
     exportSchema = false
@@ -51,6 +52,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract ReminderDao reminderDao();
     public abstract ReviewDao reviewDao();
     public abstract BookLoanDao bookLoanDao();
+    public abstract ChallengeDao challengeDao();
 
     private static volatile AppDatabase INSTANCE;
     public static final ExecutorService databaseWriteExecutor =
@@ -158,6 +160,17 @@ public abstract class AppDatabase extends RoomDatabase {
                     "`status` TEXT, " +
                     "FOREIGN KEY(`bookId`) REFERENCES `books`(`id`) ON DELETE CASCADE)");
             database.execSQL("CREATE INDEX IF NOT EXISTS `index_book_loans_bookId` ON `book_loans` (`bookId`)");
+            // Bảng challenges – thử thách đọc sách
+            database.execSQL("CREATE TABLE IF NOT EXISTS `challenges` (" +
+                    "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "`title` TEXT, " +
+                    "`challengeType` TEXT, " +
+                    "`bookId` INTEGER NOT NULL DEFAULT 0, " +
+                    "`targetValue` INTEGER NOT NULL DEFAULT 0, " +
+                    "`currentValue` INTEGER NOT NULL DEFAULT 0, " +
+                    "`startDate` INTEGER NOT NULL DEFAULT 0, " +
+                    "`endDate` INTEGER NOT NULL DEFAULT 0, " +
+                    "`status` TEXT)");
         }
     };
 }
