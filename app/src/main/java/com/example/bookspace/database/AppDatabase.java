@@ -15,7 +15,9 @@ import com.example.bookspace.database.dao.ReadingProgressDao;
 import com.example.bookspace.database.dao.ReadingSettingsDao;
 import com.example.bookspace.database.dao.ReminderDao;
 import com.example.bookspace.database.dao.ReviewDao;
+import com.example.bookspace.database.dao.ChallengeDao;
 import com.example.bookspace.database.entity.BookEntity;
+import com.example.bookspace.database.entity.ChallengeEntity;
 import com.example.bookspace.database.entity.FavouriteEntity;
 import com.example.bookspace.database.entity.ReadingProgressEntity;
 import com.example.bookspace.database.entity.ReadingSettingsEntity;
@@ -34,9 +36,10 @@ import java.util.concurrent.Executors;
         ReadingProgressEntity.class,
         ReadingSettingsEntity.class,
         ReminderEntity.class,
-        ReviewEntity.class
+        ReviewEntity.class,
+        ChallengeEntity.class
     },
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -47,6 +50,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract ReadingSettingsDao readingSettingsDao();
     public abstract ReminderDao reminderDao();
     public abstract ReviewDao reviewDao();
+    public abstract ChallengeDao challengeDao();
 
     private static volatile AppDatabase INSTANCE;
     public static final ExecutorService databaseWriteExecutor =
@@ -59,7 +63,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             AppDatabase.class, "bookspace_room_db")
                             .allowMainThreadQueries() // Mặc định cho phép học tập/Đồ án
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                             .fallbackToDestructiveMigration() // Tự xóa DB cũ khi thay đổi version
                             .addCallback(roomCallback)
                             .build();
@@ -138,6 +142,23 @@ public abstract class AppDatabase extends RoomDatabase {
                     "`userId` TEXT NOT NULL, `bookId` INTEGER NOT NULL, `rating` INTEGER NOT NULL, " +
                     "`content` TEXT, `createdAt` INTEGER NOT NULL, " +
                     "PRIMARY KEY(`userId`, `bookId`))");
+        }
+    };
+
+    private static final Migration MIGRATION_5_6 = new Migration(5, 6) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            // Bảng challenges – thử thách đọc sách
+            database.execSQL("CREATE TABLE IF NOT EXISTS `challenges` (" +
+                    "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "`title` TEXT, " +
+                    "`challengeType` TEXT, " +
+                    "`bookId` INTEGER NOT NULL DEFAULT 0, " +
+                    "`targetValue` INTEGER NOT NULL DEFAULT 0, " +
+                    "`currentValue` INTEGER NOT NULL DEFAULT 0, " +
+                    "`startDate` INTEGER NOT NULL DEFAULT 0, " +
+                    "`endDate` INTEGER NOT NULL DEFAULT 0, " +
+                    "`status` TEXT)");
         }
     };
 }
