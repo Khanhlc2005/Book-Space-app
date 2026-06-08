@@ -15,9 +15,9 @@ import com.example.bookspace.database.dao.ReadingProgressDao;
 import com.example.bookspace.database.dao.ReadingSettingsDao;
 import com.example.bookspace.database.dao.ReminderDao;
 import com.example.bookspace.database.dao.ReviewDao;
-import com.example.bookspace.database.dao.ChallengeDao;
+import com.example.bookspace.database.dao.BookLoanDao;
 import com.example.bookspace.database.entity.BookEntity;
-import com.example.bookspace.database.entity.ChallengeEntity;
+import com.example.bookspace.database.entity.BookLoanEntity;
 import com.example.bookspace.database.entity.FavouriteEntity;
 import com.example.bookspace.database.entity.ReadingProgressEntity;
 import com.example.bookspace.database.entity.ReadingSettingsEntity;
@@ -37,6 +37,7 @@ import java.util.concurrent.Executors;
         ReadingSettingsEntity.class,
         ReminderEntity.class,
         ReviewEntity.class,
+        BookLoanEntity.class,
         ChallengeEntity.class
     },
     version = 6,
@@ -50,6 +51,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract ReadingSettingsDao readingSettingsDao();
     public abstract ReminderDao reminderDao();
     public abstract ReviewDao reviewDao();
+    public abstract BookLoanDao bookLoanDao();
     public abstract ChallengeDao challengeDao();
 
     private static volatile AppDatabase INSTANCE;
@@ -148,6 +150,16 @@ public abstract class AppDatabase extends RoomDatabase {
     private static final Migration MIGRATION_5_6 = new Migration(5, 6) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
+            // Bảng book_loans – mượn sách (FK → books.id)
+            database.execSQL("CREATE TABLE IF NOT EXISTS `book_loans` (" +
+                    "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "`bookId` INTEGER NOT NULL, " +
+                    "`borrowDate` INTEGER NOT NULL DEFAULT 0, " +
+                    "`dueDate` INTEGER NOT NULL DEFAULT 0, " +
+                    "`returnDate` INTEGER NOT NULL DEFAULT 0, " +
+                    "`status` TEXT, " +
+                    "FOREIGN KEY(`bookId`) REFERENCES `books`(`id`) ON DELETE CASCADE)");
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_book_loans_bookId` ON `book_loans` (`bookId`)");
             // Bảng challenges – thử thách đọc sách
             database.execSQL("CREATE TABLE IF NOT EXISTS `challenges` (" +
                     "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
