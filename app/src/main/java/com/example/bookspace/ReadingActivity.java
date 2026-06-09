@@ -16,12 +16,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.bookspace.database.AppDatabase;
 import com.example.bookspace.database.dao.ReadingProgressDao;
 import com.example.bookspace.database.entity.BookEntity;
+import com.example.bookspace.database.entity.Highlight;
 import com.example.bookspace.database.entity.ReadingProgressEntity;
 import com.example.bookspace.database.entity.ReadingSettingsEntity;
 import com.example.bookspace.databinding.ActivityReadingBinding;
 import com.example.bookspace.reader.BookContent;
 import com.example.bookspace.reader.BookTextParser;
 import com.example.bookspace.reader.ParagraphAdapter;
+import com.example.bookspace.repository.HighlightRepository;
 import com.example.bookspace.repository.SettingsRepository;
 
 import java.util.ArrayList;
@@ -35,10 +37,15 @@ public class ReadingActivity extends AppCompatActivity {
     private SettingsRepository settingsRepo;
     private ParagraphAdapter paragraphAdapter;
     private TocAdapter tocAdapter;
+    private HighlightRepository highlightRepository;
+
+    private HighlightAdapter highlightAdapter;
+
 
     // Dữ liệu sách
     private BookContent bookContent;
     private List<String> chapterNames;
+    private List<Highlight> currentHighlights = new ArrayList<>();
 
     // Trạng thái đọc
     private int currentPage = 1;     // Trang hiện tại (global, tính trên toàn bộ sách)
@@ -70,6 +77,7 @@ public class ReadingActivity extends AppCompatActivity {
         progressDao = db.readingProgressDao();
         userId = SessionManager.getCurrentUserId(this);
         settingsRepo = new SettingsRepository(this);
+        highlightRepository = new HighlightRepository(this);
 
         // Nhận bookId từ Intent
         bookId = getIntent().getIntExtra("BOOK_ID", 1);
@@ -80,9 +88,38 @@ public class ReadingActivity extends AppCompatActivity {
         binding.rvContent.setLayoutManager(new LinearLayoutManager(this));
         binding.rvContent.setAdapter(paragraphAdapter);
 
+        // Đăng ký sự kiện khi người dùng bôi đen và nhấn Đánh dấu
+        paragraphAdapter.setOnTextSelectedListener((paragraph, selectedText, selectionStart, selectionEnd) -> {
+            int charOffsetStart = paragraph.getCharacterOffsetInChapter() + selectionStart;
+            int chapterIdx = paragraph.getChapterIndex();
+            String chapterName = "Chương " + (chapterIdx + 1);
+            if (chapterNames != null && chapterIdx < chapterNames.size()) {
+                chapterName = chapterNames.get(chapterIdx);
+            }
+
+            Highlight highlight = new Highlight(
+                bookId,
+                selectedText,
+                chapterName,
+                chapterIdx,
+                charOffsetStart
+            );
+
+            // Lưu trực tiếp vào SQLite qua Room
+            long generatedId = highlightRepository.addHighlightSync(highlight);
+            highlight.id = (int) generatedId;
+
+            // Thêm vào danh sách và cập nhật UI ngay lập tức
+            currentHighlights.add(highlight);
+            paragraphAdapter.setHighlights(currentHighlights);
+
+            Toast.makeText(ReadingActivity.this, "Đã đánh dấu văn bản!", Toast.LENGTH_SHORT).show();
+        });
+
         // Tải thông tin sách và nội dung
         loadBookInfo();
         loadBookContent();
+        loadHighlights();
 
         // Load cài đặt đọc đã lưu (Phase 4)
         loadSavedSettings();
@@ -150,6 +187,13 @@ public class ReadingActivity extends AppCompatActivity {
             pageToChapterMap.add(0);
 
             totalPages = 1;
+        }
+    }
+
+    private void loadHighlights() {
+        if (highlightRepository != null) {
+            currentHighlights = highlightRepository.getHighlightsForBook(bookId);
+            paragraphAdapter.setHighlights(currentHighlights);
         }
     }
 
@@ -384,10 +428,50 @@ public class ReadingActivity extends AppCompatActivity {
             return false;
         });
 
-        RecyclerView recyclerView = dialog.findViewById(R.id.toc_recycler);
-        if (recyclerView == null) return;
+        // 1. Ánh xạ các RecyclerView và ToggleGroup
+        RecyclerView tocRecycler = dialog.findViewById(R.id.toc_recycler);
+        RecyclerView highlightsRecycler = dialog.findViewById(R.id.highlights_recycler);
+        com.google.android.material.button.MaterialButtonToggleGroup toggleGroup = dialog.findViewById(R.id.toggleGroup);
 
-        // Xác định chương hiện tại
+        if (tocRecycler == null || highlightsRecycler == null || toggleGroup == null) return;
+
+        // Ánh xạ trực tiếp 2 nút toggle để điều khiển màu
+        com.google.android.material.button.MaterialButton btnToc = dialog.findViewById(R.id.btnToggleToc);
+        com.google.android.material.button.MaterialButton btnHighlights = dialog.findViewById(R.id.btnToggleHighlights);
+
+        // Helper: cập nhật màu nút theo trạng thái active/inactive
+        Runnable updateToggleColors = () -> {
+            boolean tocActive = toggleGroup.getCheckedButtonId() == R.id.btnToggleToc;
+            if (btnToc != null) {
+                btnToc.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                        tocActive ? getColor(R.color.on_surface) : android.graphics.Color.TRANSPARENT));
+                btnToc.setTextColor(tocActive ? getColor(R.color.white) : getColor(R.color.on_surface));
+            }
+            if (btnHighlights != null) {
+                btnHighlights.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                        tocActive ? android.graphics.Color.TRANSPARENT : getColor(R.color.on_surface)));
+                btnHighlights.setTextColor(tocActive ? getColor(R.color.on_surface) : getColor(R.color.white));
+            }
+        };
+
+        // Xử lý chuyển đổi tab bằng Toggle Button
+        toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (isChecked) {
+                if (checkedId == R.id.btnToggleToc) {
+                    tocRecycler.setVisibility(View.VISIBLE);
+                    highlightsRecycler.setVisibility(View.GONE);
+                } else if (checkedId == R.id.btnToggleHighlights) {
+                    tocRecycler.setVisibility(View.GONE);
+                    highlightsRecycler.setVisibility(View.VISIBLE);
+                }
+                updateToggleColors.run();
+            }
+        });
+
+        // Áp dụng màu ngay khi mở dialog (mặc định Mục lục được chọn)
+        updateToggleColors.run();
+
+        // 2. Thiết lập Mục lục (Table of Contents)
         int currentChapterIdx = 0;
         if (currentPage >= 1 && currentPage <= pageToChapterMap.size()) {
             currentChapterIdx = pageToChapterMap.get(currentPage - 1);
@@ -395,19 +479,63 @@ public class ReadingActivity extends AppCompatActivity {
 
         TocAdapter adapter = new TocAdapter(chapterNames);
         adapter.setListener(position -> {
-            // Tìm trang đầu tiên của chương được chọn
             goToChapter(position);
             dialog.dismiss();
         });
         adapter.setCurrentChapter(currentChapterIdx + 1);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
+        tocRecycler.setLayoutManager(new LinearLayoutManager(this));
+        tocRecycler.setAdapter(adapter);
         int finalIdx = currentChapterIdx;
-        recyclerView.post(() ->
-                recyclerView.scrollToPosition(Math.max(0, finalIdx)));
+        tocRecycler.post(() ->
+                tocRecycler.scrollToPosition(Math.max(0, finalIdx)));
 
-        dialog.show();
+        // 3. Thiết lập Đánh dấu (Highlights) - Sắp xếp theo trình tự xuất hiện trong sách
+        List<Highlight> sortedHighlights = new ArrayList<>(currentHighlights);
+        // Sắp xếp: Ưu tiên chapterIndex tăng dần, sau đó đến characterOffsetStart tăng dần
+        java.util.Collections.sort(sortedHighlights, new java.util.Comparator<Highlight>() {
+            @Override
+            public int compare(Highlight h1, Highlight h2) {
+                if (h1.chapterIndex != h2.chapterIndex) {
+                    return Integer.compare(h1.chapterIndex, h2.chapterIndex);
+                }
+                return Integer.compare(h1.characterOffsetStart, h2.characterOffsetStart);
+            }
+        });
+
+        // Đã bỏ chữ "HighlightAdapter" ở đầu
+        highlightAdapter = new HighlightAdapter(sortedHighlights, new HighlightAdapter.OnHighlightClickListener() {
+            @Override
+            public void onHighlightClick(Highlight highlight) {
+                // Nhảy đến chương chứa đoạn highlight
+                goToChapter(highlight.chapterIndex);
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onDeleteClick(Highlight highlight, int position) {
+                // Xóa khỏi SQLite thông qua Repository
+                highlightRepository.deleteHighlight(highlight.id);
+
+                // Đồng bộ cập nhật danh sách hiển thị trên trang đang đọc
+                for (int i = 0; i < currentHighlights.size(); i++) {
+                    if (currentHighlights.get(i).id == highlight.id) {
+                        currentHighlights.remove(i);
+                        break;
+                    }
+                }
+                paragraphAdapter.setHighlights(currentHighlights);
+
+                // Thêm câu lệnh if để đảm bảo an toàn tuyệt đối
+                if (highlightAdapter != null) {
+                    highlightAdapter.removeItem(position);
+                }
+                Toast.makeText(ReadingActivity.this, "Đã xóa đánh dấu", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        highlightsRecycler.setLayoutManager(new LinearLayoutManager(this));
+        highlightsRecycler.setAdapter(highlightAdapter);
 
         // Chiều cao dialog = 90% chiều cao màn hình
         int screenHeight = getResources().getDisplayMetrics().heightPixels;

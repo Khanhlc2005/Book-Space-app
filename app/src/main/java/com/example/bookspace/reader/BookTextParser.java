@@ -96,6 +96,21 @@ public class BookTextParser {
             return null;
         }
 
+        // Post-process to calculate character offsets and indexes for paragraphs in each chapter
+        for (int chIdx = 0; chIdx < chapters.size(); chIdx++) {
+            BookContent.Chapter chapter = chapters.get(chIdx);
+            int currentOffset = 0;
+            List<BookContent.Paragraph> paras = chapter.getParagraphs();
+            for (int pIdx = 0; pIdx < paras.size(); pIdx++) {
+                BookContent.Paragraph p = paras.get(pIdx);
+                p.setChapterIndex(chIdx);
+                p.setParagraphIndex(pIdx);
+                p.setCharacterOffsetInChapter(currentOffset);
+                // Advance the offset for the next paragraph (length of current paragraph text + 1 char separator)
+                currentOffset += p.getText().length() + 1;
+            }
+        }
+
         return new BookContent(chapters);
     }
 
