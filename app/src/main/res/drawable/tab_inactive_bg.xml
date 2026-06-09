@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ripple xám nhạt cho tab không active ở màn hình thư viện, thay thế selectableItemBackground màu hồng -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#1A1C1B1B">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <corners android:radius="9999dp" />
+        </shape>
+    </item>
+</ripple>

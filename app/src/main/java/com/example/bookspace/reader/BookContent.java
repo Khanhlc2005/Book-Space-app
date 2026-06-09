@@ -64,6 +64,11 @@ public class BookContent {
         private final String text;
         private final int type;
 
+        // Metadata fields for highlight indexing
+        private int chapterIndex;
+        private int paragraphIndex;
+        private int characterOffsetInChapter;
+
         public Paragraph(String text, int type) {
             this.text = text;
             this.type = type;
@@ -75,6 +80,30 @@ public class BookContent {
 
         public int getType() {
             return type;
+        }
+
+        public int getChapterIndex() {
+            return chapterIndex;
+        }
+
+        public void setChapterIndex(int chapterIndex) {
+            this.chapterIndex = chapterIndex;
+        }
+
+        public int getParagraphIndex() {
+            return paragraphIndex;
+        }
+
+        public void setParagraphIndex(int paragraphIndex) {
+            this.paragraphIndex = paragraphIndex;
+        }
+
+        public int getCharacterOffsetInChapter() {
+            return characterOffsetInChapter;
+        }
+
+        public void setCharacterOffsetInChapter(int characterOffsetInChapter) {
+            this.characterOffsetInChapter = characterOffsetInChapter;
         }
     }
 }

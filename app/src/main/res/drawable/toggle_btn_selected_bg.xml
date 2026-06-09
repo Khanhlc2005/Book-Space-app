@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Nền nút toggle khi được chọn: đen, ripple xám nhạt -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#33FFFFFF">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FF1C1B1B" />
+            <corners android:radius="8dp" />
+        </shape>
+    </item>
+</ripple>

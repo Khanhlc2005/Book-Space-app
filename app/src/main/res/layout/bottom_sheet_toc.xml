@@ -25,19 +25,45 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Title -->
-        <TextView
-            android:id="@+id/toc_title"
+        <!-- Tab Selector: MaterialButtonToggleGroup -->
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mục lục"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@color/on_surface"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="28dp"
+            android:layout_marginTop="16dp"
+            app:singleSelection="true"
+            app:checkedButton="@id/btnToggleToc"
             app:layout_constraintTop_toBottomOf="@id/toc_drag_handle"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnToggleToc"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="140dp"
+                android:layout_height="wrap_content"
+                android:text="Mục lục"
+                android:textSize="14sp"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/on_surface"
+                app:strokeColor="@color/on_surface"
+                app:rippleColor="#33FFFFFF" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnToggleHighlights"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="140dp"
+                android:layout_height="wrap_content"
+                android:text="Đánh dấu"
+                android:textSize="14sp"
+                android:textAllCaps="false"
+                android:textColor="@color/on_surface"
+                app:backgroundTint="@android:color/transparent"
+                app:strokeColor="@color/on_surface"
+                app:rippleColor="#1A1C1B1B" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
 
         <!-- Divider -->
         <View
@@ -47,23 +73,44 @@
             android:background="#1Abdc9c8"
             android:layout_marginTop="14dp"
             android:layout_marginHorizontal="28dp"
-            app:layout_constraintTop_toBottomOf="@id/toc_title"
+            app:layout_constraintTop_toBottomOf="@id/toggleGroup"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Chapter List -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/toc_recycler"
+        <!-- Container for both overlapping RecyclerViews -->
+        <FrameLayout
+            android:id="@+id/recycler_container"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:clipToPadding="false"
-            android:paddingTop="4dp"
-            android:paddingBottom="8dp"
-            android:overScrollMode="never"
+            android:layout_marginTop="4dp"
             app:layout_constraintTop_toBottomOf="@id/toc_divider"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <!-- Chapter List (TOC) -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/toc_recycler"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingTop="4dp"
+                android:paddingBottom="8dp"
+                android:overScrollMode="never"
+                android:visibility="visible" />
+
+            <!-- Saved Highlights List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/highlights_recycler"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingTop="4dp"
+                android:paddingBottom="8dp"
+                android:overScrollMode="never"
+                android:visibility="gone" />
+
+        </FrameLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
