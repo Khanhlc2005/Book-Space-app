@@ -1,6 +1,5 @@
 package com.example.bookspace;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,7 +7,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -29,7 +27,6 @@ import com.example.bookspace.database.dao.BookDao;
 import com.example.bookspace.database.entity.BookEntity;
 import com.example.bookspace.databinding.ActivityMainBinding;
 import com.example.bookspace.repository.BookRepository;
-import com.example.bookspace.repository.ProgressRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +35,7 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity implements OnBookClickListener {
     private ActivityMainBinding binding;
     private BookRepository bookRepository;
+    private int currentNavId = R.id.nav_home;
     private final Handler sliderHandler = new Handler();
     private final Runnable sliderRunnable = new Runnable() {
         @Override
@@ -70,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        bookRepository = new BookRepository(this);
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
             binding.topBar.setPadding(
@@ -97,29 +97,18 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
     }
 
     private void seedDatabase() {
-        if (bookRepository.getAllBooks().size() < 14) {
+        if (bookRepository.getAllBooks().isEmpty()) {
             AppDatabase.databaseWriteExecutor.execute(() -> {
                 BookDao dao = AppDatabase.getInstance(this).bookDao();
                 List<BookEntity> sampleBooks = new ArrayList<>();
                 sampleBooks.add(createBookEntity("Nhà Giả Kim", "Paulo Coelho", "https://picsum.photos/600/400?random=1", 225, "Một câu chuyện cổ tích giản dị, nhân ái, giàu chất thơ...", "VĂN HỌC"));
                 sampleBooks.add(createBookEntity("Đắc Nhân Tâm", "Dale Carnegie", "https://picsum.photos/600/400?random=2", 320, "Nghệ thuật thu phục lòng người...", "KỸ NĂNG SỐNG"));
-                sampleBooks.add(createBookEntity("Tuổi Trẻ Đáng Giá Bao Nhiêu", "Rosie Nguyễn", "https://picsum.photos/600/400?random=3", 285, "Những kinh nghiệm thực tế của tác giả trên hành trình tuổi trẻ...", "KỸ NĂNG SỐNG"));
-                sampleBooks.add(createBookEntity("Sapiens: Lược sử loài người", "Yuval Noah Harari", "https://picsum.photos/600/400?random=4", 512, "Lịch sử tiến hóa của loài người từ thuở sơ khai...", "KINH ĐIỂN"));
-                sampleBooks.add(createBookEntity("Tâm Lý Học Tội Phạm", "Khương Luật", "https://picsum.photos/600/400?random=5", 350, "Phân tích tâm lý học tội phạm qua các vụ án có thật...", "TÂM LÝ"));
-                sampleBooks.add(createBookEntity("Cha Giàu Cha Nghèo", "Robert Kiyosaki", "https://picsum.photos/600/400?random=6", 360, "Bài học về giáo dục tài chính và đầu tư...", "KINH TẾ"));
-                sampleBooks.add(createBookEntity("Cây Cam Ngọt Của Tôi", "José Mauro de Vasconcelos", "https://picsum.photos/600/400?random=7", 244, "Câu chuyện cảm động về cậu bé Zezé...", "VĂN HỌC"));
-                sampleBooks.add(createBookEntity("Nghĩ Giàu Làm Giàu", "Napoleon Hill", "https://picsum.photos/600/400?random=8", 400, "13 nguyên tắc nghĩ giàu làm giàu...", "KINH TẾ"));
-                sampleBooks.add(createBookEntity("Sức Mạnh Của Thói Quen", "Charles Duhigg", "https://picsum.photos/600/400?random=9", 380, "Cách tạo thói quen tốt và loại bỏ thói quen xấu...", "KỸ NĂNG SỐNG"));
-                sampleBooks.add(createBookEntity("Muôn Kiếp Nhân Sinh", "Nguyên Phong", "https://picsum.photos/600/400?random=10", 420, "Những câu chuyện tiền kiếp và luật nhân quả...", "TÂM LÝ"));
-                sampleBooks.add(createBookEntity("Quẳng Gánh Lo Đi Và Vui Sống", "Dale Carnegie", "https://picsum.photos/600/400?random=11", 340, "Những nguyên tắc giúp người đọc quản lý lo âu và sống nhẹ nhàng hơn.", "KỸ NĂNG SỐNG"));
-                sampleBooks.add(createBookEntity("Veronika Quyết Chết", "Paulo Coelho", "https://picsum.photos/600/400?random=12", 256, "Một hành trình nhìn lại ý nghĩa sống qua lựa chọn và tự do cá nhân.", "VĂN HỌC"));
-                sampleBooks.add(createBookEntity("Homo Deus", "Yuval Noah Harari", "https://picsum.photos/600/400?random=13", 480, "Tác giả tiếp tục đặt câu hỏi về tương lai nhân loại và công nghệ.", "KINH ĐIỂN"));
-                sampleBooks.add(createBookEntity("Hành Trình Về Phương Đông", "Nguyên Phong", "https://picsum.photos/600/400?random=14", 320, "Những ghi chép về văn hóa, triết học và trải nghiệm tâm linh phương Đông.", "TÂM LÝ"));
+                sampleBooks.add(createBookEntity("Tuổi Trẻ Đáng Giá Bao Nhiêu", "Rosie Nguyễn", "https://picsum.photos/600/400?random=3", 285, "Những kinh nghiệm thực tế của tác giả...", "KỸ NĂNG SỐNG"));
+                
                 dao.insertAll(sampleBooks);
                 runOnUiThread(() -> {
                     setupRecyclerViews();
                     setupFeaturedViewPager();
-                    loadMostRecentBookCover();
                 });
             });
         }
@@ -194,7 +183,6 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
     }
 
     private void setupRecyclerViews() {
-        // Lấy tất cả sách từ DB hiển thị ở "Mới cập nhật"
         List<BookEntity> allBooks = bookRepository.getAllBooks();
         List<Book> listRecent = new ArrayList<>();
         for (BookEntity entity : allBooks) listRecent.add(Book.fromEntity(entity));
@@ -202,12 +190,9 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         binding.rvRecentlyUpdated.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
         binding.rvRecentlyUpdated.setAdapter(new BookAdapter(listRecent, this));
 
-        // Lọc sách "Tiểu thuyết" từ DB
         List<BookEntity> novelEntities = bookRepository.getByCategory("TIỂU THUYẾT");
         List<Book> listNovel = new ArrayList<>();
-        for (BookEntity e : novelEntities) {
-            listNovel.add(Book.fromEntity(e));
-        }
+        for (BookEntity e : novelEntities) listNovel.add(Book.fromEntity(e));
 
         binding.rvNovels.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
         binding.rvNovels.setAdapter(new BookAdapter(listNovel, this));
@@ -220,8 +205,7 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         binding.searchInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String keyword = s.toString().trim();
                 if (keyword.isEmpty()) {
                     binding.recyclerBooks.setVisibility(View.GONE);
@@ -229,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
                 } else {
                     List<BookEntity> entities = bookRepository.searchBooks(keyword);
                     List<Book> filtered = new ArrayList<>();
-                    for (BookEntity e : results) filtered.add(Book.fromEntity(e));
+                    for (BookEntity e : entities) filtered.add(Book.fromEntity(e));
                     searchAdapter.updateData(filtered);
                     if (filtered.isEmpty()) {
                         binding.recyclerBooks.setVisibility(View.GONE);
@@ -242,8 +226,7 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
                     }
                 }
             }
-            @Override
-            public void afterTextChanged(Editable s) {}
+            @Override public void afterTextChanged(Editable s) {}
         });
     }
 
@@ -269,21 +252,48 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
                 currentNavId = R.id.nav_library;
                 updateBottomNavUi(R.id.nav_library, activeColor, inactiveColor);
             }
-            startActivity(new Intent(this, FavouritesActivity.class));
+            startActivity(new Intent(this, CurrentlyReadingListActivity.class));
         });
+    }
 
     private void updateBottomNavUi(int activeId, int activeColor, int inactiveColor) {
-        binding.iconHome.setColorFilter(activeId == R.id.nav_home ? activeColor : inactiveColor);
-        binding.textHome.setTextColor(activeId == R.id.nav_home ? activeColor : inactiveColor);
-        binding.navHome.setBackgroundResource(activeId == R.id.nav_home ? R.drawable.bottom_nav_active_bg : 0);
+        binding.bottomNav.iconHome.setColorFilter(activeId == R.id.nav_home ? activeColor : inactiveColor);
+        binding.bottomNav.textHome.setTextColor(activeId == R.id.nav_home ? activeColor : inactiveColor);
+        binding.bottomNav.navHome.setBackgroundResource(activeId == R.id.nav_home ? R.drawable.bottom_nav_active_bg : 0);
 
-        binding.iconLibrary.setColorFilter(activeId == R.id.nav_library ? activeColor : inactiveColor);
-        binding.textLibrary.setTextColor(activeId == R.id.nav_library ? activeColor : inactiveColor);
-        binding.navLibrary.setBackgroundResource(activeId == R.id.nav_library ? R.drawable.bottom_nav_active_bg : 0);
+        binding.bottomNav.iconLibrary.setColorFilter(activeId == R.id.nav_library ? activeColor : inactiveColor);
+        binding.bottomNav.textLibrary.setTextColor(activeId == R.id.nav_library ? activeColor : inactiveColor);
+        binding.bottomNav.navLibrary.setBackgroundResource(activeId == R.id.nav_library ? R.drawable.bottom_nav_active_bg : 0);
 
-        binding.iconReader.setColorFilter(activeId == R.id.nav_reader ? activeColor : inactiveColor);
-        binding.textReader.setTextColor(activeId == R.id.nav_reader ? activeColor : inactiveColor);
-        binding.navReader.setBackgroundResource(activeId == R.id.nav_reader ? R.drawable.bottom_nav_active_bg : 0);
+        binding.bottomNav.iconReader.setColorFilter(activeId == R.id.nav_reader ? activeColor : inactiveColor);
+        binding.bottomNav.textReader.setTextColor(activeId == R.id.nav_reader ? activeColor : inactiveColor);
+        binding.bottomNav.navReader.setBackgroundResource(activeId == R.id.nav_reader ? R.drawable.bottom_nav_active_bg : 0);
+    }
+
+    public static void updateBottomNavIcon(AppCompatActivity activity, int navId) {
+        int activeColor = ContextCompat.getColor(activity, R.color.teal_600);
+        int inactiveColor = ContextCompat.getColor(activity, R.color.nav_inactive);
+        try {
+            ImageView iconHome = activity.findViewById(R.id.icon_home);
+            TextView textHome = activity.findViewById(R.id.text_home);
+            View navHome = activity.findViewById(R.id.nav_home);
+            ImageView iconReader = activity.findViewById(R.id.icon_reader);
+            TextView textReader = activity.findViewById(R.id.text_reader);
+            View navReader = activity.findViewById(R.id.nav_reader);
+            ImageView iconLibrary = activity.findViewById(R.id.icon_library);
+            TextView textLibrary = activity.findViewById(R.id.text_library);
+            View navLibrary = activity.findViewById(R.id.nav_library);
+
+            if (iconHome != null) iconHome.setColorFilter(navId == R.id.nav_home ? activeColor : inactiveColor);
+            if (textHome != null) textHome.setTextColor(navId == R.id.nav_home ? activeColor : inactiveColor);
+            if (navHome != null) navHome.setBackgroundResource(navId == R.id.nav_home ? R.drawable.bottom_nav_active_bg : 0);
+            if (iconReader != null) iconReader.setColorFilter(navId == R.id.nav_reader ? activeColor : inactiveColor);
+            if (textReader != null) textReader.setTextColor(navId == R.id.nav_reader ? activeColor : inactiveColor);
+            if (navReader != null) navReader.setBackgroundResource(navId == R.id.nav_reader ? R.drawable.bottom_nav_active_bg : 0);
+            if (iconLibrary != null) iconLibrary.setColorFilter(navId == R.id.nav_library ? activeColor : inactiveColor);
+            if (textLibrary != null) textLibrary.setTextColor(navId == R.id.nav_library ? activeColor : inactiveColor);
+            if (navLibrary != null) navLibrary.setBackgroundResource(navId == R.id.nav_library ? R.drawable.bottom_nav_active_bg : 0);
+        } catch (Exception ignored) {}
     }
 
     @Override

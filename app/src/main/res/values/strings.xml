@@ -94,6 +94,9 @@
     <string name="nav_library">Thư viện</string>
     <string name="nav_reader">Đọc sách</string>
 
+    <!-- Reading List -->
+    <string name="no_reading_books">Bạn chưa có sách nào trong danh sách đang đọc.</string>
+
     <!-- Profile -->
     <string name="profile_title">Hồ sơ cá nhân</string>
     <string name="profile_personal_info">Thông tin cá nhân</string>

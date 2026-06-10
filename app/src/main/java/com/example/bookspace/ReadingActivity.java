@@ -46,6 +46,8 @@ public class ReadingActivity extends AppCompatActivity {
     private int bookId = 1;
     private String userId = "default_user";
     private String bookTitle = "Sách";
+    private int totalChapters = 1;
+    private int sourceNavId = R.id.nav_home;
 
     // Kindle-style pagination: mỗi "trang" chứa một nhóm paragraph vừa màn hình
     private List<List<BookContent.Paragraph>> allPages; // Danh sách tất cả các trang
@@ -70,6 +72,7 @@ public class ReadingActivity extends AppCompatActivity {
 
         // Nhận bookId từ Intent
         bookId = getIntent().getIntExtra("BOOK_ID", 1);
+        sourceNavId = getIntent().getIntExtra("SOURCE_NAV_ID", R.id.nav_home);
 
         // Setup RecyclerView cho nội dung
         paragraphAdapter = new ParagraphAdapter();

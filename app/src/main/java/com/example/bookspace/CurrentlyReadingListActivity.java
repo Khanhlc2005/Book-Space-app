@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -18,16 +17,15 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bookspace.database.entity.BookEntity;
 import com.example.bookspace.database.entity.ReadingProgressEntity;
 import com.example.bookspace.databinding.ActivityReadingBooklistBinding;
-import com.example.bookspace.MainActivity;
 import com.example.bookspace.repository.ProgressRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class CurrentlyReadingListActivity extends AppCompatActivity implements ReadingListAdapter.OnReadingListActionListener {
 
@@ -94,11 +92,7 @@ public class CurrentlyReadingListActivity extends AppCompatActivity implements R
 
     private void setupEmptyState() {
         View emptyState = findViewById(R.id.emptyStateReading);
-
         if (emptyState != null) {
-            binding.rvReading.setVisibility(View.GONE);
-            emptyState.setVisibility(View.VISIBLE);
-
             android.widget.ImageView imgEmptyIcon = emptyState.findViewById(R.id.imgEmptyIcon);
             android.widget.TextView txtEmptyMessage = emptyState.findViewById(R.id.txtEmptyMessage);
 
@@ -106,7 +100,7 @@ public class CurrentlyReadingListActivity extends AppCompatActivity implements R
                 imgEmptyIcon.setImageResource(R.drawable.ic_auto_stories);
             }
             if (txtEmptyMessage != null) {
-                txtEmptyMessage.setText("Bạn chưa đọc cuốn sách nào. Bắt đầu đọc ngay!");
+                txtEmptyMessage.setText(R.string.no_reading_books);
             }
         }
     }
@@ -117,18 +111,9 @@ public class CurrentlyReadingListActivity extends AppCompatActivity implements R
     }
 
     private void setupNavigation() {
-        int activeColor = ContextCompat.getColor(this, R.color.teal_600);
-        int inactiveColor = ContextCompat.getColor(this, R.color.nav_inactive);
-
         View btnBack = findViewById(R.id.btnBack);
         if (btnBack != null) {
-            btnBack.setOnClickListener(v -> {
-                MainActivity.updateBottomNavIcon(this, R.id.nav_library);
-                Intent intent = new Intent(this, FavouritesActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
+            btnBack.setOnClickListener(v -> finish());
         }
 
         android.widget.TextView tabFavorite = findViewById(R.id.tabFavorite);
@@ -142,19 +127,15 @@ public class CurrentlyReadingListActivity extends AppCompatActivity implements R
         }
 
         binding.bottomNav.navHome.setOnClickListener(v -> {
-            MainActivity.updateBottomNavIcon(this, R.id.nav_home);
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
             finish();
         });
 
-        binding.bottomNav.navReader.setOnClickListener(v -> {
-            MainActivity.updateBottomNavIcon(this, R.id.nav_reader);
-        });
+        binding.bottomNav.navReader.setOnClickListener(v -> MainActivity.updateBottomNavIcon(this, R.id.nav_reader));
 
         binding.bottomNav.navLibrary.setOnClickListener(v -> {
-            MainActivity.updateBottomNavIcon(this, R.id.nav_library);
             Intent intent = new Intent(this, FavouritesActivity.class);
             startActivity(intent);
             overridePendingTransition(0, 0);
@@ -199,7 +180,6 @@ public class CurrentlyReadingListActivity extends AppCompatActivity implements R
         adapter.updateData(books, progressList);
 
         View emptyState = findViewById(R.id.emptyStateReading);
-
         if (emptyState != null) {
             if (books.isEmpty()) {
                 binding.rvReading.setVisibility(View.GONE);
@@ -218,17 +198,10 @@ public class CurrentlyReadingListActivity extends AppCompatActivity implements R
                 .setMessage("Bạn có chắc chắn muốn xóa sách '" + book.getTitle() + "' khỏi danh sách không?")
                 .setPositiveButton("Xóa", (dialog, which) -> {
                     progressRepository.deleteProgress(book.getId());
-
-                    com.example.bookspace.repository.BookRepository bookRepo =
-                            new com.example.bookspace.repository.BookRepository(this);
+                    com.example.bookspace.repository.BookRepository bookRepo = new com.example.bookspace.repository.BookRepository(this);
                     bookRepo.removeDownloaded(book.getId());
-
                     adapter.removeItem(position);
-                    Toast.makeText(this, "Đã xóa sách: " + book.getTitle(), Toast.LENGTH_SHORT).show();
-
-                    if (adapter.getItemCount() == 0) {
-                        setupEmptyState();
-                    }
+                    if (adapter.getItemCount() == 0) loadReadingList();
                 })
                 .setNegativeButton("Hủy", null)
                 .show();
