@@ -1,6 +1,5 @@
 package com.example.bookspace;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import androidx.activity.EdgeToEdge;
@@ -21,6 +20,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import android.widget.ImageView;
 import android.widget.TextView;
+import java.util.Locale;
 
 public class CategoryActivity extends AppCompatActivity implements OnBookClickListener {
 
@@ -76,7 +76,7 @@ public class CategoryActivity extends AppCompatActivity implements OnBookClickLi
         if (category == null) return;
 
         // Sửa: Gọi database để lấy sách theo danh mục (thay thế mock data)
-        List<BookEntity> entities = repo.getByCategory(category.toUpperCase());
+        List<BookEntity> entities = repo.getByCategory(category.toUpperCase(Locale.ROOT));
         for (BookEntity entity : entities) {
             Book book = new Book(entity.coverUrl, entity.title, entity.author, entity.pages, entity.description, entity.category);
             book.setId(entity.id);
@@ -137,9 +137,7 @@ public class CategoryActivity extends AppCompatActivity implements OnBookClickLi
         // Nút "Đọc ngay" — truyền bookId sang ReadingActivity
         bottomSheetView.findViewById(R.id.btnDownload).setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
-            Intent intent = new Intent(CategoryActivity.this, ReadingActivity.class);
-            intent.putExtra("bookId", book.getId());
-            startActivity(intent);
+            startActivity(ReadingActivity.createIntent(CategoryActivity.this, book.getId(), R.id.nav_library));
         });
     }
 }

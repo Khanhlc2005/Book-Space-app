@@ -34,6 +34,9 @@
     <string name="cat_classic">Kinh điển</string>
     <string name="cat_economics">Kinh tế</string>
     <string name="cat_literature">Văn học</string>
+    <string name="cat_science">Khoa học</string>
+    <string name="cat_history">Lịch sử</string>
+    <string name="category_empty">Chưa có sách trong thể loại này</string>
 
     <!-- Featured Section -->
     <string name="section_featured">Nổi bật trong tuần</string>
@@ -46,6 +49,8 @@
 
     <!-- Recently Updated Section -->
     <string name="section_recent">Mới cập nhật</string>
+    <string name="section_learning">Học từ sách</string>
+    <string name="section_recommended">Gợi ý cho bạn</string>
     <string name="see_all">Xem tất cả</string>
 
     <!-- Books -->
@@ -149,17 +154,24 @@
 
     <!-- Content Descriptions -->
     <string name="cd_notification">Thông báo</string>
+    <string name="cd_menu">Menu</string>
     <string name="cd_profile">Hồ sơ cá nhân</string>
     <string name="cd_profile_avatar">Ảnh đại diện</string>
     <string name="cd_back">Quay lại</string>
     <string name="cd_book_cover">Bìa sách</string>
     <string name="cd_featured_book">Sách nổi bật</string>
 
+    <!-- Reading Quotes -->
+    <string name="reader_tab_toc">Mục lục</string>
+    <string name="reader_tab_quotes">Trích dẫn</string>
+    <string name="reader_quote_create_card">Tạo thẻ</string>
+    <string name="reader_quote_empty">Chưa có trích dẫn nào trong sách này.</string>
+    <string name="reader_quote_page_format">Trang %1$d</string>
+    <string name="reader_quote_empty_toast">Không thể tạo thẻ từ trích dẫn trống</string>
+
     <!-- Quote Card -->
     <string name="quote_card_title">Tạo thẻ trích dẫn</string>
-    <string name="quote_card_sample_quote">Một cuốn sách hay mở ra một căn phòng yên tĩnh để ta gặp lại chính mình.</string>
-    <string name="quote_card_sample_book">Book Space</string>
-    <string name="quote_card_fallback_toast">Đang dùng quote mẫu để kiểm thử.</string>
+    <string name="quote_card_empty_toast">Không thể tạo thẻ từ trích dẫn trống</string>
     <string name="quote_card_preview_cd">Xem trước thẻ trích dẫn</string>
     <string name="quote_card_background_label">Nền</string>
     <string name="quote_card_font_label">Phông chữ</string>

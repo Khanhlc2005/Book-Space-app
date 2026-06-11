@@ -1,13 +1,16 @@
 package com.example.bookspace;
 
 import android.app.Dialog;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,20 +19,25 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.bookspace.database.AppDatabase;
 import com.example.bookspace.database.dao.ReadingProgressDao;
 import com.example.bookspace.database.entity.BookEntity;
-import com.example.bookspace.database.entity.Highlight;
 import com.example.bookspace.database.entity.ReadingProgressEntity;
 import com.example.bookspace.database.entity.ReadingSettingsEntity;
 import com.example.bookspace.databinding.ActivityReadingBinding;
 import com.example.bookspace.reader.BookContent;
 import com.example.bookspace.reader.BookTextParser;
 import com.example.bookspace.reader.ParagraphAdapter;
-import com.example.bookspace.repository.HighlightRepository;
+import com.example.bookspace.reader.ReaderQuote;
 import com.example.bookspace.repository.SettingsRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ReadingActivity extends AppCompatActivity {
+    public static final String EXTRA_BOOK_ID = "BOOK_ID";
+    public static final String EXTRA_SOURCE_PAGE = "SOURCE_PAGE";
+
+    private static final String PREFS_READING = "bookspace_reading";
+    private static final String KEY_LAST_BOOK_ID = "last_book_id";
+    private static final int INVALID_BOOK_ID = -1;
 
     private ActivityReadingBinding binding;
     private AppDatabase db;
@@ -37,24 +45,20 @@ public class ReadingActivity extends AppCompatActivity {
     private SettingsRepository settingsRepo;
     private ParagraphAdapter paragraphAdapter;
     private TocAdapter tocAdapter;
-    private HighlightRepository highlightRepository;
-
-    private HighlightAdapter highlightAdapter;
-
 
     // Dữ liệu sách
     private BookContent bookContent;
     private List<String> chapterNames;
-    private List<Highlight> currentHighlights = new ArrayList<>();
 
     // Trạng thái đọc
     private int currentPage = 1;     // Trang hiện tại (global, tính trên toàn bộ sách)
     private int totalPages = 1;      // Tổng số trang
     private int totalChapters = 1;   // Tổng số chương (theo metadata sách)
-    private int bookId = 1;
+    private int bookId = INVALID_BOOK_ID;
     private int sourceNavId = R.id.nav_reader; // Tab điều hướng đã mở màn đọc (để khôi phục khi quay lại)
     private String userId = "default_user";
     private String bookTitle = "Sách";
+    private String authorName = "";
 
     // Kindle-style pagination: mỗi "trang" chứa một nhóm paragraph vừa màn hình
     private List<List<BookContent.Paragraph>> allPages; // Danh sách tất cả các trang
@@ -62,10 +66,35 @@ public class ReadingActivity extends AppCompatActivity {
 
     private final int[] fontSizes = {16, 17, 18, 19, 20, 21, 22};
     private int fontSizeIndex = 3;
+    private static final int TAB_TOC = 0;
+    private static final int TAB_QUOTES = 1;
 
     // Theme hiện tại
     private String currentTheme = "light";
     private String currentFont = "literata";
+
+    public static Intent createIntent(Context context, int bookId) {
+        return createIntent(context, bookId, R.id.nav_reader);
+    }
+
+    public static Intent createIntent(Context context, int bookId, int sourceNavId) {
+        Intent intent = new Intent(context, ReadingActivity.class);
+        intent.putExtra(EXTRA_BOOK_ID, bookId);
+        intent.putExtra(EXTRA_SOURCE_PAGE, sourceNavId);
+        return intent;
+    }
+
+    public static int getLastBookId(Context context) {
+        return context.getSharedPreferences(PREFS_READING, Context.MODE_PRIVATE)
+                .getInt(KEY_LAST_BOOK_ID, INVALID_BOOK_ID);
+    }
+
+    private static void saveLastBookId(Context context, int bookId) {
+        context.getSharedPreferences(PREFS_READING, Context.MODE_PRIVATE)
+                .edit()
+                .putInt(KEY_LAST_BOOK_ID, bookId)
+                .apply();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,49 +106,23 @@ public class ReadingActivity extends AppCompatActivity {
         progressDao = db.readingProgressDao();
         userId = SessionManager.getCurrentUserId(this);
         settingsRepo = new SettingsRepository(this);
-        highlightRepository = new HighlightRepository(this);
 
-        // Nhận bookId từ Intent
-        bookId = getIntent().getIntExtra("BOOK_ID", 1);
-        sourceNavId = getIntent().getIntExtra("SOURCE_PAGE", R.id.nav_reader);
+        if (!readIntentData()) {
+            finish();
+            return;
+        }
 
         // Setup RecyclerView cho nội dung
         paragraphAdapter = new ParagraphAdapter();
         binding.rvContent.setLayoutManager(new LinearLayoutManager(this));
         binding.rvContent.setAdapter(paragraphAdapter);
 
-        // Đăng ký sự kiện khi người dùng bôi đen và nhấn Đánh dấu
-        paragraphAdapter.setOnTextSelectedListener((paragraph, selectedText, selectionStart, selectionEnd) -> {
-            int charOffsetStart = paragraph.getCharacterOffsetInChapter() + selectionStart;
-            int chapterIdx = paragraph.getChapterIndex();
-            String chapterName = "Chương " + (chapterIdx + 1);
-            if (chapterNames != null && chapterIdx < chapterNames.size()) {
-                chapterName = chapterNames.get(chapterIdx);
-            }
-
-            Highlight highlight = new Highlight(
-                bookId,
-                selectedText,
-                chapterName,
-                chapterIdx,
-                charOffsetStart
-            );
-
-            // Lưu trực tiếp vào SQLite qua Room
-            long generatedId = highlightRepository.addHighlightSync(highlight);
-            highlight.id = (int) generatedId;
-
-            // Thêm vào danh sách và cập nhật UI ngay lập tức
-            currentHighlights.add(highlight);
-            paragraphAdapter.setHighlights(currentHighlights);
-
-            Toast.makeText(ReadingActivity.this, "Đã đánh dấu văn bản!", Toast.LENGTH_SHORT).show();
-        });
-
         // Tải thông tin sách và nội dung
-        loadBookInfo();
+        if (!loadBookInfo()) {
+            finish();
+            return;
+        }
         loadBookContent();
-        loadHighlights();
 
         // Load cài đặt đọc đã lưu (Phase 4)
         loadSavedSettings();
@@ -144,16 +147,31 @@ public class ReadingActivity extends AppCompatActivity {
         saveReadingProgress();
     }
 
+    private boolean readIntentData() {
+        bookId = getIntent().getIntExtra(EXTRA_BOOK_ID, INVALID_BOOK_ID);
+        sourceNavId = getIntent().getIntExtra(EXTRA_SOURCE_PAGE, R.id.nav_reader);
+        if (bookId <= 0) {
+            Toast.makeText(this, "Không tìm thấy sách để đọc", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
     // ====================================================================
     // LOAD DỮ LIỆU
     // ====================================================================
 
-    private void loadBookInfo() {
+    private boolean loadBookInfo() {
         BookEntity bookEntity = db.bookDao().getBookById(bookId);
         if (bookEntity != null) {
-            bookTitle = bookEntity.title;
+            bookTitle = trimToEmpty(bookEntity.title);
+            authorName = trimToEmpty(bookEntity.author);
             totalChapters = bookEntity.pages;
+            saveLastBookId(this, bookId);
+            return true;
         }
+        Toast.makeText(this, "Không tìm thấy dữ liệu sách", Toast.LENGTH_SHORT).show();
+        return false;
     }
 
     /**
@@ -162,10 +180,11 @@ public class ReadingActivity extends AppCompatActivity {
      */
     private void loadBookContent() {
         BookEntity bookEntity = db.bookDao().getBookById(bookId);
+        String bookFilePath = resolveBookFilePath(bookEntity);
 
-        if (bookEntity != null && bookEntity.bookFilePath != null && !bookEntity.bookFilePath.isEmpty()) {
+        if (!TextUtils.isEmpty(bookFilePath)) {
             // Parse file sách thật
-            bookContent = BookTextParser.parse(this, bookEntity.bookFilePath);
+            bookContent = BookTextParser.parse(this, bookFilePath);
         }
 
         if (bookContent != null && bookContent.getChapterCount() > 0) {
@@ -190,11 +209,24 @@ public class ReadingActivity extends AppCompatActivity {
         }
     }
 
-    private void loadHighlights() {
-        if (highlightRepository != null) {
-            currentHighlights = highlightRepository.getHighlightsForBook(bookId);
-            paragraphAdapter.setHighlights(currentHighlights);
+    private String resolveBookFilePath(BookEntity bookEntity) {
+        if (bookEntity == null) {
+            return "";
         }
+
+        String filePath = trimToEmpty(bookEntity.bookFilePath);
+        if (!TextUtils.isEmpty(filePath)) {
+            return filePath;
+        }
+
+        String title = trimToEmpty(bookEntity.title);
+        if ("Đắc Nhân Tâm".equalsIgnoreCase(title)) {
+            return "books/dac_nhan_tam.txt";
+        }
+        if ("Nhà Giả Kim".equalsIgnoreCase(title)) {
+            return "books/nha_gia_kim.txt";
+        }
+        return "";
     }
 
     /**
@@ -252,6 +284,9 @@ public class ReadingActivity extends AppCompatActivity {
     }
 
     private void saveReadingProgress() {
+        if (bookId <= 0) {
+            return;
+        }
         ReadingProgressEntity progress = new ReadingProgressEntity();
         progress.userId = userId;
         progress.bookId = bookId;
@@ -406,149 +441,242 @@ public class ReadingActivity extends AppCompatActivity {
     // ====================================================================
 
     private void showTableOfContents() {
-        android.app.Dialog dialog = new android.app.Dialog(this,
+        Dialog dialog = new Dialog(this,
                 android.R.style.Theme_Translucent_NoTitleBar);
         dialog.setContentView(R.layout.bottom_sheet_toc);
 
-        dialog.getWindow().setFlags(
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setFlags(
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
+        }
 
         View tocContainer = dialog.findViewById(R.id.toc_container);
-        dialog.getWindow().getDecorView().setOnTouchListener((v, event) -> {
-            if (tocContainer != null) {
-                int[] location = new int[2];
-                tocContainer.getLocationOnScreen(location);
-                float sheetTop = location[1];
-                if (event.getY() < sheetTop) {
-                    dialog.dismiss();
-                    return true;
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().getDecorView().setOnTouchListener((v, event) -> {
+                if (tocContainer != null) {
+                    int[] location = new int[2];
+                    tocContainer.getLocationOnScreen(location);
+                    float sheetTop = location[1];
+                    if (event.getY() < sheetTop) {
+                        dialog.dismiss();
+                        return true;
+                    }
                 }
-            }
-            return false;
-        });
+                return false;
+            });
+        }
 
-        // 1. Ánh xạ các RecyclerView và ToggleGroup
-        RecyclerView tocRecycler = dialog.findViewById(R.id.toc_recycler);
-        RecyclerView highlightsRecycler = dialog.findViewById(R.id.highlights_recycler);
-        com.google.android.material.button.MaterialButtonToggleGroup toggleGroup = dialog.findViewById(R.id.toggleGroup);
+        RecyclerView tocRecyclerView = dialog.findViewById(R.id.toc_recycler);
+        RecyclerView quoteRecyclerView = dialog.findViewById(R.id.quote_recycler);
+        TextView quoteEmptyText = dialog.findViewById(R.id.quote_empty_text);
+        TextView btnTabToc = dialog.findViewById(R.id.btn_tab_toc);
+        TextView btnTabQuotes = dialog.findViewById(R.id.btn_tab_quotes);
+        if (tocRecyclerView == null || quoteRecyclerView == null
+                || quoteEmptyText == null || btnTabToc == null || btnTabQuotes == null) {
+            return;
+        }
 
-        if (tocRecycler == null || highlightsRecycler == null || toggleGroup == null) return;
-
-        // Ánh xạ trực tiếp 2 nút toggle để điều khiển màu
-        com.google.android.material.button.MaterialButton btnToc = dialog.findViewById(R.id.btnToggleToc);
-        com.google.android.material.button.MaterialButton btnHighlights = dialog.findViewById(R.id.btnToggleHighlights);
-
-        // Helper: cập nhật màu nút theo trạng thái active/inactive
-        Runnable updateToggleColors = () -> {
-            boolean tocActive = toggleGroup.getCheckedButtonId() == R.id.btnToggleToc;
-            if (btnToc != null) {
-                btnToc.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                        tocActive ? getColor(R.color.on_surface) : android.graphics.Color.TRANSPARENT));
-                btnToc.setTextColor(tocActive ? getColor(R.color.white) : getColor(R.color.on_surface));
-            }
-            if (btnHighlights != null) {
-                btnHighlights.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                        tocActive ? android.graphics.Color.TRANSPARENT : getColor(R.color.on_surface)));
-                btnHighlights.setTextColor(tocActive ? getColor(R.color.on_surface) : getColor(R.color.white));
-            }
-        };
-
-        // Xử lý chuyển đổi tab bằng Toggle Button
-        toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
-            if (isChecked) {
-                if (checkedId == R.id.btnToggleToc) {
-                    tocRecycler.setVisibility(View.VISIBLE);
-                    highlightsRecycler.setVisibility(View.GONE);
-                } else if (checkedId == R.id.btnToggleHighlights) {
-                    tocRecycler.setVisibility(View.GONE);
-                    highlightsRecycler.setVisibility(View.VISIBLE);
-                }
-                updateToggleColors.run();
-            }
-        });
-
-        // Áp dụng màu ngay khi mở dialog (mặc định Mục lục được chọn)
-        updateToggleColors.run();
-
-        // 2. Thiết lập Mục lục (Table of Contents)
+        // Xác định chương hiện tại
         int currentChapterIdx = 0;
         if (currentPage >= 1 && currentPage <= pageToChapterMap.size()) {
             currentChapterIdx = pageToChapterMap.get(currentPage - 1);
         }
 
-        TocAdapter adapter = new TocAdapter(chapterNames);
-        adapter.setListener(position -> {
+        tocAdapter = new TocAdapter(chapterNames);
+        tocAdapter.setListener(position -> {
+            // Tìm trang đầu tiên của chương được chọn
             goToChapter(position);
             dialog.dismiss();
         });
-        adapter.setCurrentChapter(currentChapterIdx + 1);
+        tocAdapter.setCurrentChapter(currentChapterIdx + 1);
 
-        tocRecycler.setLayoutManager(new LinearLayoutManager(this));
-        tocRecycler.setAdapter(adapter);
+        tocRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        tocRecyclerView.setAdapter(tocAdapter);
         int finalIdx = currentChapterIdx;
-        tocRecycler.post(() ->
-                tocRecycler.scrollToPosition(Math.max(0, finalIdx)));
+        tocRecyclerView.post(() ->
+                tocRecyclerView.scrollToPosition(Math.max(0, finalIdx)));
 
-        // 3. Thiết lập Đánh dấu (Highlights) - Sắp xếp theo trình tự xuất hiện trong sách
-        List<Highlight> sortedHighlights = new ArrayList<>(currentHighlights);
-        // Sắp xếp: Ưu tiên chapterIndex tăng dần, sau đó đến characterOffsetStart tăng dần
-        java.util.Collections.sort(sortedHighlights, new java.util.Comparator<Highlight>() {
-            @Override
-            public int compare(Highlight h1, Highlight h2) {
-                if (h1.chapterIndex != h2.chapterIndex) {
-                    return Integer.compare(h1.chapterIndex, h2.chapterIndex);
-                }
-                return Integer.compare(h1.characterOffsetStart, h2.characterOffsetStart);
-            }
-        });
+        List<ReaderQuote> quotes = collectReaderQuotes();
+        QuoteListAdapter quoteAdapter = new QuoteListAdapter(quotes);
+        setupQuoteActions(quoteAdapter, dialog);
+        quoteRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        quoteRecyclerView.setAdapter(quoteAdapter);
 
-        // Đã bỏ chữ "HighlightAdapter" ở đầu
-        highlightAdapter = new HighlightAdapter(sortedHighlights, new HighlightAdapter.OnHighlightClickListener() {
-            @Override
-            public void onHighlightClick(Highlight highlight) {
-                // Nhảy đến chương chứa đoạn highlight
-                goToChapter(highlight.chapterIndex);
-                dialog.dismiss();
-            }
-
-            @Override
-            public void onDeleteClick(Highlight highlight, int position) {
-                // Xóa khỏi SQLite thông qua Repository
-                highlightRepository.deleteHighlight(highlight.id);
-
-                // Đồng bộ cập nhật danh sách hiển thị trên trang đang đọc
-                for (int i = 0; i < currentHighlights.size(); i++) {
-                    if (currentHighlights.get(i).id == highlight.id) {
-                        currentHighlights.remove(i);
-                        break;
-                    }
-                }
-                paragraphAdapter.setHighlights(currentHighlights);
-
-                // Thêm câu lệnh if để đảm bảo an toàn tuyệt đối
-                if (highlightAdapter != null) {
-                    highlightAdapter.removeItem(position);
-                }
-                Toast.makeText(ReadingActivity.this, "Đã xóa đánh dấu", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        highlightsRecycler.setLayoutManager(new LinearLayoutManager(this));
-        highlightsRecycler.setAdapter(highlightAdapter);
+        btnTabToc.setOnClickListener(v -> showTocTab(
+                TAB_TOC,
+                tocRecyclerView,
+                quoteRecyclerView,
+                quoteEmptyText,
+                btnTabToc,
+                btnTabQuotes,
+                !quotes.isEmpty()
+        ));
+        btnTabQuotes.setOnClickListener(v -> showTocTab(
+                TAB_QUOTES,
+                tocRecyclerView,
+                quoteRecyclerView,
+                quoteEmptyText,
+                btnTabToc,
+                btnTabQuotes,
+                !quotes.isEmpty()
+        ));
+        showTocTab(
+                TAB_TOC,
+                tocRecyclerView,
+                quoteRecyclerView,
+                quoteEmptyText,
+                btnTabToc,
+                btnTabQuotes,
+                !quotes.isEmpty()
+        );
 
         // Chiều cao dialog = 90% chiều cao màn hình
         int screenHeight = getResources().getDisplayMetrics().heightPixels;
         int dialogHeight = (int) (screenHeight * 0.90f);
 
-        WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
-        params.width = WindowManager.LayoutParams.MATCH_PARENT;
-        params.height = dialogHeight;
-        params.gravity = android.view.Gravity.BOTTOM;
-        dialog.getWindow().setAttributes(params);
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-
         dialog.show();
+
+        if (dialog.getWindow() != null) {
+            WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
+            params.width = WindowManager.LayoutParams.MATCH_PARENT;
+            params.height = dialogHeight;
+            params.gravity = android.view.Gravity.BOTTOM;
+            dialog.getWindow().setAttributes(params);
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+    }
+
+    private void showTocTab(int selectedTab,
+                            RecyclerView tocRecyclerView,
+                            RecyclerView quoteRecyclerView,
+                            TextView quoteEmptyText,
+                            TextView btnTabToc,
+                            TextView btnTabQuotes,
+                            boolean hasQuotes) {
+        boolean showQuotes = selectedTab == TAB_QUOTES;
+        tocRecyclerView.setVisibility(showQuotes ? View.GONE : View.VISIBLE);
+        quoteRecyclerView.setVisibility(showQuotes && hasQuotes ? View.VISIBLE : View.GONE);
+        quoteEmptyText.setVisibility(showQuotes && !hasQuotes ? View.VISIBLE : View.GONE);
+
+        updateTocTabButton(btnTabToc, !showQuotes);
+        updateTocTabButton(btnTabQuotes, showQuotes);
+    }
+
+    private void updateTocTabButton(TextView tab, boolean selected) {
+        tab.setBackgroundResource(selected ? R.drawable.reading_btn_bg : 0);
+        tab.setTextColor(ContextCompat.getColor(this,
+                selected ? R.color.on_surface : R.color.on_surface_variant));
+    }
+
+    private void setupQuoteActions(QuoteListAdapter quoteAdapter, Dialog dialog) {
+        quoteAdapter.setListener(quote -> {
+            if (openQuoteCard(quote)) {
+                dialog.dismiss();
+            }
+        });
+    }
+
+    private boolean openQuoteCard(ReaderQuote quote) {
+        String quoteText = getSafeQuoteText(quote);
+        if (TextUtils.isEmpty(quoteText)) {
+            Toast.makeText(this, R.string.reader_quote_empty_toast, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        startActivity(QuoteCardActivity.createIntent(
+                this,
+                quoteText,
+                getSafeBookTitle(),
+                getSafeAuthorName(),
+                getSafeChapterName(quote),
+                getSafeChapterIndex(quote),
+                getSafePageNumber(quote)
+        ));
+        return true;
+    }
+
+    private List<ReaderQuote> collectReaderQuotes() {
+        List<ReaderQuote> quotes = new ArrayList<>();
+        if (allPages == null) {
+            return quotes;
+        }
+
+        for (int pageIndex = 0; pageIndex < allPages.size(); pageIndex++) {
+            List<BookContent.Paragraph> paragraphs = allPages.get(pageIndex);
+            if (paragraphs == null) {
+                continue;
+            }
+
+            int chapterIndex = getChapterIndexForPage(pageIndex);
+            String chapterName = getSafeChapterName(chapterIndex);
+            for (BookContent.Paragraph paragraph : paragraphs) {
+                if (paragraph != null && paragraph.getType() == BookContent.Paragraph.TYPE_QUOTE) {
+                    quotes.add(new ReaderQuote(
+                            paragraph.getText(),
+                            chapterName,
+                            chapterIndex,
+                            pageIndex + 1
+                    ));
+                }
+            }
+        }
+
+        return quotes;
+    }
+
+    private int getChapterIndexForPage(int pageIndex) {
+        if (pageToChapterMap != null && pageIndex >= 0 && pageIndex < pageToChapterMap.size()) {
+            return pageToChapterMap.get(pageIndex);
+        }
+        return -1;
+    }
+
+    private String getSafeChapterName(int chapterIndex) {
+        if (chapterNames != null && chapterIndex >= 0 && chapterIndex < chapterNames.size()) {
+            return trimToEmpty(chapterNames.get(chapterIndex));
+        }
+        return "";
+    }
+
+    private String getSafeQuoteText(ReaderQuote quote) {
+        if (quote == null) {
+            return "";
+        }
+        return trimToEmpty(quote.getText());
+    }
+
+    private String getSafeChapterName(ReaderQuote quote) {
+        if (quote == null) {
+            return "";
+        }
+        return trimToEmpty(quote.getChapterName());
+    }
+
+    private int getSafeChapterIndex(ReaderQuote quote) {
+        if (quote == null) {
+            return -1;
+        }
+        return quote.getChapterIndex();
+    }
+
+    private int getSafePageNumber(ReaderQuote quote) {
+        if (quote == null) {
+            return -1;
+        }
+        return quote.getPageNumber();
+    }
+
+    private String getSafeBookTitle() {
+        return trimToEmpty(bookTitle);
+    }
+
+    private String getSafeAuthorName() {
+        return trimToEmpty(authorName);
+    }
+
+    private String trimToEmpty(String value) {
+        return value == null ? "" : value.trim();
     }
 
     /**

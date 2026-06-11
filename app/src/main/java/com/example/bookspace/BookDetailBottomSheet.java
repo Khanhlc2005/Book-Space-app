@@ -2,7 +2,6 @@ package com.example.bookspace;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -30,6 +29,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public final class BookDetailBottomSheet {
     private BookDetailBottomSheet() {
@@ -85,11 +85,7 @@ public final class BookDetailBottomSheet {
         if (btnPrimaryAction != null) {
             btnPrimaryAction.setOnClickListener(v -> {
                 if (bookRepository.isDownloaded(bookId)) {
-                    Intent intent = new Intent(activity, ReadingActivity.class);
-                    intent.putExtra("BOOK_ID", bookId);
-                    intent.putExtra("BOOK_TITLE", book.getTitle());
-                    intent.putExtra("SOURCE_PAGE", R.id.nav_library);
-                    activity.startActivity(intent);
+                    activity.startActivity(ReadingActivity.createIntent(activity, bookId, R.id.nav_library));
                     bottomSheetDialog.dismiss();
                 } else {
                     updateDownloadUi(activity, bookRepository, bookId, btnPrimaryAction, txtPrimaryAction, imgPrimaryActionIcon, txtDownloadStatus, true);
@@ -231,7 +227,7 @@ public final class BookDetailBottomSheet {
             List<BookEntity> all = bookRepository.getAllBooks();
             relatedBooks = new java.util.ArrayList<>();
             for (BookEntity e : all) {
-                if (e.author.equals(book.getAuthor()) && e.id != bookId) {
+                if (e != null && Objects.equals(e.author, book.getAuthor()) && e.id != bookId) {
                     relatedBooks.add(Book.fromEntity(e));
                     if (relatedBooks.size() >= 8) break;
                 }

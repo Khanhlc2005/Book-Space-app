@@ -18,12 +18,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bookspace.database.entity.BookEntity;
 import com.example.bookspace.database.entity.ReadingProgressEntity;
 import com.example.bookspace.databinding.ActivityReadingBooklistBinding;
-import com.example.bookspace.MainActivity;
 import com.example.bookspace.repository.ProgressRepository;
 
 import java.util.ArrayList;
@@ -89,7 +87,7 @@ public class CurrentlyReadingListActivity extends AppCompatActivity implements R
     protected void onResume() {
         super.onResume();
         loadReadingList();
-        MainActivity.updateBottomNavIcon(this, R.id.nav_reader);
+        MainActivity.updateBottomNavIcon(this, R.id.nav_library);
     }
 
     private void setupEmptyState() {
@@ -117,9 +115,6 @@ public class CurrentlyReadingListActivity extends AppCompatActivity implements R
     }
 
     private void setupNavigation() {
-        int activeColor = ContextCompat.getColor(this, R.color.teal_600);
-        int inactiveColor = ContextCompat.getColor(this, R.color.nav_inactive);
-
         View btnBack = findViewById(R.id.btnBack);
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> {
@@ -150,7 +145,7 @@ public class CurrentlyReadingListActivity extends AppCompatActivity implements R
         });
 
         binding.bottomNav.navReader.setOnClickListener(v -> {
-            MainActivity.updateBottomNavIcon(this, R.id.nav_reader);
+            MainActivity.updateBottomNavIcon(this, R.id.nav_library);
         });
 
         binding.bottomNav.navLibrary.setOnClickListener(v -> {
@@ -161,21 +156,7 @@ public class CurrentlyReadingListActivity extends AppCompatActivity implements R
             finish();
         });
 
-        updateBottomNavUi(R.id.nav_reader);
-    }
-
-    private void updateBottomNavUi(int activeId) {
-        int activeColor = ContextCompat.getColor(this, R.color.teal_600);
-        int inactiveColor = ContextCompat.getColor(this, R.color.nav_inactive);
-
-        binding.bottomNav.iconHome.setColorFilter(activeId == R.id.nav_home ? activeColor : inactiveColor);
-        binding.bottomNav.textHome.setTextColor(activeId == R.id.nav_home ? activeColor : inactiveColor);
-
-        binding.bottomNav.iconReader.setColorFilter(activeId == R.id.nav_reader ? activeColor : inactiveColor);
-        binding.bottomNav.textReader.setTextColor(activeId == R.id.nav_reader ? activeColor : inactiveColor);
-
-        binding.bottomNav.iconLibrary.setColorFilter(activeId == R.id.nav_library ? activeColor : inactiveColor);
-        binding.bottomNav.textLibrary.setTextColor(activeId == R.id.nav_library ? activeColor : inactiveColor);
+        MainActivity.updateBottomNavIcon(this, R.id.nav_library);
     }
 
     private void loadReadingList() {
@@ -236,9 +217,7 @@ public class CurrentlyReadingListActivity extends AppCompatActivity implements R
 
     @Override
     public void onBookClick(Book book) {
-        Intent intent = new Intent(this, ReadingActivity.class);
-        intent.putExtra("BOOK_ID", book.getId());
-        startActivity(intent);
+        startActivity(ReadingActivity.createIntent(this, book.getId(), R.id.nav_reader));
     }
 
     @Override

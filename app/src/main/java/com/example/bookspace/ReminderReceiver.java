@@ -8,7 +8,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import java.util.Calendar;
@@ -18,12 +17,17 @@ public class ReminderReceiver extends BroadcastReceiver {
     public static final String ACTION_SNOOZE = "com.example.bookspace.ACTION_SNOOZE";
     public static final String ACTION_SHOW_REMINDER = "com.example.bookspace.ACTION_SHOW_REMINDER";
     public static final String EXTRA_REMINDER_ID = "reminder_id";
+    public static final String EXTRA_REMINDER_HOUR = "reminder_hour";
+    public static final String EXTRA_REMINDER_MINUTE = "reminder_minute";
 
     @Override
     public void onReceive(Context context, Intent intent) {
         int reminderId = intent.getIntExtra(EXTRA_REMINDER_ID, -1);
         String action = intent.getAction();
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager == null) {
+            return;
+        }
 
         if (ACTION_SNOOZE.equals(action)) {
             if (reminderId != -1) {
@@ -32,6 +36,9 @@ public class ReminderReceiver extends BroadcastReceiver {
             }
             return;
         }
+        int notificationId = reminderId != -1
+                ? reminderId
+                : (int) (System.currentTimeMillis() & 0x7fffffff);
 
         // Tạo Channel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -47,14 +54,14 @@ public class ReminderReceiver extends BroadcastReceiver {
         Intent openIntent = new Intent(context, CurrentlyReadingListActivity.class);
         openIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent openPendingIntent = PendingIntent.getActivity(
-                context, reminderId, openIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                context, notificationId, openIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
         Intent snoozeIntent = new Intent(context, ReminderReceiver.class);
         snoozeIntent.setAction(ACTION_SNOOZE);
-        snoozeIntent.putExtra(EXTRA_REMINDER_ID, reminderId);
+        snoozeIntent.putExtra(EXTRA_REMINDER_ID, notificationId);
         PendingIntent snoozePendingIntent = PendingIntent.getBroadcast(
-                context, reminderId, snoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                context, notificationId, snoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
@@ -69,7 +76,7 @@ public class ReminderReceiver extends BroadcastReceiver {
                 .addAction(R.drawable.ic_clock, "NHẮC LẠI (15P)", snoozePendingIntent)
                 .setContentIntent(openPendingIntent);
 
-        notificationManager.notify(reminderId, builder.build());
+        notificationManager.notify(notificationId, builder.build());
     }
 
     private void snoozeAlarm(Context context, int id) {
@@ -86,11 +93,28 @@ public class ReminderReceiver extends BroadcastReceiver {
         calendar.add(Calendar.MINUTE, 15);
 
         if (alarmManager != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-            } else {
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-            }
+            scheduleAlarmSafely(alarmManager, calendar.getTimeInMillis(), pendingIntent);
+        }
+    }
+
+    private void scheduleAlarmSafely(AlarmManager alarmManager, long triggerAtMillis, PendingIntent pendingIntent) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+            scheduleInexactAlarm(alarmManager, triggerAtMillis, pendingIntent);
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+        } else {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+        }
+    }
+
+    private void scheduleInexactAlarm(AlarmManager alarmManager, long triggerAtMillis, PendingIntent pendingIntent) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+        } else {
+            alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
         }
     }
 }

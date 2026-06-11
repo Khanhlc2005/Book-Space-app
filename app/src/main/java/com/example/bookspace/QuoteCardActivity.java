@@ -49,11 +49,15 @@ public class QuoteCardActivity extends AppCompatActivity {
     public static final String EXTRA_QUOTE_TEXT = "extra_quote_text";
     public static final String EXTRA_BOOK_TITLE = "extra_book_title";
     public static final String EXTRA_AUTHOR_NAME = "extra_author_name";
+    public static final String EXTRA_CHAPTER_NAME = "extra_chapter_name";
+    public static final String EXTRA_CHAPTER_INDEX = "extra_chapter_index";
+    public static final String EXTRA_PAGE_NUMBER = "extra_page_number";
 
     private static final String TAG = "QuoteCardActivity";
     private static final int REQUEST_WRITE_STORAGE = 3201;
     private static final int TEXT_SIZE_MIN = 14;
     private static final int TEXT_SIZE_MAX = 52;
+    private static final int UNKNOWN_POSITION = -1;
 
     private static final String STATE_BACKGROUND = "state_background";
     private static final String STATE_PATTERN = "state_pattern";
@@ -82,13 +86,32 @@ public class QuoteCardActivity extends AppCompatActivity {
     private String quoteText;
     private String bookTitle;
     private String authorName;
+    private String chapterName;
+    private int chapterIndex = UNKNOWN_POSITION;
+    private int pageNumber = UNKNOWN_POSITION;
     private boolean updatingTextSizeInput = false;
 
     public static Intent createIntent(Context context, String quoteText, String bookTitle, String authorName) {
+        return createIntent(
+                context,
+                quoteText,
+                bookTitle,
+                authorName,
+                "",
+                UNKNOWN_POSITION,
+                UNKNOWN_POSITION
+        );
+    }
+
+    public static Intent createIntent(Context context, String quoteText, String bookTitle, String authorName,
+                                      String chapterName, int chapterIndex, int pageNumber) {
         Intent intent = new Intent(context, QuoteCardActivity.class);
         intent.putExtra(EXTRA_QUOTE_TEXT, quoteText);
         intent.putExtra(EXTRA_BOOK_TITLE, bookTitle);
         intent.putExtra(EXTRA_AUTHOR_NAME, authorName);
+        intent.putExtra(EXTRA_CHAPTER_NAME, chapterName);
+        intent.putExtra(EXTRA_CHAPTER_INDEX, chapterIndex);
+        intent.putExtra(EXTRA_PAGE_NUMBER, pageNumber);
         return intent;
     }
 
@@ -100,7 +123,10 @@ public class QuoteCardActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         selectedStyle = new QuoteCardStyle(ContextCompat.getColor(this, R.color.quote_text_dark_brown));
-        readIntentData();
+        if (!readIntentData()) {
+            finish();
+            return;
+        }
         setupOptionData();
         restoreStyle(savedInstanceState);
         initViews();
@@ -137,21 +163,21 @@ public class QuoteCardActivity extends AppCompatActivity {
         binding.btnShareImage.setOnClickListener(v -> shareQuoteCard());
     }
 
-    private void readIntentData() {
+    private boolean readIntentData() {
         Intent intent = getIntent();
         quoteText = trimToEmpty(intent.getStringExtra(EXTRA_QUOTE_TEXT));
         bookTitle = trimToEmpty(intent.getStringExtra(EXTRA_BOOK_TITLE));
         authorName = trimToEmpty(intent.getStringExtra(EXTRA_AUTHOR_NAME));
+        chapterName = trimToEmpty(intent.getStringExtra(EXTRA_CHAPTER_NAME));
+        chapterIndex = intent.getIntExtra(EXTRA_CHAPTER_INDEX, UNKNOWN_POSITION);
+        pageNumber = intent.getIntExtra(EXTRA_PAGE_NUMBER, UNKNOWN_POSITION);
 
         if (TextUtils.isEmpty(quoteText)) {
-            // Fallback chi dung de kiem thu man hinh khi team Quote/Bookmark chua truyen du lieu.
-            quoteText = getString(R.string.quote_card_sample_quote);
-            if (TextUtils.isEmpty(bookTitle)) {
-                bookTitle = getString(R.string.quote_card_sample_book);
-            }
-            Log.d(TAG, "Quote text is empty. Showing fallback quote for testing.");
-            Toast.makeText(this, R.string.quote_card_fallback_toast, Toast.LENGTH_SHORT).show();
+            Log.w(TAG, "Quote text is empty. Closing quote card editor.");
+            Toast.makeText(this, R.string.quote_card_empty_toast, Toast.LENGTH_SHORT).show();
+            return false;
         }
+        return true;
     }
 
     private void setupOptionData() {

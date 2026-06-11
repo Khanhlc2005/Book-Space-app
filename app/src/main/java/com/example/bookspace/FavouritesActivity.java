@@ -7,7 +7,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.core.content.ContextCompat;
 
 import com.example.bookspace.databinding.ActivityFavouriteBinding;
 import com.example.bookspace.repository.FavouriteRepository;
@@ -44,9 +43,6 @@ public class FavouritesActivity extends AppCompatActivity implements FavouriteBo
     }
 
     private void setupNavigation() {
-        int activeColor = ContextCompat.getColor(this, R.color.teal_600);
-        int inactiveColor = ContextCompat.getColor(this, R.color.nav_inactive);
-
         View btnBack = findViewById(R.id.btnBack);
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> finish());
@@ -80,28 +76,16 @@ public class FavouritesActivity extends AppCompatActivity implements FavouriteBo
         });
 
         binding.bottomNav.navReader.setOnClickListener(v -> {
-            MainActivity.updateBottomNavIcon(this, R.id.nav_reader);
-            Intent intent = new Intent(this, ReadingActivity.class);
-            intent.putExtra("SOURCE_PAGE", R.id.nav_library);
+            Intent intent = new Intent(this, CurrentlyReadingListActivity.class);
             startActivity(intent);
+            overridePendingTransition(0, 0);
         });
 
         binding.bottomNav.navLibrary.setOnClickListener(v -> {
             MainActivity.updateBottomNavIcon(this, R.id.nav_library);
         });
 
-        updateBottomNavUi(R.id.nav_library, activeColor, inactiveColor);
-    }
-
-    private void updateBottomNavUi(int activeId, int activeColor, int inactiveColor) {
-        binding.bottomNav.iconHome.setColorFilter(activeId == R.id.nav_home ? activeColor : inactiveColor);
-        binding.bottomNav.textHome.setTextColor(activeId == R.id.nav_home ? activeColor : inactiveColor);
-
-        binding.bottomNav.iconReader.setColorFilter(activeId == R.id.nav_reader ? activeColor : inactiveColor);
-        binding.bottomNav.textReader.setTextColor(activeId == R.id.nav_reader ? activeColor : inactiveColor);
-
-        binding.bottomNav.iconLibrary.setColorFilter(activeId == R.id.nav_library ? activeColor : inactiveColor);
-        binding.bottomNav.textLibrary.setTextColor(activeId == R.id.nav_library ? activeColor : inactiveColor);
+        MainActivity.updateBottomNavIcon(this, R.id.nav_library);
     }
 
     @Override
@@ -123,10 +107,7 @@ public class FavouritesActivity extends AppCompatActivity implements FavouriteBo
 
     @Override
     public void onBookClick(Book book) {
-        // Mở ReadingActivity với bookId
-        Intent intent = new Intent(this, ReadingActivity.class);
-        intent.putExtra("BOOK_ID", book.getId());
-        startActivity(intent);
+        startActivity(ReadingActivity.createIntent(this, book.getId(), R.id.nav_library));
     }
 
     @Override
