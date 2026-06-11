@@ -164,10 +164,14 @@
     <!-- Reading Quotes -->
     <string name="reader_tab_toc">Mục lục</string>
     <string name="reader_tab_quotes">Trích dẫn</string>
+    <string name="reader_action_highlight">Đánh dấu</string>
     <string name="reader_quote_create_card">Tạo thẻ</string>
     <string name="reader_quote_empty">Chưa có trích dẫn nào trong sách này.</string>
     <string name="reader_quote_page_format">Trang %1$d</string>
     <string name="reader_quote_empty_toast">Không thể tạo thẻ từ trích dẫn trống</string>
+    <string name="reader_quote_select_empty">Vui lòng chọn nội dung để đánh dấu</string>
+    <string name="reader_quote_saved">Đã lưu vào trích dẫn</string>
+    <string name="reader_quote_duplicate">Trích dẫn này đã được lưu</string>
 
     <!-- Quote Card -->
     <string name="quote_card_title">Tạo thẻ trích dẫn</string>

@@ -83,16 +83,22 @@ public class QuoteListAdapter extends RecyclerView.Adapter<QuoteListAdapter.Quot
         }
 
         private String buildMetaText(ReaderQuote quote) {
+            List<String> parts = new ArrayList<>();
+            String bookTitle = safeText(quote.getBookTitle());
             String chapterName = safeText(quote.getChapterName());
-            String pageText = itemView.getContext().getString(
-                    R.string.reader_quote_page_format,
-                    quote.getPageNumber()
-            );
-
-            if (TextUtils.isEmpty(chapterName)) {
-                return pageText;
+            if (!TextUtils.isEmpty(bookTitle)) {
+                parts.add(bookTitle);
             }
-            return chapterName + " - " + pageText;
+            if (!TextUtils.isEmpty(chapterName)) {
+                parts.add(chapterName);
+            }
+            if (quote.getPageNumber() > 0) {
+                parts.add(itemView.getContext().getString(
+                        R.string.reader_quote_page_format,
+                        quote.getPageNumber()
+                ));
+            }
+            return TextUtils.join(" - ", parts);
         }
 
         private String safeText(String value) {

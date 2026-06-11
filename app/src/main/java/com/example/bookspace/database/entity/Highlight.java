@@ -1,5 +1,6 @@
 package com.example.bookspace.database.entity;
 
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -13,6 +14,14 @@ public class Highlight {
     public String chapterName;
     public int chapterIndex;
     public int characterOffsetStart;
+    public String bookTitle;
+    public String authorName;
+    @ColumnInfo(defaultValue = "-1")
+    public int pageNumber = -1;
+    @ColumnInfo(defaultValue = "-1")
+    public int paragraphIndex = -1;
+    @ColumnInfo(defaultValue = "0")
+    public long createdAt;
 
     public Highlight() {}
 
