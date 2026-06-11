@@ -104,8 +104,8 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
             AppDatabase.databaseWriteExecutor.execute(() -> {
                 BookDao dao = AppDatabase.getInstance(this).bookDao();
                 List<BookEntity> sampleBooks = new ArrayList<>();
-                sampleBooks.add(createBookEntity("Nhà Giả Kim", "Paulo Coelho", "https://picsum.photos/600/400?random=1", 225, "Một câu chuyện cổ tích giản dị, nhân ái, giàu chất thơ...", "VĂN HỌC"));
-                sampleBooks.add(createBookEntity("Đắc Nhân Tâm", "Dale Carnegie", "https://picsum.photos/600/400?random=2", 320, "Nghệ thuật thu phục lòng người...", "KỸ NĂNG SỐNG"));
+                sampleBooks.add(createBookEntity("Nhà Giả Kim", "Paulo Coelho", "https://picsum.photos/600/400?random=1", 225, "Một câu chuyện cổ tích giản dị, nhân ái, giàu chất thơ...", "VĂN HỌC", "books/nha_gia_kim.txt"));
+                sampleBooks.add(createBookEntity("Đắc Nhân Tâm", "Dale Carnegie", "https://picsum.photos/600/400?random=2", 320, "Nghệ thuật thu phục lòng người...", "KỸ NĂNG SỐNG", "books/dac_nhan_tam.txt"));
                 sampleBooks.add(createBookEntity("Tuổi Trẻ Đáng Giá Bao Nhiêu", "Rosie Nguyễn", "https://picsum.photos/600/400?random=3", 285, "Những kinh nghiệm thực tế của tác giả trên hành trình tuổi trẻ...", "KỸ NĂNG SỐNG"));
                 sampleBooks.add(createBookEntity("Sapiens: Lược sử loài người", "Yuval Noah Harari", "https://picsum.photos/600/400?random=4", 512, "Lịch sử tiến hóa của loài người từ thuở sơ khai...", "KINH ĐIỂN"));
                 sampleBooks.add(createBookEntity("Tâm Lý Học Tội Phạm", "Khương Luật", "https://picsum.photos/600/400?random=5", 350, "Phân tích tâm lý học tội phạm qua các vụ án có thật...", "TÂM LÝ"));
@@ -128,9 +128,14 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
     }
 
     private BookEntity createBookEntity(String title, String author, String cover, int pages, String desc, String cat) {
+        return createBookEntity(title, author, cover, pages, desc, cat, null);
+    }
+
+    private BookEntity createBookEntity(String title, String author, String cover, int pages, String desc, String cat, String bookFilePath) {
         BookEntity b = new BookEntity();
         b.title = title; b.author = author; b.coverUrl = cover; b.pages = pages; b.description = desc; b.category = cat;
         b.isDownloaded = false;
+        b.bookFilePath = bookFilePath;
         return b;
     }
 

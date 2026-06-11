@@ -2,12 +2,13 @@ package com.example.bookspace;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -22,6 +23,7 @@ import com.example.bookspace.databinding.ActivityReadingBinding;
 import com.example.bookspace.reader.BookContent;
 import com.example.bookspace.reader.BookTextParser;
 import com.example.bookspace.reader.ParagraphAdapter;
+import com.example.bookspace.reader.ReaderQuote;
 import com.example.bookspace.repository.SettingsRepository;
 
 import java.util.ArrayList;
@@ -48,6 +50,7 @@ public class ReadingActivity extends AppCompatActivity {
     private int sourceNavId = R.id.nav_reader; // Tab điều hướng đã mở màn đọc (để khôi phục khi quay lại)
     private String userId = "default_user";
     private String bookTitle = "Sách";
+    private String authorName = "";
 
     // Kindle-style pagination: mỗi "trang" chứa một nhóm paragraph vừa màn hình
     private List<List<BookContent.Paragraph>> allPages; // Danh sách tất cả các trang
@@ -55,6 +58,8 @@ public class ReadingActivity extends AppCompatActivity {
 
     private final int[] fontSizes = {16, 17, 18, 19, 20, 21, 22};
     private int fontSizeIndex = 3;
+    private static final int TAB_TOC = 0;
+    private static final int TAB_QUOTES = 1;
 
     // Theme hiện tại
     private String currentTheme = "light";
@@ -114,7 +119,8 @@ public class ReadingActivity extends AppCompatActivity {
     private void loadBookInfo() {
         BookEntity bookEntity = db.bookDao().getBookById(bookId);
         if (bookEntity != null) {
-            bookTitle = bookEntity.title;
+            bookTitle = trimToEmpty(bookEntity.title);
+            authorName = trimToEmpty(bookEntity.author);
             totalChapters = bookEntity.pages;
         }
     }
@@ -125,10 +131,11 @@ public class ReadingActivity extends AppCompatActivity {
      */
     private void loadBookContent() {
         BookEntity bookEntity = db.bookDao().getBookById(bookId);
+        String bookFilePath = resolveBookFilePath(bookEntity);
 
-        if (bookEntity != null && bookEntity.bookFilePath != null && !bookEntity.bookFilePath.isEmpty()) {
+        if (!TextUtils.isEmpty(bookFilePath)) {
             // Parse file sách thật
-            bookContent = BookTextParser.parse(this, bookEntity.bookFilePath);
+            bookContent = BookTextParser.parse(this, bookFilePath);
         }
 
         if (bookContent != null && bookContent.getChapterCount() > 0) {
@@ -151,6 +158,26 @@ public class ReadingActivity extends AppCompatActivity {
 
             totalPages = 1;
         }
+    }
+
+    private String resolveBookFilePath(BookEntity bookEntity) {
+        if (bookEntity == null) {
+            return "";
+        }
+
+        String filePath = trimToEmpty(bookEntity.bookFilePath);
+        if (!TextUtils.isEmpty(filePath)) {
+            return filePath;
+        }
+
+        String title = trimToEmpty(bookEntity.title);
+        if ("Đắc Nhân Tâm".equalsIgnoreCase(title)) {
+            return "books/dac_nhan_tam.txt";
+        }
+        if ("Nhà Giả Kim".equalsIgnoreCase(title)) {
+            return "books/nha_gia_kim.txt";
+        }
+        return "";
     }
 
     /**
@@ -362,30 +389,41 @@ public class ReadingActivity extends AppCompatActivity {
     // ====================================================================
 
     private void showTableOfContents() {
-        android.app.Dialog dialog = new android.app.Dialog(this,
+        Dialog dialog = new Dialog(this,
                 android.R.style.Theme_Translucent_NoTitleBar);
         dialog.setContentView(R.layout.bottom_sheet_toc);
 
-        dialog.getWindow().setFlags(
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setFlags(
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
+        }
 
         View tocContainer = dialog.findViewById(R.id.toc_container);
-        dialog.getWindow().getDecorView().setOnTouchListener((v, event) -> {
-            if (tocContainer != null) {
-                int[] location = new int[2];
-                tocContainer.getLocationOnScreen(location);
-                float sheetTop = location[1];
-                if (event.getY() < sheetTop) {
-                    dialog.dismiss();
-                    return true;
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().getDecorView().setOnTouchListener((v, event) -> {
+                if (tocContainer != null) {
+                    int[] location = new int[2];
+                    tocContainer.getLocationOnScreen(location);
+                    float sheetTop = location[1];
+                    if (event.getY() < sheetTop) {
+                        dialog.dismiss();
+                        return true;
+                    }
                 }
-            }
-            return false;
-        });
+                return false;
+            });
+        }
 
-        RecyclerView recyclerView = dialog.findViewById(R.id.toc_recycler);
-        if (recyclerView == null) return;
+        RecyclerView tocRecyclerView = dialog.findViewById(R.id.toc_recycler);
+        RecyclerView quoteRecyclerView = dialog.findViewById(R.id.quote_recycler);
+        TextView quoteEmptyText = dialog.findViewById(R.id.quote_empty_text);
+        TextView btnTabToc = dialog.findViewById(R.id.btn_tab_toc);
+        TextView btnTabQuotes = dialog.findViewById(R.id.btn_tab_quotes);
+        if (tocRecyclerView == null || quoteRecyclerView == null
+                || quoteEmptyText == null || btnTabToc == null || btnTabQuotes == null) {
+            return;
+        }
 
         // Xác định chương hiện tại
         int currentChapterIdx = 0;
@@ -393,34 +431,200 @@ public class ReadingActivity extends AppCompatActivity {
             currentChapterIdx = pageToChapterMap.get(currentPage - 1);
         }
 
-        TocAdapter adapter = new TocAdapter(chapterNames);
-        adapter.setListener(position -> {
+        tocAdapter = new TocAdapter(chapterNames);
+        tocAdapter.setListener(position -> {
             // Tìm trang đầu tiên của chương được chọn
             goToChapter(position);
             dialog.dismiss();
         });
-        adapter.setCurrentChapter(currentChapterIdx + 1);
+        tocAdapter.setCurrentChapter(currentChapterIdx + 1);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
+        tocRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        tocRecyclerView.setAdapter(tocAdapter);
         int finalIdx = currentChapterIdx;
-        recyclerView.post(() ->
-                recyclerView.scrollToPosition(Math.max(0, finalIdx)));
+        tocRecyclerView.post(() ->
+                tocRecyclerView.scrollToPosition(Math.max(0, finalIdx)));
 
-        dialog.show();
+        List<ReaderQuote> quotes = collectReaderQuotes();
+        QuoteListAdapter quoteAdapter = new QuoteListAdapter(quotes);
+        setupQuoteActions(quoteAdapter, dialog);
+        quoteRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        quoteRecyclerView.setAdapter(quoteAdapter);
+
+        btnTabToc.setOnClickListener(v -> showTocTab(
+                TAB_TOC,
+                tocRecyclerView,
+                quoteRecyclerView,
+                quoteEmptyText,
+                btnTabToc,
+                btnTabQuotes,
+                !quotes.isEmpty()
+        ));
+        btnTabQuotes.setOnClickListener(v -> showTocTab(
+                TAB_QUOTES,
+                tocRecyclerView,
+                quoteRecyclerView,
+                quoteEmptyText,
+                btnTabToc,
+                btnTabQuotes,
+                !quotes.isEmpty()
+        ));
+        showTocTab(
+                TAB_TOC,
+                tocRecyclerView,
+                quoteRecyclerView,
+                quoteEmptyText,
+                btnTabToc,
+                btnTabQuotes,
+                !quotes.isEmpty()
+        );
 
         // Chiều cao dialog = 90% chiều cao màn hình
         int screenHeight = getResources().getDisplayMetrics().heightPixels;
         int dialogHeight = (int) (screenHeight * 0.90f);
 
-        WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
-        params.width = WindowManager.LayoutParams.MATCH_PARENT;
-        params.height = dialogHeight;
-        params.gravity = android.view.Gravity.BOTTOM;
-        dialog.getWindow().setAttributes(params);
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-
         dialog.show();
+
+        if (dialog.getWindow() != null) {
+            WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
+            params.width = WindowManager.LayoutParams.MATCH_PARENT;
+            params.height = dialogHeight;
+            params.gravity = android.view.Gravity.BOTTOM;
+            dialog.getWindow().setAttributes(params);
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+    }
+
+    private void showTocTab(int selectedTab,
+                            RecyclerView tocRecyclerView,
+                            RecyclerView quoteRecyclerView,
+                            TextView quoteEmptyText,
+                            TextView btnTabToc,
+                            TextView btnTabQuotes,
+                            boolean hasQuotes) {
+        boolean showQuotes = selectedTab == TAB_QUOTES;
+        tocRecyclerView.setVisibility(showQuotes ? View.GONE : View.VISIBLE);
+        quoteRecyclerView.setVisibility(showQuotes && hasQuotes ? View.VISIBLE : View.GONE);
+        quoteEmptyText.setVisibility(showQuotes && !hasQuotes ? View.VISIBLE : View.GONE);
+
+        updateTocTabButton(btnTabToc, !showQuotes);
+        updateTocTabButton(btnTabQuotes, showQuotes);
+    }
+
+    private void updateTocTabButton(TextView tab, boolean selected) {
+        tab.setBackgroundResource(selected ? R.drawable.reading_btn_bg : 0);
+        tab.setTextColor(ContextCompat.getColor(this,
+                selected ? R.color.on_surface : R.color.on_surface_variant));
+    }
+
+    private void setupQuoteActions(QuoteListAdapter quoteAdapter, Dialog dialog) {
+        quoteAdapter.setListener(quote -> {
+            if (openQuoteCard(quote)) {
+                dialog.dismiss();
+            }
+        });
+    }
+
+    private boolean openQuoteCard(ReaderQuote quote) {
+        String quoteText = getSafeQuoteText(quote);
+        if (TextUtils.isEmpty(quoteText)) {
+            Toast.makeText(this, R.string.reader_quote_empty_toast, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        startActivity(QuoteCardActivity.createIntent(
+                this,
+                quoteText,
+                getSafeBookTitle(),
+                getSafeAuthorName(),
+                getSafeChapterName(quote),
+                getSafeChapterIndex(quote),
+                getSafePageNumber(quote)
+        ));
+        return true;
+    }
+
+    private List<ReaderQuote> collectReaderQuotes() {
+        List<ReaderQuote> quotes = new ArrayList<>();
+        if (allPages == null) {
+            return quotes;
+        }
+
+        for (int pageIndex = 0; pageIndex < allPages.size(); pageIndex++) {
+            List<BookContent.Paragraph> paragraphs = allPages.get(pageIndex);
+            if (paragraphs == null) {
+                continue;
+            }
+
+            int chapterIndex = getChapterIndexForPage(pageIndex);
+            String chapterName = getSafeChapterName(chapterIndex);
+            for (BookContent.Paragraph paragraph : paragraphs) {
+                if (paragraph != null && paragraph.getType() == BookContent.Paragraph.TYPE_QUOTE) {
+                    quotes.add(new ReaderQuote(
+                            paragraph.getText(),
+                            chapterName,
+                            chapterIndex,
+                            pageIndex + 1
+                    ));
+                }
+            }
+        }
+
+        return quotes;
+    }
+
+    private int getChapterIndexForPage(int pageIndex) {
+        if (pageToChapterMap != null && pageIndex >= 0 && pageIndex < pageToChapterMap.size()) {
+            return pageToChapterMap.get(pageIndex);
+        }
+        return -1;
+    }
+
+    private String getSafeChapterName(int chapterIndex) {
+        if (chapterNames != null && chapterIndex >= 0 && chapterIndex < chapterNames.size()) {
+            return trimToEmpty(chapterNames.get(chapterIndex));
+        }
+        return "";
+    }
+
+    private String getSafeQuoteText(ReaderQuote quote) {
+        if (quote == null) {
+            return "";
+        }
+        return trimToEmpty(quote.getText());
+    }
+
+    private String getSafeChapterName(ReaderQuote quote) {
+        if (quote == null) {
+            return "";
+        }
+        return trimToEmpty(quote.getChapterName());
+    }
+
+    private int getSafeChapterIndex(ReaderQuote quote) {
+        if (quote == null) {
+            return -1;
+        }
+        return quote.getChapterIndex();
+    }
+
+    private int getSafePageNumber(ReaderQuote quote) {
+        if (quote == null) {
+            return -1;
+        }
+        return quote.getPageNumber();
+    }
+
+    private String getSafeBookTitle() {
+        return trimToEmpty(bookTitle);
+    }
+
+    private String getSafeAuthorName() {
+        return trimToEmpty(authorName);
+    }
+
+    private String trimToEmpty(String value) {
+        return value == null ? "" : value.trim();
     }
 
     /**
