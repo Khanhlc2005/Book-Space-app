@@ -34,6 +34,9 @@
     <string name="cat_classic">Kinh điển</string>
     <string name="cat_economics">Kinh tế</string>
     <string name="cat_literature">Văn học</string>
+    <string name="cat_science">Khoa học</string>
+    <string name="cat_history">Lịch sử</string>
+    <string name="category_empty">Chưa có sách trong thể loại này</string>
 
     <!-- Featured Section -->
     <string name="section_featured">Nổi bật trong tuần</string>
@@ -46,6 +49,8 @@
 
     <!-- Recently Updated Section -->
     <string name="section_recent">Mới cập nhật</string>
+    <string name="section_learning">Học từ sách</string>
+    <string name="section_recommended">Gợi ý cho bạn</string>
     <string name="see_all">Xem tất cả</string>
 
     <!-- Books -->
@@ -149,6 +154,7 @@
 
     <!-- Content Descriptions -->
     <string name="cd_notification">Thông báo</string>
+    <string name="cd_menu">Menu</string>
     <string name="cd_profile">Hồ sơ cá nhân</string>
     <string name="cd_profile_avatar">Ảnh đại diện</string>
     <string name="cd_back">Quay lại</string>

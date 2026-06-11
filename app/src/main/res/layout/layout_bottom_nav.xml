@@ -7,7 +7,7 @@
 
     <LinearLayout
         android:id="@+id/bottomNavContainer"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
@@ -15,7 +15,11 @@
         android:elevation="16dp"
         android:paddingTop="12dp"
         android:paddingBottom="24dp"
-        android:paddingHorizontal="16dp">
+        android:paddingHorizontal="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <!-- Trang chủ -->
         <LinearLayout

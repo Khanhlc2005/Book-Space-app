@@ -19,22 +19,32 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
 
     private List<Book> list;
     private boolean isSearchMode; // true: list view (no image), false: grid view (with image)
+    private boolean isGridMode;
     private OnBookClickListener listener;
 
     public BookAdapter(List<Book> list, OnBookClickListener listener) {
-        this.list = list;
+        this.list = list != null ? list : new java.util.ArrayList<>();
         this.isSearchMode = false;
+        this.isGridMode = false;
+        this.listener = listener;
+    }
+
+    public BookAdapter(List<Book> list, OnBookClickListener listener, boolean isGridMode) {
+        this.list = list != null ? list : new java.util.ArrayList<>();
+        this.isSearchMode = false;
+        this.isGridMode = isGridMode;
         this.listener = listener;
     }
 
     public BookAdapter(List<Book> list, boolean isSearchMode, OnBookClickListener listener) {
-        this.list = list;
+        this.list = list != null ? list : new java.util.ArrayList<>();
         this.isSearchMode = isSearchMode;
+        this.isGridMode = false;
         this.listener = listener;
     }
 
     public void updateData(List<Book> newList) {
-        this.list = newList;
+        this.list = newList != null ? newList : new java.util.ArrayList<>();
         notifyDataSetChanged();
     }
 
@@ -49,7 +59,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
         } else {
             // Layout dạng lưới có hình ảnh cho các Category
             View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.list_item_book_rview, parent, false);
+                    .inflate(isGridMode ? R.layout.item_book_grid : R.layout.list_item_book_rview, parent, false);
             return new ViewHolder(v, false);
         }
     }
@@ -57,14 +67,15 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Book b = list.get(position);
-        holder.title.setText(b.getTitle());
-        holder.author.setText(b.getAuthor());
+        holder.title.setText(safeText(b == null ? null : b.getTitle()));
+        holder.author.setText(safeText(b == null ? null : b.getAuthor()));
 
         if (!isSearchMode && holder.imgCover != null) {
             // Load ảnh bìa bằng Glide (chỉ cho Grid View)
-            if (b.getCoverUrl() != null && !b.getCoverUrl().isEmpty()) {
+            String coverUrl = b == null ? "" : safeText(b.getCoverUrl());
+            if (!coverUrl.isEmpty()) {
                 Glide.with(holder.itemView.getContext())
-                        .load(b.getCoverUrl())
+                        .load(coverUrl)
                         .transform(new CenterCrop(), new RoundedCorners(24))
                         .into(holder.imgCover);
             } else {
@@ -73,7 +84,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
         }
 
         holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
+            if (listener != null && b != null) {
                 listener.onBookClick(b);
             }
         });
@@ -81,7 +92,11 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return list == null ? 0 : list.size();
+    }
+
+    private String safeText(String value) {
+        return value == null ? "" : value.trim();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

@@ -1,6 +1,8 @@
 package com.example.bookspace;
 
 import android.app.Dialog;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -30,6 +32,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReadingActivity extends AppCompatActivity {
+    public static final String EXTRA_BOOK_ID = "BOOK_ID";
+    public static final String EXTRA_SOURCE_PAGE = "SOURCE_PAGE";
+
+    private static final String PREFS_READING = "bookspace_reading";
+    private static final String KEY_LAST_BOOK_ID = "last_book_id";
+    private static final int INVALID_BOOK_ID = -1;
 
     private ActivityReadingBinding binding;
     private AppDatabase db;
@@ -46,7 +54,7 @@ public class ReadingActivity extends AppCompatActivity {
     private int currentPage = 1;     // Trang hiện tại (global, tính trên toàn bộ sách)
     private int totalPages = 1;      // Tổng số trang
     private int totalChapters = 1;   // Tổng số chương (theo metadata sách)
-    private int bookId = 1;
+    private int bookId = INVALID_BOOK_ID;
     private int sourceNavId = R.id.nav_reader; // Tab điều hướng đã mở màn đọc (để khôi phục khi quay lại)
     private String userId = "default_user";
     private String bookTitle = "Sách";
@@ -65,6 +73,29 @@ public class ReadingActivity extends AppCompatActivity {
     private String currentTheme = "light";
     private String currentFont = "literata";
 
+    public static Intent createIntent(Context context, int bookId) {
+        return createIntent(context, bookId, R.id.nav_reader);
+    }
+
+    public static Intent createIntent(Context context, int bookId, int sourceNavId) {
+        Intent intent = new Intent(context, ReadingActivity.class);
+        intent.putExtra(EXTRA_BOOK_ID, bookId);
+        intent.putExtra(EXTRA_SOURCE_PAGE, sourceNavId);
+        return intent;
+    }
+
+    public static int getLastBookId(Context context) {
+        return context.getSharedPreferences(PREFS_READING, Context.MODE_PRIVATE)
+                .getInt(KEY_LAST_BOOK_ID, INVALID_BOOK_ID);
+    }
+
+    private static void saveLastBookId(Context context, int bookId) {
+        context.getSharedPreferences(PREFS_READING, Context.MODE_PRIVATE)
+                .edit()
+                .putInt(KEY_LAST_BOOK_ID, bookId)
+                .apply();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,9 +107,10 @@ public class ReadingActivity extends AppCompatActivity {
         userId = SessionManager.getCurrentUserId(this);
         settingsRepo = new SettingsRepository(this);
 
-        // Nhận bookId từ Intent
-        bookId = getIntent().getIntExtra("BOOK_ID", 1);
-        sourceNavId = getIntent().getIntExtra("SOURCE_PAGE", R.id.nav_reader);
+        if (!readIntentData()) {
+            finish();
+            return;
+        }
 
         // Setup RecyclerView cho nội dung
         paragraphAdapter = new ParagraphAdapter();
@@ -86,7 +118,10 @@ public class ReadingActivity extends AppCompatActivity {
         binding.rvContent.setAdapter(paragraphAdapter);
 
         // Tải thông tin sách và nội dung
-        loadBookInfo();
+        if (!loadBookInfo()) {
+            finish();
+            return;
+        }
         loadBookContent();
 
         // Load cài đặt đọc đã lưu (Phase 4)
@@ -112,17 +147,31 @@ public class ReadingActivity extends AppCompatActivity {
         saveReadingProgress();
     }
 
+    private boolean readIntentData() {
+        bookId = getIntent().getIntExtra(EXTRA_BOOK_ID, INVALID_BOOK_ID);
+        sourceNavId = getIntent().getIntExtra(EXTRA_SOURCE_PAGE, R.id.nav_reader);
+        if (bookId <= 0) {
+            Toast.makeText(this, "Không tìm thấy sách để đọc", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
     // ====================================================================
     // LOAD DỮ LIỆU
     // ====================================================================
 
-    private void loadBookInfo() {
+    private boolean loadBookInfo() {
         BookEntity bookEntity = db.bookDao().getBookById(bookId);
         if (bookEntity != null) {
             bookTitle = trimToEmpty(bookEntity.title);
             authorName = trimToEmpty(bookEntity.author);
             totalChapters = bookEntity.pages;
+            saveLastBookId(this, bookId);
+            return true;
         }
+        Toast.makeText(this, "Không tìm thấy dữ liệu sách", Toast.LENGTH_SHORT).show();
+        return false;
     }
 
     /**
@@ -235,6 +284,9 @@ public class ReadingActivity extends AppCompatActivity {
     }
 
     private void saveReadingProgress() {
+        if (bookId <= 0) {
+            return;
+        }
         ReadingProgressEntity progress = new ReadingProgressEntity();
         progress.userId = userId;
         progress.bookId = bookId;

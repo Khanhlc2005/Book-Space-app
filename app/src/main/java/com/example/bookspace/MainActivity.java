@@ -6,10 +6,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +19,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.CompositePageTransformer;
@@ -39,6 +41,9 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
     private ActivityMainBinding binding;
     private BookRepository bookRepository;
     private int currentNavId = R.id.nav_home;
+    private int currentSideMenuItemId = R.id.nav_cat_all;
+    private String currentCategory = "";
+    private boolean showingCategory = false;
     private final Handler sliderHandler = new Handler();
     private final Runnable sliderRunnable = new Runnable() {
         @Override
@@ -92,15 +97,16 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
 
         setupStaticUI();
         setupFeaturedViewPager();
-        setupDrawerMenu();
+        setupSideMenu();
         setupBottomNav();
         setupRecyclerViews();
         setupSearch();
+        showHomeContent();
         seedDatabase();
     }
 
     private void seedDatabase() {
-        if (bookRepository.getAllBooks().size() < 14) {
+        if (bookRepository.getAllBooks().size() < 18) {
             AppDatabase.databaseWriteExecutor.execute(() -> {
                 BookDao dao = AppDatabase.getInstance(this).bookDao();
                 List<BookEntity> sampleBooks = new ArrayList<>();
@@ -118,10 +124,21 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
                 sampleBooks.add(createBookEntity("Veronika Quyết Chết", "Paulo Coelho", "https://picsum.photos/600/400?random=12", 256, "Một hành trình nhìn lại ý nghĩa sống qua lựa chọn và tự do cá nhân.", "VĂN HỌC"));
                 sampleBooks.add(createBookEntity("Homo Deus", "Yuval Noah Harari", "https://picsum.photos/600/400?random=13", 480, "Tác giả tiếp tục đặt câu hỏi về tương lai nhân loại và công nghệ.", "KINH ĐIỂN"));
                 sampleBooks.add(createBookEntity("Hành Trình Về Phương Đông", "Nguyên Phong", "https://picsum.photos/600/400?random=14", 320, "Những ghi chép về văn hóa, triết học và trải nghiệm tâm linh phương Đông.", "TÂM LÝ"));
-                dao.insertAll(sampleBooks);
+                sampleBooks.add(createBookEntity("Lược Sử Thời Gian", "Stephen Hawking", "https://picsum.photos/600/400?random=15", 256, "Khám phá vũ trụ, thời gian và những câu hỏi lớn của khoa học hiện đại.", "KHOA HỌC"));
+                sampleBooks.add(createBookEntity("Vũ Trụ Trong Vỏ Hạt Dẻ", "Stephen Hawking", "https://picsum.photos/600/400?random=16", 288, "Một cách tiếp cận dễ hiểu hơn về vũ trụ học và vật lý hiện đại.", "KHOA HỌC"));
+                sampleBooks.add(createBookEntity("Việt Nam Sử Lược", "Trần Trọng Kim", "https://picsum.photos/600/400?random=17", 420, "Tổng quan lịch sử Việt Nam qua các thời kỳ quan trọng.", "LỊCH SỬ"));
+                sampleBooks.add(createBookEntity("Súng, Vi Trùng Và Thép", "Jared Diamond", "https://picsum.photos/600/400?random=18", 496, "Góc nhìn lịch sử và địa lý về sự phát triển của các nền văn minh.", "LỊCH SỬ"));
+                for (BookEntity book : sampleBooks) {
+                    if (dao.findByTitleAndAuthor(book.title, book.author) == null) {
+                        dao.insert(book);
+                    }
+                }
                 runOnUiThread(() -> {
                     setupRecyclerViews();
                     setupFeaturedViewPager();
+                    if (showingCategory) {
+                        showCategoryContent(currentCategory, currentSideMenuItemId);
+                    }
                 });
             });
         }
@@ -143,9 +160,9 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
     protected void onResume() {
         super.onResume();
         sliderHandler.postDelayed(sliderRunnable, 3000);
-        int activeColor = ContextCompat.getColor(this, R.color.teal_600);
-        int inactiveColor = ContextCompat.getColor(this, R.color.nav_inactive);
-        updateBottomNavUi(currentNavId, activeColor, inactiveColor);
+        currentNavId = R.id.nav_home;
+        updateBottomNavSelection(R.id.nav_home);
+        updateSideMenuSelection(currentSideMenuItemId);
     }
 
     @Override
@@ -163,27 +180,22 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         binding.main.requestFocus();
     }
 
-    private void setupDrawerMenu() {
+    private void setupSideMenu() {
         binding.navigationView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
-            String category = null;
-
-            if (id == R.id.nav_cat_all) category = getString(R.string.cat_all);
-            else if (id == R.id.nav_cat_life_skills) category = getString(R.string.cat_life_skills);
-            else if (id == R.id.nav_cat_psychology) category = getString(R.string.cat_psychology);
-            else if (id == R.id.nav_cat_classic) category = getString(R.string.cat_classic);
-            else if (id == R.id.nav_cat_economics) category = getString(R.string.cat_economics);
-            else if (id == R.id.nav_cat_literature) category = getString(R.string.cat_literature);
-
-            if (category != null) {
-                Intent intent = new Intent(this, CategoryActivity.class);
-                intent.putExtra("CATEGORY_NAME", category);
-                startActivity(intent);
+            if (id == R.id.nav_cat_all) {
+                showHomeContent();
+            } else {
+                String category = getCategoryForMenuItem(id);
+                if (!category.isEmpty()) {
+                    onCategorySelected(category, id);
+                }
             }
 
             binding.drawerLayout.closeDrawer(GravityCompat.START);
             return true;
         });
+        updateSideMenuSelection(R.id.nav_cat_all);
     }
 
     private void setupFeaturedViewPager() {
@@ -195,30 +207,172 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         FeaturedBookAdapter adapter = new FeaturedBookAdapter(listFeatured, this);
         binding.vpFeaturedBooks.setAdapter(adapter);
         binding.vpFeaturedBooks.setOffscreenPageLimit(3);
-        binding.vpFeaturedBooks.getChildAt(0).setOverScrollMode(RecyclerView.OVER_SCROLL_NEVER);
+        View child = binding.vpFeaturedBooks.getChildAt(0);
+        if (child instanceof RecyclerView) {
+            child.setOverScrollMode(RecyclerView.OVER_SCROLL_NEVER);
+        }
         CompositePageTransformer transformer = new CompositePageTransformer();
         transformer.addTransformer(new MarginPageTransformer(40));
         binding.vpFeaturedBooks.setPageTransformer(transformer);
     }
 
     private void setupRecyclerViews() {
-        // Lấy tất cả sách từ DB hiển thị ở "Mới cập nhật"
-        List<BookEntity> allBooks = bookRepository.getAllBooks();
-        List<Book> listRecent = new ArrayList<>();
-        for (BookEntity entity : allBooks) listRecent.add(Book.fromEntity(entity));
+        List<Book> allBooks = toBooks(bookRepository.getAllBooks());
 
-        binding.rvRecentlyUpdated.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
-        binding.rvRecentlyUpdated.setAdapter(new BookAdapter(listRecent, this));
+        setupBookSection(binding.rvRecentlyUpdated, allBooks);
 
-        // Lọc sách "Tiểu thuyết" từ DB
-        List<BookEntity> novelEntities = bookRepository.getByCategory("TIỂU THUYẾT");
-        List<Book> listNovel = new ArrayList<>();
-        for (BookEntity e : novelEntities) {
-            listNovel.add(Book.fromEntity(e));
+        List<Book> literatureBooks = toBooks(bookRepository.getByCategory("VĂN HỌC"));
+        if (literatureBooks.isEmpty()) {
+            literatureBooks = toBooks(bookRepository.getByCategory("TIỂU THUYẾT"));
         }
+        setupBookSection(binding.rvNovels, literatureBooks);
+        setupBookSection(binding.rvLearningBooks, getLearningBooks(allBooks));
+        setupBookSection(binding.rvRecommendedBooks, getRecommendedBooks(allBooks));
+    }
 
-        binding.rvNovels.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
-        binding.rvNovels.setAdapter(new BookAdapter(listNovel, this));
+    private void setupBookSection(RecyclerView recyclerView, List<Book> books) {
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
+        recyclerView.setAdapter(new BookAdapter(books == null ? new ArrayList<>() : books, this));
+    }
+
+    private List<Book> toBooks(List<BookEntity> entities) {
+        List<Book> books = new ArrayList<>();
+        if (entities == null) {
+            return books;
+        }
+        for (BookEntity entity : entities) {
+            if (entity != null) {
+                books.add(Book.fromEntity(entity));
+            }
+        }
+        return books;
+    }
+
+    private List<Book> getLearningBooks(List<Book> allBooks) {
+        List<Book> books = new ArrayList<>();
+        if (allBooks == null) {
+            return books;
+        }
+        for (Book book : allBooks) {
+            String category = normalizeText(book == null ? "" : book.getCategory());
+            if (category.contains("KỸ NĂNG")
+                    || category.contains("KHOA HỌC")
+                    || category.contains("TÂM LÝ")) {
+                books.add(book);
+            }
+        }
+        return books;
+    }
+
+    private List<Book> getRecommendedBooks(List<Book> allBooks) {
+        List<Book> books = new ArrayList<>();
+        if (allBooks == null) {
+            return books;
+        }
+        for (int i = 0; i < allBooks.size(); i++) {
+            Book book = allBooks.get(i);
+            if (book != null && i % 2 == 0) {
+                books.add(book);
+            }
+        }
+        if (books.isEmpty()) {
+            books.addAll(allBooks);
+        }
+        return books;
+    }
+
+    private void onCategorySelected(String category, int menuItemId) {
+        showCategoryContent(category, menuItemId);
+    }
+
+    private void showHomeContent() {
+        showingCategory = false;
+        currentCategory = "";
+        currentSideMenuItemId = R.id.nav_cat_all;
+        binding.txtAppTitle.setText(R.string.app_title);
+        binding.btnMenu.setImageResource(R.drawable.ic_toc);
+        binding.btnMenu.setContentDescription(getString(R.string.cd_menu));
+        binding.btnMenu.setOnClickListener(v -> binding.drawerLayout.openDrawer(GravityCompat.START));
+        binding.searchBarCard.setVisibility(View.VISIBLE);
+        setHomeSectionsVisible(true);
+        binding.categoryContent.setVisibility(View.GONE);
+        binding.emptyStateCategory.getRoot().setVisibility(View.GONE);
+        updateSideMenuSelection(R.id.nav_cat_all);
+    }
+
+    private void showCategoryContent(String category, int menuItemId) {
+        showingCategory = true;
+        currentCategory = category == null ? "" : category.trim();
+        currentSideMenuItemId = menuItemId;
+        binding.txtAppTitle.setText(currentCategory);
+        binding.btnMenu.setImageResource(R.drawable.ic_arrow_back);
+        binding.btnMenu.setContentDescription(getString(R.string.cd_back));
+        binding.btnMenu.setOnClickListener(v -> showHomeContent());
+        binding.searchInput.setText("");
+        binding.searchBarCard.setVisibility(View.GONE);
+        binding.recyclerBooks.setVisibility(View.GONE);
+        binding.emptyStateSearch.getRoot().setVisibility(View.GONE);
+        setHomeSectionsVisible(false);
+        binding.categoryContent.setVisibility(View.VISIBLE);
+        updateSideMenuSelection(menuItemId);
+
+        List<Book> books = toBooks(bookRepository.getByCategory(normalizeCategoryForQuery(currentCategory)));
+        setupCategoryGrid(books);
+        updateCategoryEmptyState(books.isEmpty());
+    }
+
+    private void setupCategoryGrid(List<Book> books) {
+        binding.rvCategoryBooks.setLayoutManager(new GridLayoutManager(this, 2));
+        binding.rvCategoryBooks.setAdapter(new BookAdapter(books == null ? new ArrayList<>() : books, this, true));
+    }
+
+    private void updateCategoryEmptyState(boolean empty) {
+        binding.rvCategoryBooks.setVisibility(empty ? View.GONE : View.VISIBLE);
+        binding.emptyStateCategory.getRoot().setVisibility(empty ? View.VISIBLE : View.GONE);
+        if (empty) {
+            binding.emptyStateCategory.imgEmptyIcon.setImageResource(R.drawable.ic_menu_book);
+            binding.emptyStateCategory.txtEmptyMessage.setText(R.string.category_empty);
+        }
+    }
+
+    private void setHomeSectionsVisible(boolean visible) {
+        int visibility = visible ? View.VISIBLE : View.GONE;
+        binding.txtSectionFeatured.setVisibility(visibility);
+        binding.vpFeaturedBooks.setVisibility(visibility);
+        binding.txtSectionRecent.setVisibility(visibility);
+        binding.rvRecentlyUpdated.setVisibility(visibility);
+        binding.txtSectionCategory.setVisibility(visibility);
+        binding.rvNovels.setVisibility(visibility);
+        binding.txtSectionLearn.setVisibility(visibility);
+        binding.rvLearningBooks.setVisibility(visibility);
+        binding.txtSectionRecommended.setVisibility(visibility);
+        binding.rvRecommendedBooks.setVisibility(visibility);
+    }
+
+    private void updateSideMenuSelection(int menuItemId) {
+        MenuItem item = binding.navigationView.getMenu().findItem(menuItemId);
+        if (item != null) {
+            item.setChecked(true);
+        }
+    }
+
+    private String getCategoryForMenuItem(int itemId) {
+        if (itemId == R.id.nav_cat_life_skills) return getString(R.string.cat_life_skills);
+        if (itemId == R.id.nav_cat_psychology) return getString(R.string.cat_psychology);
+        if (itemId == R.id.nav_cat_classic) return getString(R.string.cat_classic);
+        if (itemId == R.id.nav_cat_science) return getString(R.string.cat_science);
+        if (itemId == R.id.nav_cat_history) return getString(R.string.cat_history);
+        if (itemId == R.id.nav_cat_economics) return getString(R.string.cat_economics);
+        if (itemId == R.id.nav_cat_literature) return getString(R.string.cat_literature);
+        return "";
+    }
+
+    private String normalizeCategoryForQuery(String category) {
+        return normalizeText(category);
+    }
+
+    private String normalizeText(String value) {
+        return value == null ? "" : value.trim().toUpperCase(Locale.ROOT);
     }
 
     private void setupSearch() {
@@ -256,43 +410,51 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
     }
 
     private void setupBottomNav() {
-        int activeColor = ContextCompat.getColor(this, R.color.teal_600);
-        int inactiveColor = ContextCompat.getColor(this, R.color.nav_inactive);
-
         binding.bottomNav.navHome.setOnClickListener(v -> {
-            if (currentNavId != R.id.nav_home) {
-                currentNavId = R.id.nav_home;
-                updateBottomNavUi(R.id.nav_home, activeColor, inactiveColor);
-            }
+            currentNavId = R.id.nav_home;
+            updateBottomNavSelection(R.id.nav_home);
         });
         binding.bottomNav.navReader.setOnClickListener(v -> {
-            if (currentNavId != R.id.nav_reader) {
-                currentNavId = R.id.nav_reader;
-                updateBottomNavUi(R.id.nav_reader, activeColor, inactiveColor);
-            }
-            startActivity(new Intent(this, ReadingActivity.class));
+            openLastReadingBook();
         });
         binding.bottomNav.navLibrary.setOnClickListener(v -> {
-            if (currentNavId != R.id.nav_library) {
-                currentNavId = R.id.nav_library;
-                updateBottomNavUi(R.id.nav_library, activeColor, inactiveColor);
-            }
+            currentNavId = R.id.nav_library;
+            updateBottomNavSelection(R.id.nav_library);
             startActivity(new Intent(this, FavouritesActivity.class));
         });
     }
 
-    private void updateBottomNavUi(int activeId, int activeColor, int inactiveColor) {
-        binding.bottomNav.iconHome.setColorFilter(activeId == R.id.nav_home ? activeColor : inactiveColor);
-        binding.bottomNav.textHome.setTextColor(activeId == R.id.nav_home ? activeColor : inactiveColor);
-        binding.bottomNav.navHome.setBackgroundResource(activeId == R.id.nav_home ? R.drawable.bottom_nav_active_bg : 0);
+    private void openLastReadingBook() {
+        int lastBookId = getLastReadableBookId();
+        if (lastBookId > 0) {
+            startActivity(ReadingActivity.createIntent(this, lastBookId, R.id.nav_home));
+            return;
+        }
 
-        binding.bottomNav.iconLibrary.setColorFilter(activeId == R.id.nav_library ? activeColor : inactiveColor);
-        binding.bottomNav.textLibrary.setTextColor(activeId == R.id.nav_library ? activeColor : inactiveColor);
-        binding.bottomNav.navLibrary.setBackgroundResource(activeId == R.id.nav_library ? R.drawable.bottom_nav_active_bg : 0);
+        Toast.makeText(this, "Chưa có sách đang đọc", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(this, CurrentlyReadingListActivity.class));
+    }
 
-        binding.bottomNav.iconReader.setColorFilter(activeId == R.id.nav_reader ? activeColor : inactiveColor);
-        binding.bottomNav.textReader.setTextColor(activeId == R.id.nav_reader ? activeColor : inactiveColor);
-        binding.bottomNav.navReader.setBackgroundResource(activeId == R.id.nav_reader ? R.drawable.bottom_nav_active_bg : 0);
+    private int getLastReadableBookId() {
+        int lastBookId = ReadingActivity.getLastBookId(this);
+        if (isValidBookId(lastBookId)) {
+            return lastBookId;
+        }
+
+        ProgressRepository progressRepository = new ProgressRepository(this);
+        List<BookEntity> booksInProgress = progressRepository.getBooksInReadingProgress();
+        if (booksInProgress != null && !booksInProgress.isEmpty()) {
+            return booksInProgress.get(0).id;
+        }
+        return -1;
+    }
+
+    private boolean isValidBookId(int bookId) {
+        return bookId > 0 && bookRepository.getBookById(bookId) != null;
+    }
+
+    private void updateBottomNavSelection(int activeId) {
+        updateBottomNavIcon(this, activeId);
     }
 
     /**

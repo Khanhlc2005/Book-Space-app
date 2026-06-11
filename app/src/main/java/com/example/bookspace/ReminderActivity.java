@@ -110,40 +110,61 @@ public class ReminderActivity extends AppCompatActivity implements ReminderAdapt
 
     private void scheduleAlarm(ReminderEntity reminder) {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, ReminderReceiver.class);
-        intent.setAction(ReminderReceiver.ACTION_SHOW_REMINDER);
-        // Dùng ID làm requestCode để phân biệt các báo thức khác nhau
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                this, reminder.id, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
+        PendingIntent pendingIntent = createReminderPendingIntent(reminder);
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, reminder.hour);
         calendar.set(Calendar.MINUTE, reminder.minute);
         calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
 
         if (calendar.before(Calendar.getInstance())) {
             calendar.add(Calendar.DATE, 1);
         }
 
         if (alarmManager != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-            } else {
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-            }
+            scheduleAlarmSafely(alarmManager, calendar.getTimeInMillis(), pendingIntent);
         }
     }
 
     private void cancelAlarm(ReminderEntity reminder) {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, ReminderReceiver.class);
-        intent.setAction(ReminderReceiver.ACTION_SHOW_REMINDER);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                this, reminder.id, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
+        PendingIntent pendingIntent = createReminderPendingIntent(reminder);
         if (alarmManager != null) {
             alarmManager.cancel(pendingIntent);
+        }
+    }
+
+    private PendingIntent createReminderPendingIntent(ReminderEntity reminder) {
+        Intent intent = new Intent(this, ReminderReceiver.class);
+        intent.setAction(ReminderReceiver.ACTION_SHOW_REMINDER);
+        intent.putExtra(ReminderReceiver.EXTRA_REMINDER_ID, reminder.id);
+        intent.putExtra(ReminderReceiver.EXTRA_REMINDER_HOUR, reminder.hour);
+        intent.putExtra(ReminderReceiver.EXTRA_REMINDER_MINUTE, reminder.minute);
+        return PendingIntent.getBroadcast(
+                this, reminder.id, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+    }
+
+    private void scheduleAlarmSafely(AlarmManager alarmManager, long triggerAtMillis, PendingIntent pendingIntent) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+            scheduleInexactAlarm(alarmManager, triggerAtMillis, pendingIntent);
+            Toast.makeText(this, "Nhắc nhở đã được đặt, thời gian có thể không chính xác tuyệt đối", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+        } else {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+        }
+    }
+
+    private void scheduleInexactAlarm(AlarmManager alarmManager, long triggerAtMillis, PendingIntent pendingIntent) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+        } else {
+            alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
         }
     }
 }
