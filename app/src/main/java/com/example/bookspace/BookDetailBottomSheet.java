@@ -289,9 +289,16 @@ public final class BookDetailBottomSheet {
             }
         }
         if (imgPrimaryActionIcon != null) {
-            imgPrimaryActionIcon.setImageResource(isDownloaded
-                    ? R.drawable.ic_menu_book
-                    : R.drawable.ic_download);
+            if (isDownloading) {
+                imgPrimaryActionIcon.setImageResource(R.drawable.ic_download);
+            } else {
+                imgPrimaryActionIcon.setImageResource(isDownloaded
+                        ? R.drawable.ic_menu_book
+                        : R.drawable.ic_download);
+            }
+            imgPrimaryActionIcon.setImageTintList(
+                    android.content.res.ColorStateList.valueOf(
+                            ContextCompat.getColor(activity, R.color.on_primary)));
         }
         if (txtDownloadStatus != null) {
             if (isDownloading) {
