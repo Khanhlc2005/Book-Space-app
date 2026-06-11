@@ -1,6 +1,7 @@
 package com.example.bookspace.database;
 
 import android.content.Context;
+import android.database.Cursor;
 
 import androidx.annotation.NonNull;
 import androidx.room.Database;
@@ -45,7 +46,7 @@ import java.util.concurrent.Executors;
         ChallengeEntity.class,
         Highlight.class
     },
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -71,7 +72,8 @@ public abstract class AppDatabase extends RoomDatabase {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             AppDatabase.class, "bookspace_room_db")
                             .allowMainThreadQueries() // Mặc định cho phép học tập/Đồ án
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4,
+                                    MIGRATION_4_5, MIGRATION_5_6, MIGRATION_7_8)
                             .fallbackToDestructiveMigration() // Tự xóa DB cũ khi thay đổi version
                             .addCallback(roomCallback)
                             .build();
@@ -179,4 +181,51 @@ public abstract class AppDatabase extends RoomDatabase {
                     "`status` TEXT)");
         }
     };
+
+    private static final Migration MIGRATION_7_8 = new Migration(7, 8) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE IF NOT EXISTS `highlights` (" +
+                    "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "`bookId` INTEGER NOT NULL, " +
+                    "`highlightedText` TEXT, " +
+                    "`chapterName` TEXT, " +
+                    "`chapterIndex` INTEGER NOT NULL, " +
+                    "`characterOffsetStart` INTEGER NOT NULL, " +
+                    "`bookTitle` TEXT, " +
+                    "`authorName` TEXT, " +
+                    "`pageNumber` INTEGER NOT NULL DEFAULT -1, " +
+                    "`paragraphIndex` INTEGER NOT NULL DEFAULT -1, " +
+                    "`createdAt` INTEGER NOT NULL DEFAULT 0)");
+            addColumnIfMissing(database, "highlights", "bookTitle", "TEXT");
+            addColumnIfMissing(database, "highlights", "authorName", "TEXT");
+            addColumnIfMissing(database, "highlights", "pageNumber", "INTEGER NOT NULL DEFAULT -1");
+            addColumnIfMissing(database, "highlights", "paragraphIndex", "INTEGER NOT NULL DEFAULT -1");
+            addColumnIfMissing(database, "highlights", "createdAt", "INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
+    private static void addColumnIfMissing(@NonNull SupportSQLiteDatabase database,
+                                           @NonNull String tableName,
+                                           @NonNull String columnName,
+                                           @NonNull String columnDefinition) {
+        if (columnExists(database, tableName, columnName)) {
+            return;
+        }
+        database.execSQL("ALTER TABLE `" + tableName + "` ADD COLUMN `" + columnName + "` " + columnDefinition);
+    }
+
+    private static boolean columnExists(@NonNull SupportSQLiteDatabase database,
+                                        @NonNull String tableName,
+                                        @NonNull String columnName) {
+        try (Cursor cursor = database.query("PRAGMA table_info(`" + tableName + "`)")) {
+            int nameColumnIndex = cursor.getColumnIndex("name");
+            while (cursor.moveToNext()) {
+                if (nameColumnIndex >= 0 && columnName.equals(cursor.getString(nameColumnIndex))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

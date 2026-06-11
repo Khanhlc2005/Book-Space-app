@@ -11,7 +11,7 @@ import java.util.List;
 
 @Dao
 public interface HighlightDao {
-    @Query("SELECT * FROM highlights WHERE bookId = :bookId")
+    @Query("SELECT * FROM highlights WHERE bookId = :bookId ORDER BY createdAt DESC, id DESC")
     List<Highlight> getHighlightsForBook(int bookId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

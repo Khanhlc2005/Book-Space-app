@@ -28,6 +28,7 @@ import java.util.List;
  * Tích hợp tính năng bôi đen chọn văn bản và đánh dấu (highlight) màu vàng.
  */
 public class ParagraphAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final int ACTION_HIGHLIGHT_ID = 999;
 
     private List<BookContent.Paragraph> paragraphs = new ArrayList<>();
     private List<Highlight> highlights = new ArrayList<>();
@@ -132,6 +133,9 @@ public class ParagraphAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         int pEnd = pStart + originalText.length();
 
         for (Highlight h : highlights) {
+            if (h == null || h.highlightedText == null || h.highlightedText.trim().isEmpty()) {
+                continue;
+            }
             // Kiểm tra xem đoạn highlight này có cùng chương không
             if (h.chapterIndex == paragraph.getChapterIndex()) {
                 int hStart = h.characterOffsetStart;
@@ -172,7 +176,8 @@ public class ParagraphAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 // Thêm tuỳ chọn "Đánh dấu" vào menu nổi
-                menu.add(0, 999, 0, "Đánh dấu");
+                menu.add(0, ACTION_HIGHLIGHT_ID, 0,
+                        textView.getContext().getString(R.string.reader_action_highlight));
                 return true;
             }
 
@@ -183,19 +188,23 @@ public class ParagraphAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                if (item.getItemId() == 999) {
-                    int selStart = textView.getSelectionStart();
-                    int selEnd = textView.getSelectionEnd();
-                    if (selStart >= 0 && selEnd > selStart) {
-                        CharSequence selectedText = textView.getText().subSequence(selStart, selEnd);
-                        if (onTextSelectedListener != null) {
-                            onTextSelectedListener.onHighlightCreated(
-                                paragraph,
-                                selectedText.toString(),
-                                selStart,
-                                selEnd
-                            );
-                        }
+                if (item.getItemId() == ACTION_HIGHLIGHT_ID) {
+                    int selectionStart = textView.getSelectionStart();
+                    int selectionEnd = textView.getSelectionEnd();
+                    int selStart = Math.min(selectionStart, selectionEnd);
+                    int selEnd = Math.max(selectionStart, selectionEnd);
+                    CharSequence text = textView.getText();
+                    String selectedText = "";
+                    if (selStart >= 0 && selEnd > selStart && selEnd <= text.length()) {
+                        selectedText = text.subSequence(selStart, selEnd).toString();
+                    }
+                    if (onTextSelectedListener != null) {
+                        onTextSelectedListener.onHighlightCreated(
+                            paragraph,
+                            selectedText,
+                            selStart,
+                            selEnd
+                        );
                     }
                     mode.finish(); // Đóng menu bôi đen
                     return true;

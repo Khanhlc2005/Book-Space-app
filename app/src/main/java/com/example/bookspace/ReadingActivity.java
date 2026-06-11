@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.bookspace.database.AppDatabase;
 import com.example.bookspace.database.dao.ReadingProgressDao;
 import com.example.bookspace.database.entity.BookEntity;
+import com.example.bookspace.database.entity.Highlight;
 import com.example.bookspace.database.entity.ReadingProgressEntity;
 import com.example.bookspace.database.entity.ReadingSettingsEntity;
 import com.example.bookspace.databinding.ActivityReadingBinding;
@@ -26,10 +27,13 @@ import com.example.bookspace.reader.BookContent;
 import com.example.bookspace.reader.BookTextParser;
 import com.example.bookspace.reader.ParagraphAdapter;
 import com.example.bookspace.reader.ReaderQuote;
+import com.example.bookspace.repository.HighlightRepository;
 import com.example.bookspace.repository.SettingsRepository;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ReadingActivity extends AppCompatActivity {
     public static final String EXTRA_BOOK_ID = "BOOK_ID";
@@ -38,13 +42,24 @@ public class ReadingActivity extends AppCompatActivity {
     private static final String PREFS_READING = "bookspace_reading";
     private static final String KEY_LAST_BOOK_ID = "last_book_id";
     private static final int INVALID_BOOK_ID = -1;
+    private static final int TAB_TOC = 0;
+    private static final int TAB_QUOTES = 1;
 
     private ActivityReadingBinding binding;
     private AppDatabase db;
     private ReadingProgressDao progressDao;
     private SettingsRepository settingsRepo;
+    private HighlightRepository highlightRepo;
     private ParagraphAdapter paragraphAdapter;
     private TocAdapter tocAdapter;
+    private QuoteListAdapter activeQuoteAdapter;
+    private RecyclerView activeTocRecyclerView;
+    private RecyclerView activeQuoteRecyclerView;
+    private TextView activeQuoteEmptyText;
+    private TextView activeBtnTabToc;
+    private TextView activeBtnTabQuotes;
+    private Dialog activeTocDialog;
+    private int activeTocTab = TAB_TOC;
 
     // Dữ liệu sách
     private BookContent bookContent;
@@ -63,11 +78,10 @@ public class ReadingActivity extends AppCompatActivity {
     // Kindle-style pagination: mỗi "trang" chứa một nhóm paragraph vừa màn hình
     private List<List<BookContent.Paragraph>> allPages; // Danh sách tất cả các trang
     private List<Integer> pageToChapterMap;              // Map: page index → chapter index
+    private final List<Highlight> savedHighlights = new ArrayList<>();
 
     private final int[] fontSizes = {16, 17, 18, 19, 20, 21, 22};
     private int fontSizeIndex = 3;
-    private static final int TAB_TOC = 0;
-    private static final int TAB_QUOTES = 1;
 
     // Theme hiện tại
     private String currentTheme = "light";
@@ -106,6 +120,7 @@ public class ReadingActivity extends AppCompatActivity {
         progressDao = db.readingProgressDao();
         userId = SessionManager.getCurrentUserId(this);
         settingsRepo = new SettingsRepository(this);
+        highlightRepo = new HighlightRepository(this);
 
         if (!readIntentData()) {
             finish();
@@ -123,6 +138,9 @@ public class ReadingActivity extends AppCompatActivity {
             return;
         }
         loadBookContent();
+        loadSavedHighlights();
+        paragraphAdapter.setHighlights(savedHighlights);
+        paragraphAdapter.setOnTextSelectedListener(this::handleHighlightSelectedText);
 
         // Load cài đặt đọc đã lưu (Phase 4)
         loadSavedSettings();
@@ -502,25 +520,40 @@ public class ReadingActivity extends AppCompatActivity {
         setupQuoteActions(quoteAdapter, dialog);
         quoteRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         quoteRecyclerView.setAdapter(quoteAdapter);
+        activeTocDialog = dialog;
+        activeQuoteAdapter = quoteAdapter;
+        activeTocRecyclerView = tocRecyclerView;
+        activeQuoteRecyclerView = quoteRecyclerView;
+        activeQuoteEmptyText = quoteEmptyText;
+        activeBtnTabToc = btnTabToc;
+        activeBtnTabQuotes = btnTabQuotes;
+        activeTocTab = TAB_TOC;
+        dialog.setOnDismissListener(d -> clearActiveTocDialog(dialog));
 
-        btnTabToc.setOnClickListener(v -> showTocTab(
-                TAB_TOC,
-                tocRecyclerView,
-                quoteRecyclerView,
-                quoteEmptyText,
-                btnTabToc,
-                btnTabQuotes,
-                !quotes.isEmpty()
-        ));
-        btnTabQuotes.setOnClickListener(v -> showTocTab(
-                TAB_QUOTES,
-                tocRecyclerView,
-                quoteRecyclerView,
-                quoteEmptyText,
-                btnTabToc,
-                btnTabQuotes,
-                !quotes.isEmpty()
-        ));
+        btnTabToc.setOnClickListener(v -> {
+            activeTocTab = TAB_TOC;
+            showTocTab(
+                    activeTocTab,
+                    tocRecyclerView,
+                    quoteRecyclerView,
+                    quoteEmptyText,
+                    btnTabToc,
+                    btnTabQuotes,
+                    quoteAdapter.getItemCount() > 0
+            );
+        });
+        btnTabQuotes.setOnClickListener(v -> {
+            activeTocTab = TAB_QUOTES;
+            showTocTab(
+                    activeTocTab,
+                    tocRecyclerView,
+                    quoteRecyclerView,
+                    quoteEmptyText,
+                    btnTabToc,
+                    btnTabQuotes,
+                    quoteAdapter.getItemCount() > 0
+            );
+        });
         showTocTab(
                 TAB_TOC,
                 tocRecyclerView,
@@ -563,6 +596,20 @@ public class ReadingActivity extends AppCompatActivity {
         updateTocTabButton(btnTabQuotes, showQuotes);
     }
 
+    private void clearActiveTocDialog(Dialog dialog) {
+        if (activeTocDialog != dialog) {
+            return;
+        }
+        activeTocDialog = null;
+        activeQuoteAdapter = null;
+        activeTocRecyclerView = null;
+        activeQuoteRecyclerView = null;
+        activeQuoteEmptyText = null;
+        activeBtnTabToc = null;
+        activeBtnTabQuotes = null;
+        activeTocTab = TAB_TOC;
+    }
+
     private void updateTocTabButton(TextView tab, boolean selected) {
         tab.setBackgroundResource(selected ? R.drawable.reading_btn_bg : 0);
         tab.setTextColor(ContextCompat.getColor(this,
@@ -587,8 +634,8 @@ public class ReadingActivity extends AppCompatActivity {
         startActivity(QuoteCardActivity.createIntent(
                 this,
                 quoteText,
-                getSafeBookTitle(),
-                getSafeAuthorName(),
+                getSafeBookTitle(quote),
+                getSafeAuthorName(quote),
                 getSafeChapterName(quote),
                 getSafeChapterIndex(quote),
                 getSafePageNumber(quote)
@@ -597,7 +644,14 @@ public class ReadingActivity extends AppCompatActivity {
     }
 
     private List<ReaderQuote> collectReaderQuotes() {
-        List<ReaderQuote> quotes = new ArrayList<>();
+        List<ReaderQuote> quotes = loadSavedQuotes();
+        Set<String> seenQuoteTexts = new HashSet<>();
+        for (ReaderQuote quote : quotes) {
+            String normalizedText = normalizeQuoteText(getSafeQuoteText(quote));
+            if (!TextUtils.isEmpty(normalizedText)) {
+                seenQuoteTexts.add(normalizedText);
+            }
+        }
         if (allPages == null) {
             return quotes;
         }
@@ -612,8 +666,16 @@ public class ReadingActivity extends AppCompatActivity {
             String chapterName = getSafeChapterName(chapterIndex);
             for (BookContent.Paragraph paragraph : paragraphs) {
                 if (paragraph != null && paragraph.getType() == BookContent.Paragraph.TYPE_QUOTE) {
+                    String quoteText = trimToEmpty(paragraph.getText());
+                    String normalizedText = normalizeQuoteText(quoteText);
+                    if (TextUtils.isEmpty(normalizedText) || seenQuoteTexts.contains(normalizedText)) {
+                        continue;
+                    }
+                    seenQuoteTexts.add(normalizedText);
                     quotes.add(new ReaderQuote(
-                            paragraph.getText(),
+                            quoteText,
+                            getSafeBookTitle(),
+                            getSafeAuthorName(),
                             chapterName,
                             chapterIndex,
                             pageIndex + 1
@@ -623,6 +685,162 @@ public class ReadingActivity extends AppCompatActivity {
         }
 
         return quotes;
+    }
+
+    private List<ReaderQuote> loadSavedQuotes() {
+        List<ReaderQuote> quotes = new ArrayList<>();
+        for (Highlight highlight : savedHighlights) {
+            if (highlight == null) {
+                continue;
+            }
+            String quoteText = trimToEmpty(highlight.highlightedText);
+            if (TextUtils.isEmpty(quoteText)) {
+                continue;
+            }
+            int chapterIndex = highlight.chapterIndex;
+            String chapterName = trimToEmpty(highlight.chapterName);
+            if (TextUtils.isEmpty(chapterName)) {
+                chapterName = getSafeChapterName(chapterIndex);
+            }
+            String savedBookTitle = trimToEmpty(highlight.bookTitle);
+            String savedAuthorName = trimToEmpty(highlight.authorName);
+            quotes.add(new ReaderQuote(
+                    quoteText,
+                    TextUtils.isEmpty(savedBookTitle) ? getSafeBookTitle() : savedBookTitle,
+                    TextUtils.isEmpty(savedAuthorName) ? getSafeAuthorName() : savedAuthorName,
+                    chapterName,
+                    chapterIndex,
+                    highlight.pageNumber
+            ));
+        }
+        return quotes;
+    }
+
+    private void loadSavedHighlights() {
+        savedHighlights.clear();
+        if (highlightRepo == null || bookId <= 0) {
+            return;
+        }
+        try {
+            List<Highlight> highlights = highlightRepo.getHighlightsForBook(bookId);
+            if (highlights != null) {
+                savedHighlights.addAll(highlights);
+            }
+        } catch (RuntimeException ignored) {
+            savedHighlights.clear();
+        }
+    }
+
+    private void refreshQuoteList() {
+        List<ReaderQuote> quotes = collectReaderQuotes();
+        if (activeQuoteAdapter != null) {
+            activeQuoteAdapter.submitList(quotes);
+        }
+        if (activeTocRecyclerView != null
+                && activeQuoteRecyclerView != null
+                && activeQuoteEmptyText != null
+                && activeBtnTabToc != null
+                && activeBtnTabQuotes != null) {
+            showTocTab(
+                    activeTocTab,
+                    activeTocRecyclerView,
+                    activeQuoteRecyclerView,
+                    activeQuoteEmptyText,
+                    activeBtnTabToc,
+                    activeBtnTabQuotes,
+                    !quotes.isEmpty()
+            );
+        }
+    }
+
+    private void handleHighlightSelectedText(BookContent.Paragraph paragraph,
+                                             String selectedText,
+                                             int selectionStart,
+                                             int selectionEnd) {
+        String quoteText = trimToEmpty(selectedText);
+        if (selectionStart < 0 || selectionEnd <= selectionStart || TextUtils.isEmpty(quoteText)) {
+            Toast.makeText(this, R.string.reader_quote_select_empty, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int trimOffset = countLeadingWhitespace(selectedText);
+        if (isDuplicateQuote(quoteText)) {
+            Toast.makeText(this, R.string.reader_quote_duplicate, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (saveSelectedQuote(paragraph, quoteText, selectionStart + trimOffset)) {
+            paragraphAdapter.setHighlights(savedHighlights);
+            refreshQuoteList();
+            Toast.makeText(this, R.string.reader_quote_saved, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean saveSelectedQuote(BookContent.Paragraph paragraph,
+                                      String quoteText,
+                                      int selectionStart) {
+        if (highlightRepo == null || bookId <= 0 || TextUtils.isEmpty(quoteText)) {
+            return false;
+        }
+
+        int chapterIndex = paragraph != null
+                ? paragraph.getChapterIndex()
+                : getChapterIndexForPage(currentPage - 1);
+        int characterOffsetStart = paragraph != null
+                ? paragraph.getCharacterOffsetInChapter() + Math.max(0, selectionStart)
+                : Math.max(0, selectionStart);
+
+        Highlight highlight = new Highlight(
+                bookId,
+                quoteText,
+                getSafeChapterName(chapterIndex),
+                chapterIndex,
+                characterOffsetStart
+        );
+        highlight.bookTitle = getSafeBookTitle();
+        highlight.authorName = getSafeAuthorName();
+        highlight.pageNumber = currentPage;
+        highlight.paragraphIndex = paragraph != null ? paragraph.getParagraphIndex() : -1;
+        highlight.createdAt = System.currentTimeMillis();
+
+        try {
+            highlightRepo.addHighlightSync(highlight);
+            loadSavedHighlights();
+            return true;
+        } catch (RuntimeException ignored) {
+            return false;
+        }
+    }
+
+    private boolean isDuplicateQuote(String quoteText) {
+        String normalizedText = normalizeQuoteText(quoteText);
+        if (TextUtils.isEmpty(normalizedText)) {
+            return false;
+        }
+        for (Highlight highlight : savedHighlights) {
+            if (highlight == null || highlight.bookId != bookId) {
+                continue;
+            }
+            if (normalizedText.equals(normalizeQuoteText(highlight.highlightedText))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String normalizeQuoteText(String value) {
+        return trimToEmpty(value).replaceAll("\\s+", " ");
+    }
+
+    private int countLeadingWhitespace(String value) {
+        if (value == null) {
+            return 0;
+        }
+        int count = 0;
+        while (count < value.length() && Character.isWhitespace(value.charAt(count))) {
+            count++;
+        }
+        return count;
     }
 
     private int getChapterIndexForPage(int pageIndex) {
@@ -671,8 +889,22 @@ public class ReadingActivity extends AppCompatActivity {
         return trimToEmpty(bookTitle);
     }
 
+    private String getSafeBookTitle(ReaderQuote quote) {
+        if (quote != null && !TextUtils.isEmpty(trimToEmpty(quote.getBookTitle()))) {
+            return trimToEmpty(quote.getBookTitle());
+        }
+        return getSafeBookTitle();
+    }
+
     private String getSafeAuthorName() {
         return trimToEmpty(authorName);
+    }
+
+    private String getSafeAuthorName(ReaderQuote quote) {
+        if (quote != null && !TextUtils.isEmpty(trimToEmpty(quote.getAuthorName()))) {
+            return trimToEmpty(quote.getAuthorName());
+        }
+        return getSafeAuthorName();
     }
 
     private String trimToEmpty(String value) {
