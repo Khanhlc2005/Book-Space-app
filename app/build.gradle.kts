@@ -4,20 +4,16 @@ plugins {
 
 android {
     namespace = "com.example.bookspace"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 34 // Đổi về API 34 để ổn định
 
     viewBinding {
-        enable = true;
+        enable = true
     }
 
     defaultConfig {
         applicationId = "com.example.bookspace"
-        minSdk = 22
-        targetSdk = 36
+        minSdk = 24
+        targetSdk = 34 // Đổi về API 34
         versionCode = 1
         versionName = "1.0"
 
@@ -34,13 +30,13 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
 dependencies {
-    implementation("androidx.recyclerview:recyclerview:1.2.1")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
