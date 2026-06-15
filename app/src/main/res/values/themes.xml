@@ -40,7 +40,13 @@
         <item name="cornerSize">50%</item>
     </style>
 
-    <style name="QuoteCardEditorLabel">
+    <!-- Rounded corners for challenge cards -->
+    <style name="RoundedCornersImage" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+
+    <style name="QuoteCardEditorLabel" parent="">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/on_surface</item>
@@ -48,7 +54,7 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="QuoteCardOptionScroll">
+    <style name="QuoteCardOptionScroll" parent="">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">10dp</item>
