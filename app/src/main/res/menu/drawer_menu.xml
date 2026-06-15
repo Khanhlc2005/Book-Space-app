@@ -6,6 +6,10 @@
             android:icon="@drawable/ic_menu_book"
             android:title="@string/cat_all" />
         <item
+            android:id="@+id/nav_challenges"
+            android:icon="@drawable/ic_auto_stories"
+            android:title="Thử thách đọc sách" />
+        <item
             android:id="@+id/nav_cat_life_skills"
             android:icon="@drawable/ic_auto_stories"
             android:title="@string/cat_life_skills" />

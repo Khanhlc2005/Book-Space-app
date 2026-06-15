@@ -25,7 +25,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
 
-import com.bumptech.glide.Glide;
 import com.example.bookspace.database.AppDatabase;
 import com.example.bookspace.database.dao.BookDao;
 import com.example.bookspace.database.entity.BookEntity;
@@ -150,33 +149,19 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
 
     private BookEntity createBookEntity(String title, String author, String cover, int pages, String desc, String cat, String bookFilePath) {
         BookEntity b = new BookEntity();
-        b.title = title; b.author = author; b.coverUrl = cover; b.pages = pages; b.description = desc; b.category = cat;
+        b.title = title;
+        b.author = author;
+        b.coverUrl = cover;
+        b.pages = pages;
+        b.description = desc;
+        b.category = cat;
         b.isDownloaded = false;
         b.bookFilePath = bookFilePath;
         return b;
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        sliderHandler.postDelayed(sliderRunnable, 3000);
-        currentNavId = R.id.nav_home;
-        updateBottomNavSelection(R.id.nav_home);
-        updateSideMenuSelection(currentSideMenuItemId);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        sliderHandler.removeCallbacks(sliderRunnable);
-    }
-
     private void setupStaticUI() {
-        String urlProfile = "https://lh3.googleusercontent.com/aida-public/AB6AXuChsxoWmzwCRstgLqcTDca1SbPewXFrd0uJ5OY1FXuxAbdAscBM9j6kIhXhpstpImEZ9gAb_dxSYbqQ89m8NaPr6el5OQ5Z2YUeNfDh0DY4W0jb1KgYJVGAhvrANoMbLUrLg6s2DwyywmvegE394jntrgSqpxeej_IVKMPbHm8FqQoKbRYehHyNI1CF5738hoct6Bq7hD7ropM4BGBt9-geFXn1Cn9dj1fImBsanHfifcxjGf18spz-dcrPi17FerhLiXzmbr4o2FiP";
-        Glide.with(this).load(urlProfile).circleCrop().into(binding.imgProfile);
-
         binding.btnProfile.setOnClickListener(v -> startActivity(new Intent(this, ProfileActivity.class)));
-        binding.btnMenu.setOnClickListener(v -> binding.drawerLayout.openDrawer(GravityCompat.START));
         binding.main.requestFocus();
     }
 
@@ -185,6 +170,8 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
             int id = item.getItemId();
             if (id == R.id.nav_cat_all) {
                 showHomeContent();
+            } else if (id == R.id.nav_challenges) {
+                startActivity(new Intent(this, ChallengeActivity.class));
             } else {
                 String category = getCategoryForMenuItem(id);
                 if (!category.isEmpty()) {
@@ -414,9 +401,10 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
             currentNavId = R.id.nav_home;
             updateBottomNavSelection(R.id.nav_home);
         });
-        binding.bottomNav.navReader.setOnClickListener(v -> {
-            openLastReadingBook();
+        binding.bottomNav.navChallenge.setOnClickListener(v -> {
+            startActivity(new Intent(this, ChallengeActivity.class));
         });
+        binding.bottomNav.navReader.setOnClickListener(v -> openLastReadingBook());
         binding.bottomNav.navLibrary.setOnClickListener(v -> {
             currentNavId = R.id.nav_library;
             updateBottomNavSelection(R.id.nav_library);
@@ -465,6 +453,7 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         int activeColor = ContextCompat.getColor(activity, R.color.teal_600);
         int inactiveColor = ContextCompat.getColor(activity, R.color.nav_inactive);
         applyNavItem(activity, R.id.nav_home, R.id.icon_home, R.id.text_home, activeId == R.id.nav_home, activeColor, inactiveColor);
+        applyNavItem(activity, R.id.nav_challenge, R.id.icon_challenge, R.id.text_challenge, activeId == R.id.nav_challenge, activeColor, inactiveColor);
         applyNavItem(activity, R.id.nav_reader, R.id.icon_reader, R.id.text_reader, activeId == R.id.nav_reader, activeColor, inactiveColor);
         applyNavItem(activity, R.id.nav_library, R.id.icon_library, R.id.text_library, activeId == R.id.nav_library, activeColor, inactiveColor);
     }
@@ -476,14 +465,23 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         if (icon != null) icon.setColorFilter(color);
         TextView text = activity.findViewById(textId);
         if (text != null) text.setTextColor(color);
-        View container = activity.findViewById(containerId);
-        if (container != null) {
-            container.setBackgroundResource(isActive ? R.drawable.bottom_nav_active_bg : 0);
-        }
     }
 
     @Override
     public void onBookClick(Book book) {
         BookDetailBottomSheet.show(this, book);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sliderHandler.removeCallbacks(sliderRunnable);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sliderHandler.postDelayed(sliderRunnable, 3000);
+        updateBottomNavSelection(currentNavId);
     }
 }

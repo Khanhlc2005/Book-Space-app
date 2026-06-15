@@ -15,7 +15,7 @@
         android:elevation="16dp"
         android:paddingTop="12dp"
         android:paddingBottom="24dp"
-        android:paddingHorizontal="16dp"
+        android:paddingHorizontal="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -29,7 +29,7 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
-            android:padding="12dp"
+            android:padding="8dp"
             android:clickable="true"
             android:focusable="true">
             <ImageView
@@ -42,7 +42,32 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/nav_home"
-                android:textSize="11sp"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Thử thách -->
+        <LinearLayout
+            android:id="@+id/nav_challenge"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="8dp"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:id="@+id/icon_challenge"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_clock" />
+            <TextView
+                android:id="@+id/text_challenge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thử thách"
+                android:textSize="10sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -54,7 +79,7 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
-            android:padding="12dp"
+            android:padding="8dp"
             android:clickable="true"
             android:focusable="true">
             <ImageView
@@ -67,7 +92,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/nav_reader"
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -79,7 +104,7 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
-            android:padding="12dp"
+            android:padding="8dp"
             android:clickable="true"
             android:focusable="true">
             <ImageView
@@ -92,7 +117,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/nav_library"
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
