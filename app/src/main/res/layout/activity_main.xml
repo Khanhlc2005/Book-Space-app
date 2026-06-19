@@ -76,6 +76,82 @@
             </FrameLayout>
         </LinearLayout>
 
+        <!-- THANH TÌM KIẾM CỐ ĐỊNH -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/searchBarCard"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="28dp"
+            app:cardBackgroundColor="@color/surface_container_highest"
+            app:cardElevation="2dp"
+            app:layout_constraintTop_toBottomOf="@id/topBar">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="20dp">
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_search"
+                    app:tint="@color/outline"
+                    android:importantForAccessibility="no" />
+                <EditText
+                    android:id="@+id/searchInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:hint="@string/search_hint"
+                    android:textColorHint="@color/outline"
+                    android:textColor="@color/on_surface"
+                    android:textSize="16sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginStart="12dp"
+                    android:maxLines="1"
+                    android:inputType="text" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- LỚP PHỦ GỢI Ý TÌM KIẾM (HIỂN THỊ ĐÈ LÊN NỀN) -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/searchSuggestionsContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="12dp"
+            app:cardBackgroundColor="@color/surface_container_lowest"
+            app:layout_constraintHeight_max="350dp"
+            app:layout_constraintTop_toBottomOf="@id/searchBarCard"
+            app:layout_constraintStart_toStartOf="@id/searchBarCard"
+            app:layout_constraintEnd_toEndOf="@id/searchBarCard"
+            android:layout_marginTop="4dp">
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerBooks"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingVertical="8dp"
+                    android:clipToPadding="false"
+                    android:scrollbars="vertical" />
+
+                <include
+                    android:id="@+id/emptyStateSearch"
+                    layout="@layout/layout_empty_state"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+            </FrameLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- NỘI DUNG CHÍNH (VÙNG CUỘN) -->
         <androidx.core.widget.NestedScrollView
             android:id="@+id/mainScrollView"
             android:layout_width="0dp"
@@ -83,7 +159,7 @@
             android:clipToPadding="false"
             android:paddingBottom="100dp"
             android:overScrollMode="never"
-            app:layout_constraintTop_toBottomOf="@id/topBar"
+            app:layout_constraintTop_toBottomOf="@id/searchBarCard"
             app:layout_constraintBottom_toTopOf="@id/bottomNav"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
@@ -93,63 +169,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingTop="16dp">
-
-                <!-- SEARCH BAR -->
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/searchBarCard"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginHorizontal="24dp"
-                    android:layout_marginBottom="24dp"
-                    app:cardCornerRadius="28dp"
-                    app:cardBackgroundColor="@color/surface_container_highest"
-                    app:cardElevation="0dp">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingHorizontal="20dp">
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@android:drawable/ic_menu_search"
-                            app:tint="@color/outline"
-                            android:importantForAccessibility="no" />
-                        <EditText
-                            android:id="@+id/searchInput"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@null"
-                            android:hint="@string/search_hint"
-                            android:textColorHint="@color/outline"
-                            android:textColor="@color/on_surface"
-                            android:textSize="16sp"
-                            android:fontFamily="sans-serif-medium"
-                            android:layout_marginStart="12dp"
-                            android:maxLines="1"
-                            android:inputType="text" />
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
-                <!-- Search Results RecyclerView -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerBooks"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    android:layout_marginHorizontal="24dp"
-                    android:layout_marginBottom="16dp" />
-
-                <!-- Empty State for Search -->
-                <include
-                    android:id="@+id/emptyStateSearch"
-                    layout="@layout/layout_empty_state"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="24dp"
-                    android:layout_marginBottom="16dp"
-                    android:visibility="gone" />
 
                 <LinearLayout
                     android:id="@+id/categoryContent"

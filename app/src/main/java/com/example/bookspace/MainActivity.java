@@ -297,6 +297,7 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         binding.btnMenu.setOnClickListener(v -> showHomeContent());
         binding.searchInput.setText("");
         binding.searchBarCard.setVisibility(View.GONE);
+        binding.searchSuggestionsContainer.setVisibility(View.GONE);
         binding.recyclerBooks.setVisibility(View.GONE);
         binding.emptyStateSearch.getRoot().setVisibility(View.GONE);
         setHomeSectionsVisible(false);
@@ -373,9 +374,11 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String keyword = s.toString().trim();
                 if (keyword.isEmpty()) {
+                    binding.searchSuggestionsContainer.setVisibility(View.GONE);
                     binding.recyclerBooks.setVisibility(View.GONE);
                     binding.emptyStateSearch.getRoot().setVisibility(View.GONE);
                 } else {
+                    binding.searchSuggestionsContainer.setVisibility(View.VISIBLE);
                     List<BookEntity> entities = bookRepository.searchBooks(keyword);
                     List<Book> filtered = new ArrayList<>();
                     for (BookEntity e : entities) filtered.add(Book.fromEntity(e));
@@ -400,6 +403,7 @@ public class MainActivity extends AppCompatActivity implements OnBookClickListen
         binding.bottomNav.navHome.setOnClickListener(v -> {
             currentNavId = R.id.nav_home;
             updateBottomNavSelection(R.id.nav_home);
+            showHomeContent();
         });
         binding.bottomNav.navChallenge.setOnClickListener(v -> {
             startActivity(new Intent(this, ChallengeActivity.class));
