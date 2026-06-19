@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:checkableBehavior="single">
+    <group
+        android:id="@+id/group_nav_categories"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_cat_all"
             android:icon="@drawable/ic_menu_book"
@@ -9,33 +11,6 @@
             android:id="@+id/nav_challenges"
             android:icon="@drawable/ic_auto_stories"
             android:title="Thử thách đọc sách" />
-        <item
-            android:id="@+id/nav_cat_life_skills"
-            android:icon="@drawable/ic_auto_stories"
-            android:title="@string/cat_life_skills" />
-        <item
-            android:id="@+id/nav_cat_psychology"
-            android:icon="@drawable/ic_person"
-            android:title="@string/cat_psychology" />
-        <item
-            android:id="@+id/nav_cat_classic"
-            android:icon="@drawable/ic_content"
-            android:title="@string/cat_classic" />
-        <item
-            android:id="@+id/nav_cat_science"
-            android:icon="@drawable/ic_code"
-            android:title="@string/cat_science" />
-        <item
-            android:id="@+id/nav_cat_history"
-            android:icon="@drawable/ic_notes"
-            android:title="@string/cat_history" />
-        <item
-            android:id="@+id/nav_cat_economics"
-            android:icon="@drawable/ic_save"
-            android:title="@string/cat_economics" />
-        <item
-            android:id="@+id/nav_cat_literature"
-            android:icon="@drawable/ic_notes"
-            android:title="@string/cat_literature" />
+        <!-- Các thể loại sách được thêm động từ database tại runtime -->
     </group>
 </menu>

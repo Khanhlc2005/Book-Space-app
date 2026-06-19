@@ -71,7 +71,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             AppDatabase.class, "bookspace_room_db")
-                            .allowMainThreadQueries() // Mặc định cho phép học tập/Đồ án
+                            .allowMainThreadQueries() 
                             .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4,
                                     MIGRATION_4_5, MIGRATION_5_6, MIGRATION_7_8)
                             .fallbackToDestructiveMigration() // Tự xóa DB cũ khi thay đổi version

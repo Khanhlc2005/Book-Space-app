@@ -25,6 +25,10 @@ public class BookRepository {
         return bookDao.getBooksByCategory(category);
     }
 
+    public List<String> getAllCategories() {
+        return bookDao.getDistinctCategories();
+    }
+
     public List<BookEntity> searchBooks(String keyword) {
         return bookDao.searchBooks(keyword);
     }
@@ -65,13 +69,6 @@ public class BookRepository {
         bookDao.updateDownloadedState(bookId, false);
     }
 
-    private List<Book> toBooks(List<BookEntity> entities) {
-        List<Book> books = new ArrayList<>();
-        for (BookEntity entity : entities) {
-            books.add(Book.fromEntity(entity));
-        }
-        return books;
-    }
 
     private BookEntity toEntity(Book book) {
         BookEntity entity = new BookEntity();

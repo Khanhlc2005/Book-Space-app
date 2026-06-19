@@ -52,7 +52,6 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (isSearchMode) {
-            // Layout "như lúc trước" cho tìm kiếm
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(android.R.layout.simple_list_item_2, parent, false);
             return new ViewHolder(v, true);

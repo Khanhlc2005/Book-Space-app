@@ -37,9 +37,6 @@
             android:name=".ReadingActivity"
             android:exported="false" />
         <activity
-            android:name=".CategoryActivity"
-            android:exported="false" />
-        <activity
             android:name=".ProfileActivity"
             android:exported="false" />
         <activity

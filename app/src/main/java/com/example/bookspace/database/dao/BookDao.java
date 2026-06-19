@@ -22,6 +22,9 @@ public interface BookDao {
     @Query("SELECT * FROM books WHERE category = :category")
     List<BookEntity> getBooksByCategory(String category);
 
+    @Query("SELECT DISTINCT category FROM books WHERE category IS NOT NULL AND category != '' ORDER BY category")
+    List<String> getDistinctCategories();
+
     @Query("SELECT * FROM books WHERE title LIKE '%' || :keyword || '%' OR author LIKE '%' || :keyword || '%'")
     List<BookEntity> searchBooks(String keyword);
 
