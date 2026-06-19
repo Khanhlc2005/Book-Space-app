@@ -16,11 +16,9 @@ import com.example.bookspace.database.dao.ReadingProgressDao;
 import com.example.bookspace.database.dao.ReadingSettingsDao;
 import com.example.bookspace.database.dao.ReminderDao;
 import com.example.bookspace.database.dao.ReviewDao;
-import com.example.bookspace.database.dao.BookLoanDao;
 import com.example.bookspace.database.dao.ChallengeDao;
 import com.example.bookspace.database.dao.HighlightDao;
 import com.example.bookspace.database.entity.BookEntity;
-import com.example.bookspace.database.entity.BookLoanEntity;
 import com.example.bookspace.database.entity.ChallengeEntity;
 import com.example.bookspace.database.entity.FavouriteEntity;
 import com.example.bookspace.database.entity.Highlight;
@@ -42,11 +40,10 @@ import java.util.concurrent.Executors;
         ReadingSettingsEntity.class,
         ReminderEntity.class,
         ReviewEntity.class,
-        BookLoanEntity.class,
         ChallengeEntity.class,
         Highlight.class
     },
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -57,7 +54,6 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract ReadingSettingsDao readingSettingsDao();
     public abstract ReminderDao reminderDao();
     public abstract ReviewDao reviewDao();
-    public abstract BookLoanDao bookLoanDao();
     public abstract ChallengeDao challengeDao();
     public abstract HighlightDao highlightDao();
 
