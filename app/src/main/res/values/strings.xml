@@ -229,4 +229,15 @@
     <string name="quote_card_pattern_light">Ánh sáng góc nhẹ</string>
     <string name="quote_card_font_bold">Bold</string>
     <string name="quote_card_font_classic">Classic</string>
+
+    <!-- Challenge -->
+    <string name="challenge_recent_books">Sách đã đọc gần đây ></string>
+    <string name="challenge_reading_goals">Mục tiêu đọc sách</string>
+    <string name="challenge_goals_desc">Tìm một cuốn sách hay, đặt mục tiêu và biến việc đọc sách thành thói quen hàng ngày.</string>
+    <string name="challenge_today_reading">Thời gian đọc hôm nay</string>
+    <string name="challenge_goal_status_format">trên mục tiêu %1$d phút ></string>
+    <string name="challenge_explore_store">Khám phá kho sách</string>
+    <string name="challenge_set_goal_title">Đặt mục tiêu đọc sách</string>
+    <string name="challenge_set_goal_msg">Bạn muốn dành bao nhiêu phút để đọc sách mỗi ngày?</string>
+    <string name="challenge_goal_unit">phút</string>
 </resources>

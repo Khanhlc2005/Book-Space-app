@@ -21,7 +21,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Previous >"
+                android:text="Sách đã đọc gần đây >"
                 android:textColor="#FFFFFF"
                 android:textSize="22sp"
                 android:textStyle="bold"
@@ -47,7 +47,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reading Goals"
+                    android:text="Mục tiêu đọc sách"
                     android:textColor="#FFFFFF"
                     android:textSize="26sp"
                     android:textStyle="bold"
@@ -59,14 +59,18 @@
                     android:layout_marginTop="8dp"
                     android:gravity="center"
                     android:paddingHorizontal="30dp"
-                    android:text="Find a great book, set a goal and make reading a daily habit."
+                    android:text="Tìm một cuốn sách hay, đặt mục tiêu và biến việc đọc sách thành thói quen hàng ngày."
                     android:textColor="#8E8E93"
                     android:textSize="15sp" />
 
                 <FrameLayout
+                    android:id="@+id/goalContainer"
                     android:layout_width="280dp"
                     android:layout_height="220dp"
-                    android:layout_marginTop="32dp">
+                    android:layout_marginTop="32dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?android:attr/selectableItemBackground">
 
                     <ProgressBar
                         android:id="@+id/pbArcGoal"
@@ -76,7 +80,7 @@
                         android:layout_gravity="top"
                         android:indeterminate="false"
                         android:max="100"
-                        android:progress="65"
+                        android:progress="0"
                         android:progressDrawable="@drawable/reading_btn_bg"
                         android:rotation="0" />
 
@@ -91,7 +95,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Today's Reading"
+                            android:text="Thời gian đọc hôm nay"
                             android:textColor="#FFFFFF"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -107,9 +111,10 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvGoalStatus"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="of your 5-minute goal >"
+                            android:text="trên mục tiêu 5 phút >"
                             android:textColor="#FFFFFF"
                             android:textSize="14sp" />
                     </LinearLayout>
@@ -121,7 +126,7 @@
                     android:layout_height="56dp"
                     android:layout_marginTop="24dp"
                     android:backgroundTint="#1C1C1E"
-                    android:text="Explore the Book Store"
+                    android:text="Khám phá kho sách"
                     android:textAllCaps="false"
                     android:textColor="#FFFFFF"
                     android:textSize="16sp"
